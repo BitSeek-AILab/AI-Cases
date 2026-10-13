@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 网页实战作品集</title>
+<meta name="description" content="把参考拆成结构、视觉、交互三段，再用自己的内容重建。本页收着工程里真实做出来并核验过的单文件网页。">
+<style>
+/* ============================================================
+   设计令牌 —— 见 阶段2_参考拆解/产物/设计令牌卡.md（Direction C）
+   纪律：零圆角 · 零渐变 · 零阴影 · 单一强调色 · 零外部依赖
+   ============================================================ */
+:root{
+  --paper:#e6ebf0;      /* 冷灰蓝纸底（非暖奶油） */
+  --paper-2:#f2f6f9;    /* 面 */
+  --ink:#111820;
+  --ink-2:#4d5b68;
+  --ink-3:#8494a2;
+  --rule:#c2ccd5;
+  --rule-2:#d9e1e8;
+  --accent:#5b34e8;
+  --accent-soft:#efeaff;
+  --radius:0;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --gut:clamp(20px,4.2vw,44px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:clamp(.95rem,1.1vw,1.02rem);line-height:1.85;
+  overflow-wrap:break-word;word-break:normal;
+}
+.mono{font-family:var(--mono)}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em;font-family:var(--mono);line-height:1.28}
+p{margin:0 0 1em}
+a{color:var(--ink);text-decoration:none}
+strong{font-weight:700}
+code{font-family:var(--mono);font-size:.9em;background:var(--paper-2);padding:.1em .34em;border:1px solid var(--rule-2)}
+
+/* 可见焦点环（借来的无障碍要求，形态自己定） */
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* skip link */
+.skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--accent);color:#fff;
+  font-family:var(--mono);font-size:.78rem;padding:10px 16px}
+.skip:focus{left:0}
+
+/* ============================================================
+   骨架：两列 · 左栏 sticky（借自参考范式的"结构"）
+   ============================================================ */
+.shell{display:grid;grid-template-columns:min(300px,30%) 1fr;max-width:1240px;margin:0 auto}
+.rail{position:sticky;top:0;height:100vh;padding:var(--gut) var(--gut) var(--gut) var(--gut);
+  display:flex;flex-direction:column;gap:26px;min-width:0}
+.rail-scroll{display:flex;flex-direction:column;gap:26px;flex:1;min-height:0;overflow-y:auto}
+.main{padding:var(--gut) var(--gut) 80px;min-width:0}
+
+/* ── 左栏：身份 ───────────────────────────────────────────── */
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 12px}
+.ident-name{font-size:clamp(1.3rem,2.2vw,1.62rem);margin:0 0 10px}
+.ident-line{margin:0;color:var(--ink-2);font-size:.95rem}
+
+/* ── 左栏：核验刻度尺（本页 signature，非借） ───────────────── */
+.nav-label{font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 10px}
+.ruler{position:relative;margin:0}
+.ruler-line{position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:var(--rule)}
+.ruler-marker{position:absolute;left:1px;top:0;width:11px;height:11px;background:var(--accent);
+  transition:transform .34s cubic-bezier(.22,.61,.36,1)}
+.ruler-list{list-style:none;margin:0;padding:0}
+.ruler-list li{position:relative}
+.ruler-list .tick{position:absolute;left:0;top:50%;width:14px;height:1px;background:var(--rule-2);
+  transform:translateY(-.5px);transition:background .24s,height .24s}
+.ruler-list a{display:flex;align-items:baseline;gap:10px;padding:9px 0 9px 26px;
+  font-size:.92rem;color:var(--ink-2);transition:color .2s}
+.ruler-list a .num{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--ink-3);
+  transition:color .2s}
+.ruler-list a:hover{color:var(--ink)}
+.ruler-list li.on a{color:var(--ink);font-weight:700}
+.ruler-list li.on a .num{color:var(--accent)}
+.ruler-list li.on .tick{background:var(--accent);height:3px}
+
+/* ── 左栏：元数据 ─────────────────────────────────────────── */
+.meta{margin-top:auto;border-top:1px solid var(--rule);padding-top:14px}
+.meta dl{margin:0;display:grid;gap:9px}
+.meta dt{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.meta dd{margin:2px 0 0;font-size:.82rem;color:var(--ink-2);line-height:1.6}
+
+/* ============================================================
+   首屏
+   ============================================================ */
+.hero{min-height:min(78vh,620px);display:flex;flex-direction:column;justify-content:center;padding-bottom:34px}
+h1{font-size:clamp(2.05rem,5.2vw,3.4rem);margin:0 0 20px;letter-spacing:-.025em}
+.lede{font-size:clamp(1rem,1.5vw,1.14rem);color:var(--ink-2);max-width:60ch;margin:0 0 26px}
+.readout{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;color:var(--ink-2);
+  padding:9px 15px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--ink)}
+
+/* ============================================================
+   分区
+   ============================================================ */
+.sec{padding:52px 0 8px;border-top:1px solid var(--rule)}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px}
+.sec-head .no{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;color:var(--accent)}
+.sec-head h2{font-size:clamp(1.25rem,2.4vw,1.6rem)}
+.sec-lede{color:var(--ink-2);max-width:62ch;margin:0 0 22px}
+
+/* ── 02 方法：三张拆解卡 ──────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:0;border:1px solid var(--rule)}
+.card{padding:20px 20px 22px;border-right:1px solid var(--rule);background:var(--paper-2);min-width:0}
+.card:last-child{border-right:0}
+.card h3{font-size:.92rem;margin:0 0 4px}
+.card .k{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);display:block;margin-bottom:9px}
+.card p{margin:0;font-size:.87rem;color:var(--ink-2);line-height:1.72}
+
+/* ── 借/换 对照表（窄屏堆叠） ─────────────────────────────── */
+.swap{width:100%;border-collapse:collapse;margin:26px 0 0;font-size:.86rem}
+.swap caption{text-align:left;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);padding-bottom:10px}
+.swap th,.swap td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--rule-2)}
+.swap thead th{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);border-bottom:1px solid var(--rule);white-space:nowrap}
+.swap tbody th{font-weight:400;color:var(--ink-3);white-space:nowrap;font-family:var(--mono);font-size:.72rem}
+.swap .keep{color:var(--ink-2)}
+.swap .mine{color:var(--ink)}
+.swap .mine b{color:var(--accent)}
+
+/* ── 可抄参考指令 + 复制按钮 ──────────────────────────────── */
+.copybox{margin:28px 0 0;border:1px solid var(--rule);background:var(--paper-2)}
+.copybox-head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 15px;border-bottom:1px solid var(--rule)}
+.copybox-head .t{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.btn{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--accent);color:#fff;border:0;border-radius:var(--radius);
+  padding:8px 14px;cursor:pointer;min-height:34px;transition:filter .18s}
+.btn:hover{filter:brightness(1.12)}
+.btn[data-done="1"]{background:var(--ink)}
+pre{margin:0;padding:17px 15px;font-family:var(--mono);font-size:.79rem;line-height:1.75;
+  color:var(--ink-2);white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
+
+/* ── 03 作品：可展开的行 ─────────────────────────────────── */
+.works{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.work{border-bottom:1px solid var(--rule);position:relative}
+.work-row{display:grid;grid-template-columns:14px 34px 1fr auto;align-items:center;gap:14px;
+  width:100%;text-align:left;background:transparent;border:0;border-radius:var(--radius);
+  padding:17px 12px 17px 0;cursor:pointer;color:inherit;font:inherit;position:relative;
+  transition:background .22s}
+.work-bar{width:0;height:26px;background:var(--accent);transition:width .22s}
+.work-no{font-family:var(--mono);font-size:.74rem;color:var(--ink-3);letter-spacing:.06em;transition:color .22s}
+.work-title{display:block;font-weight:700;font-size:.98rem}
+.work-sub{display:block;font-family:var(--mono);font-size:.72rem;color:var(--ink-3);
+  letter-spacing:.03em;margin-top:5px;transition:color .22s}
+.work-score{font-family:var(--mono);font-size:.95rem;color:var(--ink-2);font-variant-numeric:tabular-nums;
+  white-space:nowrap;transition:color .22s}
+.work-detail{display:none;padding:0 12px 20px 48px}
+.work-detail.on{display:block}
+.work-detail dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.84rem}
+.work-detail dt{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);padding-top:2px}
+.work-detail dd{margin:0;color:var(--ink-2)}
+@media (hover:hover){
+  .work-row:hover{background:var(--paper-2)}
+  .work-row:hover .work-bar{width:3px}
+  .work-row:hover .work-no{color:var(--accent)}
+  .work-row:hover .work-sub{color:var(--ink-2)}
+  .work-row:hover .work-score{color:var(--ink)}
+}
+.work-row[aria-expanded="true"]{background:var(--paper-2)}
+.work-row[aria-expanded="true"] .work-bar{width:3px}
+.work-row[aria-expanded="true"] .work-no{color:var(--accent)}
+
+/* ── 04 边界：借/换/没碰/占位 ─────────────────────────────── */
+.bound{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border:1px solid var(--rule)}
+.bound > div{padding:19px 20px 21px;background:var(--paper-2);min-width:0}
+.bound > div:nth-child(odd){border-right:1px solid var(--rule)}
+.bound > div:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+.bound h3{font-size:.9rem;margin:0 0 8px}
+.bound .k{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);display:block;margin-bottom:9px}
+.bound ul{margin:0;padding-left:1.05em;font-size:.85rem;color:var(--ink-2);line-height:1.72}
+.bound li{margin:0 0 .4em}
+
+/* ── 页脚 ─────────────────────────────────────────────────── */
+footer{border-top:1px solid var(--rule);margin-top:56px;padding-top:20px}
+footer p{font-size:.8rem;color:var(--ink-3);max-width:74ch}
+
+/* ============================================================
+   滚动揭示（借来的节奏；reduced-motion 关闭）
+   ============================================================ */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important}
+  .reveal{opacity:1;transform:none;transition:none}
+  .ruler-marker{transition:none}
+}
+
+/* ============================================================
+   移动端：单列 · 顶部粘性头 · 分区 chips 换行（不做内部横滚）
+   ============================================================ */
+@media (max-width:999px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:sticky;top:0;height:auto;z-index:20;background:var(--paper);
+    border-bottom:1px solid var(--rule);padding:12px var(--gut) 0;
+    flex-direction:column;gap:10px}
+  .rail-scroll{display:block}
+  .ident-name{font-size:1.05rem;margin:0}
+  .ident-line,.meta,.nav-label{display:none}
+  .eyebrow{margin:0 0 4px;font-size:.64rem}
+  .ruler-line,.ruler-marker,.ruler-list .tick{display:none}
+  .ruler-list{display:flex;flex-wrap:wrap;gap:0 6px;padding-bottom:9px}
+  .ruler-list a{padding:7px 10px;border-radius:var(--radius);border-bottom:2px solid transparent;font-size:.85rem}
+  .ruler-list li.on a{border-bottom-color:var(--accent)}
+  .main{padding-top:26px}
+  .hero{min-height:0;padding:16px 0 30px}
+  .readout{border-right:0}
+  .readout span{border-right:1px solid var(--rule)}
+  .cards,.bound{border-right:1px solid var(--rule)}
+  .bound{grid-template-columns:1fr}
+  .card,.bound > div{border-right:0;border-bottom:1px solid var(--rule)}
+  .bound > div:nth-child(odd){border-right:0}
+  .bound > div:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+  .card:last-child,.bound > div:last-child{border-bottom:0}
+  .work-row{grid-template-columns:10px 26px 1fr;gap:10px;padding:15px 8px 15px 0}
+  .work-score{grid-column:3;justify-self:start;margin-top:7px}
+  .work-detail{padding:0 8px 18px 36px}
+  .work-detail dl{grid-template-columns:1fr;gap:2px 0}
+  .work-detail dd{margin:0 0 9px}
+  .swap{font-size:.82rem}
+  .swap thead{display:none}
+  .swap tbody th,.swap td{display:block;border-bottom:0;padding:4px 0}
+  .swap tbody tr{display:block;border-bottom:1px solid var(--rule-2);padding:11px 0}
+  .swap tbody th{white-space:normal;color:var(--accent)}
+  .swap td::before{content:attr(data-k);display:block;font-family:var(--mono);font-size:.64rem;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:5px}
+}
+@media (max-width:430px){
+  .readout span{border-right:0;width:100%}
+  .readout span + span{border-top:1px solid var(--rule)}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#about">跳到主要内容</a>
+
+<div class="shell">
+  <!-- ══════════ 左栏（结构借自参考范式；内容与形态是自己的） ══════════ -->
+  <aside class="rail">
+    <div class="rail-scroll">
+      <div>
+        <p class="eyebrow">AI 网页实战 · 作品集</p>
+        <h2 class="ident-name">参考复刻单页</h2>
+        <p class="ident-line">借骨架，换自己的脸。</p>
+      </div>
+
+      <nav class="ruler" aria-label="分区导航">
+        <p class="nav-label">核验刻度</p>
+        <span class="ruler-line" aria-hidden="true"></span>
+        <span class="ruler-marker" id="rulerMarker" aria-hidden="true"></span>
+        <ol class="ruler-list" id="rulerList">
+          <li><a href="#about"><span class="tick" aria-hidden="true"></span><span class="num">01</span><span class="lbl">关于</span></a></li>
+          <li><a href="#method"><span class="tick" aria-hidden="true"></span><span class="num">02</span><span class="lbl">方法</span></a></li>
+          <li><a href="#works"><span class="tick" aria-hidden="true"></span><span class="num">03</span><span class="lbl">作品</span></a></li>
+          <li><a href="#boundary"><span class="tick" aria-hidden="true"></span><span class="num">04</span><span class="lbl">边界</span></a></li>
+        </ol>
+      </nav>
+
+      <div class="meta">
+        <dl>
+          <dt>参考对象</dt>
+          <dd>brittanychiang.com（只作布局范式）</dd>
+          <dt>数据来源</dt>
+          <dd>本工程的真实产物与核验记录</dd>
+          <dt>核验口径</dt>
+          <dd>桌面 1440 / 手机 390，实测非描述</dd>
+        </dl>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════ 右栏内容流 ══════════ -->
+  <main class="main" id="main">
+
+    <!-- ── 首屏 ── -->
+    <section class="hero">
+      <p class="eyebrow">作品集 · 参考复刻</p>
+      <h1>把参考拆成三段，<br>再用自己的内容重建。</h1>
+      <p class="lede">
+        这一页收着工程里真实做出来、并跑过核验的单文件网页。
+        它的版面借自一个广为人知的作品集范式——但骨架之外，颜色、字体、文案、数据全是自己的。
+      </p>
+      <div class="readout">
+        <span><b>5</b> 件作品</span>
+        <span>单文件 · <b>零外链</b></span>
+        <span>零位图 · 实线与排版全用 CSS</span>
+        <span>桌面 1440 / 手机 390 已核验</span>
+      </div>
+    </section>
+
+    <!-- ── 01 关于 ── -->
+    <section class="sec reveal" id="about">
+      <div class="sec-head"><span class="no">01</span><h2>关于</h2></div>
+      <p class="sec-lede">这不是一份设计稿，这是一份验收记录。</p>
+      <p>
+        这一页里的每件作品，都是在这个工程里真的做出来的单文件网页。每一件都跑过功能与视觉核验，
+        作品行右侧那个数字就是它的通过数——量出来的，不是估出来的。
+      </p>
+      <p>
+        所以版面不承担炫技的任务：它只需要在一条滚动里把「是什么 / 借了什么 / 做出了什么 / 边界在哪」讲完。
+        导航做成一把刻度尺，也是因为这个——这门课验收的是读数，不是观感；滚到哪一节，尺上的标记就滑到哪一格。
+      </p>
+      <p>
+        关于参考：本页的版面借自一个被业界广泛研究的作品集范式（左侧粘性身份栏 + 右侧滚动分区）。
+        借的只有骨架与节奏，不借它的商标、图片、文案或代码——具体划在哪，见下面的「02 方法」和「04 边界」。
+      </p>
+    </section>
+
+    <!-- ── 02 方法 ── -->
+    <section class="sec reveal" id="method">
+      <div class="sec-head"><span class="no">02</span><h2>方法</h2></div>
+      <p class="sec-lede">
+        参考要拆，不能照抄；拆完要换，才算自己的。这就是这一页的做法，拆成三段各借各的。
+      </p>
+
+      <div class="cards">
+        <div class="card">
+          <span class="k">01 结构 · 借</span>
+          <h3>信息架构与版面逻辑</h3>
+          <p>借两列（左窄右宽）、左栏粘性、以及"由身份到证据"的分区叙事顺序，和"条 = 标题 + 元数据"的低密度块状列表。</p>
+        </div>
+        <div class="card">
+          <span class="k">02 视觉 · 只借手法</span>
+          <h3>层级手法，不借身份</h3>
+          <p>只借三样：单一强调色全页仅一处、极端字号跨度、靠低对比拉开的三级文字层次。色板、字体、圆角质感整段换掉。</p>
+        </div>
+        <div class="card">
+          <span class="k">03 交互 · 借行为</span>
+          <h3>行为与节奏</h3>
+          <p>借滚动联动导航指示、列表行悬停反馈、滚动淡入的节奏，以及移动端用点按替代悬停、并给低动效兜底。</p>
+        </div>
+      </div>
+
+      <table class="swap">
+        <caption>借 / 换 对照（验收就查这张表）</caption>
+        <thead>
+          <tr><th scope="col">维度</th><th scope="col">借了什么方法</th><th scope="col">换了什么</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">结构</th>
+            <td class="keep" data-k="借了什么方法">两列 / 左栏粘性 / 窄左宽右 / 身份→证据的顺序</td>
+            <td class="mine" data-k="换了什么">左栏内容换成<b>本页元数据</b>；分区新增「04 边界」</td>
+          </tr>
+          <tr>
+            <th scope="row">视觉</th>
+            <td class="keep" data-k="借了什么方法">单一强调色、极端字号跨度、三级文字层次（手法）</td>
+            <td class="mine" data-k="换了什么">明度基调反转成<b>浅色冷灰蓝</b>；<b>不用 Inter</b>，改等宽 + 系统无衬线双角色；圆角卡换成 <b>0 圆角 + 测量刻度</b></td>
+          </tr>
+          <tr>
+            <th scope="row">交互</th>
+            <td class="keep" data-k="借了什么方法">滚动联动导航、行级悬停反馈、滚动淡入、点按替代悬停</td>
+            <td class="mine" data-k="换了什么">导航换成<b>核验刻度尺 + 滑动标记</b>；悬停换成<b>竖条展开 + 底色提亮</b>（无光斑、无位移）</td>
+          </tr>
+          <tr>
+            <th scope="row">内容</th>
+            <td class="keep" data-k="借了什么方法">——（全换）</td>
+            <td class="mine" data-k="换了什么">全部文案与数据来自<b>本工程真实产出</b>，无一句来自参考站</td>
+          </tr>
+          <tr>
+            <th scope="row">素材</th>
+            <td class="keep" data-k="借了什么方法">——（全换）</td>
+            <td class="mine" data-k="换了什么"><b>零位图、零图标、零外链</b>；视觉全由 CSS 承担（实线、刻度与排版，无图无图标）</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="copybox">
+        <div class="copybox-head">
+          <span class="t">可抄的参考指令</span>
+          <button class="btn" id="copyBtn" type="button"
+            data-copy="refTemplate" aria-describedby="copyHint">复制这段</button>
+        </div>
+<pre id="refTemplate">参考对象：brittanychiang.com （只作"布局范式"参考，不复制其素材/商标/文案/代码）
+
+01 结构（借）：两列，左栏窄且 sticky（身份 + 分区锚点导航），右栏宽内容流滚动；
+            叙事顺序借"由身份到证据"（关于 → 证据 → 边界）。
+02 视觉（只借手法）：单一强调色全页仅一处；极端字号跨度；三级文字层次（低对比拉开）。
+            其余整段换掉：明度基调反转为浅色冷灰蓝纸；字体换成 等宽mono(拉丁/数据) +
+            系统无衬线(中文)，不用 Inter；0 圆角 + 细实线，不用圆角卡片。
+03 交互（借行为）：滚动联动导航指示（scroll-spy）；列表行 hover 给行级反馈；
+            IntersectionObserver 滚动淡入（一次性）；移动端 tap 替代 hover；
+            prefers-reduced-motion 关闭全部动效；可见 focus 环 + skip link。
+04 改成自己的：全部文案与数据用我提供的内容；零位图零外链；
+            页脚必须明写"借了哪些方法 / 换了哪些内容 / 哪些是占位"。
+
+交付：单 HTML、零外部依赖（系统字体栈）、适配手机（390 不横滚、320 兜底）。
+禁区：不得复制参考站点的商标、logo、图片、图标、文案、色值或任何代码片段。</pre>
+        <p id="copyHint" class="mono" style="margin:0;padding:0 15px 14px;font-size:.72rem;color:var(--ink-3)">
+          方法出处：《Codex 网页制作教程》P14 —— 不要只截图，要告诉它参考哪里：结构 / 视觉 / 交互 / 改成自己的。
+        </p>
+      </div>
+    </section>
+
+    <!-- ── 03 作品 ── -->
+    <section class="sec reveal" id="works">
+      <div class="sec-head"><span class="no">03</span><h2>作品</h2></div>
+      <p class="sec-lede">右侧读数是各自的功能与视觉核验通过数。点开一行看它的核验明细。</p>
+
+      <ul class="works">
+        <li class="work">
+          <button class="work-row" type="button" aria-expanded="false" aria-controls="w1">
+            <span class="work-bar" aria-hidden="true"></span>
+            <span class="work-no">01</span>
+            <span>
+              <span class="work-title">Codex 五步法做出第一版网页</span>
+              <span class="work-sub">单文件 HTML · 19.7 KB · 零外链</span>
+            </span>
+            <span class="work-score">6/6</span>
+          </button>
+          <div class="work-detail" id="w1">
+            <dl>
+              <dt>是什么</dt><dd>把「定目标 / 给内容 / 给参考 / 生成第一版 / 逐项修改」这套方法本身，做成一个能被一条滚动读完的落地页。</dd>
+              <dt>核验明细</dt><dd>交付自检六条实测全过：内容真实（占位 0 / 死链 0 / 空图 0）、手机 390 与 320 均不横滚、标签切换与折叠与复制与滚动高亮可用、单一锚点色、页脚含授权说明、单文件离线可开。</dd>
+              <dt>为什么在这</dt><dd>它是本作品集里"方法论母本"那一件——后面几件的做法都从它来。</dd>
+            </dl>
+          </div>
+        </li>
+
+        <li class="work">
+          <button class="work-row" type="button" aria-expanded="false" aria-controls="w2">
+            <span class="work-bar" aria-hidden="true"></span>
+            <span class="work-no">02</span>
+            <span>
+              <span class="work-title">瀑布流作品集页</span>
+              <span class="work-sub">CSS columns 版 + JS 算高版各一 · 20 张卡片自然下落</span>
+            </span>
+            <span class="work-score">两版</span>
+          </button>
+          <div class="work-detail" id="w2">
+            <dl>
+              <dt>是什么</dt><dd>图片长短不一时的自然下落布局，做成两个版本：简单版用 CSS 多栏，精确版用脚本按列高分配卡片。</dd>
+              <dt>核验明细</dt><dd>两版均通过视觉验收：20 张卡片自然下落、悬停反馈与加载状态可用、含骨架与加载失败两种状态、手机端不横滚。</dd>
+              <dt>为什么在这</dt><dd>它演示了"同一个需求，简单做法与精确做法各有什么代价"——这是课上要对比的一组。</dd>
+            </dl>
+          </div>
+        </li>
+
+        <li class="work">
+          <button class="work-row" type="button" aria-expanded="false" aria-controls="w3">
+            <span class="work-bar" aria-hidden="true"></span>
+            <span class="work-no">03</span>
+            <span>
+              <span class="work-title">设计美学榜单站</span>
+              <span class="work-sub">30 卡片 · 7 档筛选 · 一键复制 · 30 张预览图内联 · 1.34 MB</span>
+            </span>
+            <span class="work-score">7/7</span>
+          </button>
+          <div class="work-detail" id="w3">
+            <dl>
+              <dt>是什么</dt><dd>把 30 个设计向技能做成一个可筛选、可复制的榜单页。</dd>
+              <dt>核验明细</dt><dd>功能核验 7/7 + 边界补测 4/4 全过；零外链（30 张预览图全部内联）；手机 390 与 320 不横滚；审查方独立复审通过，4 条非阻塞意见修订后重跑通过。</dd>
+              <dt>它教的一件事</dt><dd>为了让页面"零外链"，作者选择把预览图直接内联进 HTML——代价是文件到 1.34 MB。这就是"零外链"这个决定的价格。</dd>
+            </dl>
+          </div>
+        </li>
+
+        <li class="work">
+          <button class="work-row" type="button" aria-expanded="false" aria-controls="w4">
+            <span class="work-bar" aria-hidden="true"></span>
+            <span class="work-no">04</span>
+            <span>
+              <span class="work-title">交互网站提示词库</span>
+              <span class="work-sub">76 条 · 搜索 · 两层筛选 · 中英分别复制 · 0.24 MB</span>
+            </span>
+            <span class="work-score">15/15</span>
+          </button>
+          <div class="work-detail" id="w4">
+            <dl>
+              <dt>是什么</dt><dd>把 76 条交互网站提示词做成可搜索、可按分类与标签两层筛选、可分别复制中英文的库。</dd>
+              <dt>核验明细</dt><dd>功能与视觉核验 15/15 + 边界补测 3/3 全过；零外链；手机 390 与 320 不横滚；审查方独立复审通过并准予交付，3 条非阻塞意见修订后重跑通过。</dd>
+              <dt>为什么在这</dt><dd>这一件比它的原始成品多了两层筛选、搜索与批量复制——它演示的是"复刻不等于照抄，可以做得更好"。</dd>
+            </dl>
+          </div>
+        </li>
+
+        <li class="work">
+          <button class="work-row" type="button" aria-expanded="false" aria-controls="w5">
+            <span class="work-bar" aria-hidden="true"></span>
+            <span class="work-no">05</span>
+            <span>
+              <span class="work-title">参考复刻单页（你在看的这一页）</span>
+              <span class="work-sub">本页自身 · 单文件 · 零外链 · 零位图</span>
+            </span>
+            <span class="work-score">本页</span>
+          </button>
+          <div class="work-detail" id="w5">
+            <dl>
+              <dt>是什么</dt><dd>把"参考要拆、拆完要换"这件事本身做成一个可看的产物：骨架借自作品集范式，视觉与内容全部自己的。</dd>
+              <dt>核验明细</dt><dd>见本页页脚的核验口径；作品行里的每一处数字都可回溯到对应产物的核验记录。</dd>
+              <dt>递归的一件</dt><dd>它的"参考对象"就是一个作品集页；它的"成品"也是一个作品集页。区别在于借的是骨架，不是脸。</dd>
+            </dl>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ── 04 边界 ── -->
+    <section class="sec reveal" id="boundary">
+      <div class="sec-head"><span class="no">04</span><h2>边界</h2></div>
+      <p class="sec-lede">
+        复刻最容易翻车的不是技术，是边界：借得太多是抄袭，借得太少是形似神不似。所以这一节写在页面上，供人核对。
+      </p>
+
+      <div class="bound">
+        <div>
+          <span class="k">借了什么方法</span>
+          <h3>只有方法</h3>
+          <ul>
+            <li>布局骨架：两列、左栏粘性、窄左宽右</li>
+            <li>叙事顺序：由身份到证据</li>
+            <li>三个视觉手法：单一强调色、极端字号跨度、三级文字层次</li>
+            <li>四个交互行为：滚动联动导航、行级悬停反馈、滚动淡入、点按替代与低动效兜底</li>
+          </ul>
+        </div>
+        <div>
+          <span class="k">换了什么内容</span>
+          <h3>全部是自己的</h3>
+          <ul>
+            <li>分区与全部文案（并新增「04 边界」这一节）</li>
+            <li>作品的真实数据：卡片数、核验通过数、文件大小</li>
+            <li>视觉语言整段：明度基调反转、字体双角色、零圆角细线、测量刻度母题</li>
+            <li>导航形态换成原创的核验刻度尺</li>
+          </ul>
+        </div>
+        <div>
+          <span class="k">没碰什么</span>
+          <h3>红线之外</h3>
+          <ul>
+            <li>参考站的商标、标志、姓名、职务、文案、项目名</li>
+            <li>它的色值、字体文件、图片、图标</li>
+            <li>它的任何一段代码，以及页脚的彩蛋与素材</li>
+            <li>本页零外链、零位图：实线、刻度与排版全部用 CSS 画，没有图片也没有图标</li>
+          </ul>
+        </div>
+        <div>
+          <span class="k">哪些是占位</span>
+          <h3>没有占位素材</h3>
+          <ul>
+            <li>正文全部为真实内容，无一处占位文案</li>
+            <li>作品不做缩略图，改用编号 + 核验读数呈现</li>
+            <li>这是主动的设计选择，不是"图还没换"</li>
+            <li>页面上的每个数字都能回溯到对应产物的核验记录</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        <strong>参考对象声明：</strong>本页版面参考自 brittanychiang.com 所代表的"左侧粘性身份栏 + 右侧滚动分区"作品集范式。
+        页面以纯文本形式记录该地址，仅为声明参考来源，不构成链接、商标使用或视觉模仿；
+        未使用其任何商标、图片、图标、文案、色值或代码。
+      </p>
+      <p>
+        <strong>方法与出处：</strong>拆解方法取自《Codex 网页制作教程》P14（结构 / 视觉 / 交互 / 改成自己的：借方法，不搬运文案、商标、图片和整站代码），
+        交付口径取自《互动网站提示词库》参考复刻类（交付时说明借了哪些模式、换了哪些内容、哪些是占位）。
+      </p>
+      <p>
+        <strong>交付方式：</strong>单文件 HTML，零外部依赖（系统字体栈），可离线双击打开；桌面 1440 与手机 390 均已核验。
+        联系方式与更多作品不在此页列出，因为它们是本工程内的本地文件，没有公开地址——与其放一串点不开的链接，不如不放。
+      </p>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ── 1. 导航 chips / 刻度尺：移动端换行 chips，桌面走刻度尺 ── */
+  var list = document.getElementById('rulerList');
+  var items = Array.prototype.slice.call(list.querySelectorAll('li'));
+  var marker = document.getElementById('rulerMarker');
+  var anchorOf = function(li){ return li.querySelector('a'); };
+  var idOf = function(li){ return anchorOf(li).getAttribute('href').slice(1); };
+
+  var sections = items.map(function(li){ return document.getElementById(idOf(li)); });
+
+  /* ── 2. 滚动联动：当前分区 → 刻度尺标记滑到那一格 ── */
+  function placeMarker(li){
+    if (!marker) return;
+    var y = li.offsetTop + li.offsetHeight / 2 - marker.offsetHeight / 2;
+    marker.style.transform = 'translateY(' + y + 'px)';
+  }
+  function setActive(idx){
+    items.forEach(function(li, i){ li.classList.toggle('on', i === idx); });
+    if (idx >= 0) placeMarker(items[idx]);
+  }
+
+  var ticking = false;
+  function onScroll(){
+    var probe = window.innerHeight * 0.34;
+    var idx = 0;
+    for (var i = 0; i < sections.length; i++){
+      if (sections[i] && sections[i].getBoundingClientRect().top <= probe) idx = i;
+    }
+    setActive(idx);
+  }
+  function requestScroll(){ if (ticking) return; ticking = true;
+    requestAnimationFrame(function(){ onScroll(); ticking = false; }); }
+
+  window.addEventListener('scroll', requestScroll, { passive: true });
+  window.addEventListener('resize', function(){ requestScroll(); }, { passive: true });
+  if (window.ResizeObserver){ new ResizeObserver(function(){ onScroll(); }).observe(document.body); }
+  onScroll();
+
+  /* ── 3. 作品行：点按展开核验明细（无悬停也能用） ── */
+  Array.prototype.forEach.call(document.querySelectorAll('.work-row'), function(btn){
+    btn.addEventListener('click', function(){
+      var panel = document.getElementById(btn.getAttribute('aria-controls'));
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      if (panel) panel.classList.toggle('on', !open);
+    });
+  });
+
+  /* ── 4. 滚动淡入（一次性；低动效时由 CSS 直接显示） ── */
+  var reveals = document.querySelectorAll('.reveal');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !window.IntersectionObserver){
+    Array.prototype.forEach.call(reveals, function(el){ el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.05 });
+    Array.prototype.forEach.call(reveals, function(el){ io.observe(el); });
+  }
+
+  /* ── 5. 复制"可抄的参考指令"，并如实反馈 ── */
+  var btn = document.getElementById('copyBtn');
+  if (btn){
+    var idle = btn.textContent;
+    btn.addEventListener('click', function(){
+      var src = document.getElementById(btn.getAttribute('data-copy'));
+      var text = src ? src.textContent : '';
+      var done = function(){ btn.textContent = '已复制'; btn.setAttribute('data-done','1');
+        setTimeout(function(){ btn.textContent = idle; btn.removeAttribute('data-done'); }, 1600); };
+      var fail = function(){ btn.textContent = '复制失败，请手动选中'; btn.setAttribute('data-done','1');
+        setTimeout(function(){ btn.textContent = idle; btn.removeAttribute('data-done'); }, 2200); };
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, function(){ fallback(text) ? done() : fail(); });
+      } else {
+        fallback(text) ? done() : fail();
+      }
+      function fallback(t){
+        try{
+          var ta = document.createElement('textarea');
+          ta.value = t; ta.setAttribute('readonly',''); ta.style.position = 'fixed'; ta.style.top = '-1000px';
+          document.body.appendChild(ta); ta.select();
+          var ok = document.execCommand && document.execCommand('copy');
+          document.body.removeChild(ta); return ok;
+        } catch(e){ return false; }
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

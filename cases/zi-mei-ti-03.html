@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>周报 → 小红书风格改写 · 案例库</title>
+<meta name="description" content="把内部周报「翻译」成小红书笔记：先换视角再口语化 + emoji + 话题标签，附配图建议 + 封面卡。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>自媒体场景</span><span class="sep">/</span><span>03</span>
+    </nav>
+    <h1>周报 → 小红书风格改写</h1>
+    <div class="readout">
+      <span><b>场景</b>自媒体</span>
+      <span><b>编号</b>03</span>
+      <span><b>形态</b>Markdown ×2 + 封面 PNG</span>
+      <span><b>大小</b>4 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 自媒体-03 周报/长文 → 小红书风格改写</h1>
+<blockquote>所属材料：<strong>M2</strong>《100个WorkBuddy+应用案例合集》案例 11「小红书风格改写」</blockquote>
+<blockquote>所在领域：领域二 · 自媒体（公众号爆文 / 小红书）</blockquote>
+<blockquote>提取依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<hr>
+<h2>一、痛点原句（引用手册原文）</h2>
+<blockquote><strong>原文①</strong>（M2 · 案例 11 · 提需求 + 执行效果）</blockquote>
+<blockquote>「把这份周报改写成小红书风格」→ 执行效果「识别原文逻辑结构，替换专业术语为口语化表达，添加 emoji 分隔符与话题标签。」</blockquote>
+<blockquote><strong>原文②</strong>（<code>案例清单.md</code> 自媒体-03 补全句）</blockquote>
+<blockquote>「一份内部周报/长文，想搬到小红书发，<strong>要口语化、要 emoji、要话题标签，改一版 40 分钟</strong>，且改完还是&quot;报告味&quot;。」</blockquote>
+<hr>
+<h2>二、痛点主体（谁）</h2>
+<p><strong>既写内部材料、又要对外做内容的运营者 / 知识工作者</strong>——手里有一份写得很正式的内部周报（或长文），想搬到小红书/公众号对外发，但<strong>两种文体的&quot;语感&quot;完全不是一回事</strong>。</p>
+<h2>三、旧做法的代价</h2>
+<ul>
+<li><strong>改一版 40 分钟</strong>（原文②）：要逐句把&quot;围绕…展开&quot;&quot;达成率 100%&quot;&quot;环比 +52.1%&quot;翻成人话，再加 emoji、加标签。</li>
+<li><strong>改完还是&quot;报告味&quot;</strong>（原文②）：最挫败的地方——<strong>术语换掉了，但句子的骨架还是报告的骨架</strong>（总-分-表、指标先行、结论句式），读者一眼就觉得&quot;这是把报告贴过来了&quot;。</li>
+<li><strong>症结不在词，在结构</strong>：只做&quot;同义词替换&quot;（把&quot;用户&quot;改成&quot;宝子&quot;）<strong>改不掉报告味</strong>；真正要动的是<strong>逻辑结构</strong>（原文①的&quot;识别原文逻辑结构&quot;正是关键动作）——把&quot;指标视角&quot;改成&quot;读者视角&quot;。</li>
+</ul>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<p><strong>把一份内部周报，&quot;翻译&quot;成一篇小红书读者爱看的笔记。</strong> 具体到可验收：</p>
+<ul>
+<li>① <strong>小红书版文案</strong>：口语化（人话）、<strong>emoji 做分隔</strong>（不是装饰）、<strong>话题标签</strong>（命中平台推荐）；</li>
+<li>② <strong>配图建议</strong>：按所选题材/品类的配图方案（封面 + 内页 shot list）；</li>
+<li>③ <strong>读者视角优先</strong>：从周报里<strong>提炼出对读者有用的那个内核</strong>（不是复述自己的 KPI），删掉内部指标与汇报语言。</li>
+</ul>
+<h2>五、【补全】为什么值得解决 + 目标导向 vs 工具理性</h2>
+<ul>
+<li><strong>【补全】目标导向的真相</strong>：用户要的是&quot;<strong>这份内容能被小红书的读者看进去</strong>&quot;，而不是&quot;把周报的每个字都翻译一遍&quot;。<strong>周报的 KPI（涨粉 1482、收藏率 118%）对读者毫无价值；有价值的是它背后那件事</strong>——&quot;我一周测了 7 个 AI 工具，只留下 3 个&quot;。<strong>改写的第一动作是&quot;换视角&quot;，不是&quot;换词&quot;。</strong></li>
+<li><strong>【补全】工具理性陷阱</strong>：最容易的做法是把整份周报丢给 AI 说&quot;改成小红书风格&quot;，结果得到一篇<strong>&quot;周报 emoji 版&quot;</strong>——术语变口语了，<strong>但骨架还是汇报骨架</strong>，读者照样划走。<strong>把力气花在&quot;加不加 emoji&quot;&quot;用哪个词&quot;上是手段；&quot;这段到底给谁看、他为什么要看&quot;才是目标。</strong></li>
+<li><strong>【补全】本案例的复刻价值</strong>：手册给的执行效果只有一句（&quot;识别结构 / 换口语 / 加 emoji 标签&quot;），本复刻把它<strong>做实为可核对的步骤</strong>——先用<strong>结构识别</strong>把周报的&quot;指标骨架&quot;拆掉，抽出一条<strong>&quot;读者会关心的故事线&quot;</strong>，再按小红书的分段/emoji/标签规范重写。<strong>&quot;识别逻辑结构&quot;这一句，是手册里最容易被忽略、却最决定成败的一步。</strong></li>
+<li><strong>【补全】为什么值得解决</strong>：运营者每天在&quot;正式文体（对内）&quot;和&quot;社媒文体（对外）&quot;之间切换，<strong>这类改写是高频重复劳动</strong>——正是该交给 AI 的&quot;重复性的工作&quot;，而&quot;哪些内容值得对外讲、用什么角度讲&quot;仍是人的判断。</li>
+</ul>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>——解决的是&quot;内部正式材料如何转换成对外的社媒内容并被读者接受&quot;这一内容再生产问题； ❌ 不是&quot;我有份周报所以想找个工具美化它&quot;式的工具理性。</p>
+<h2>七、跨章回扣</h2>
+<ul>
+<li>直接回扣 <code>案例清单.md</code> 领域二开篇：<code>原文</code>「把重复性的工作交给 AI，把创意和判断留给自己」——<strong>&quot;识别结构 + 换口语 + 排版&quot;是重复劳动（交给 AI）；&quot;这条内容对外讲不讲、讲哪个点&quot;是创意判断（留给人）。</strong></li>
+<li>与 <strong>自媒体-02</strong> 是一条流水线的上下游：<strong>02 解决&quot;写什么、什么结构&quot;，03 解决&quot;已有长文怎么改成小红书&quot;</strong>——03 用到的<strong>标题公式/分段/标签规范</strong>即 02 的产出（<code>案例自媒体-02…/最终产物/爆文结构模板.md</code>）。</li>
+<li>与本工程 <strong>自媒体-04（小红书知识卡片/社媒海报）</strong> 呼应：03 给出&quot;配图建议&quot;，04 负责把建议<strong>做成图</strong>。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 三档：Markdown 渲染 HTML（内联长文阅读） -->
+    <section class="stage tier-c">
+      <header class="stage-head">
+        <h2 class="k">产物 · 长文阅读</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases/zi-mei-ti-03/rendered.html" target="_blank" rel="noopener">新窗口打开 ↗</a>
+          <a class="btn-ghost" href="../assets/cases/zi-mei-ti-03/artifact/小红书文案.md" download>下载 Markdown</a>
+        </div>
+      </header>
+      <article class="md-render">
+<h1>小红书文案 · 一周测了 7 个 AI 工具，只留下 3 个</h1>
+<blockquote><strong>来源</strong>：由 <code>输入素材/内部周报_内容运营第41周.md</code> 改写。改写过程见 <code>../阶段1_结构识别与改写/产物/改写前后对照.md</code>。</blockquote>
+<blockquote><strong>结构依据</strong>：<code>案例自媒体-02…/最终产物/爆文结构模板.md</code>（五段式）。</blockquote>
+<hr>
+<h2>一、可直接发布的小红书笔记</h2>
+<h3>【标题】（21 字，公式③ 身份+结果）</h3>
+<blockquote><strong>我一周测了 7 个 AI 工具，只留下 3 个（附淘汰标准）</strong></blockquote>
+<h3>【正文】</h3>
+<pre><code class="lang-">这一周干了件费力不讨好的事：
+把 7 个 AI 工具挨个往工作流里塞了一遍😅
+
+结果挺意外——
+7 个，我只留下了 3 个。
+
+🗑️ 被我砍掉的 4 个，不是&quot;不好用&quot;，是&quot;越用越累&quot;：
+• 有的看着一键搞定，方向一错，改起来比自己做还费劲
+• 有的转场生硬、数据延迟，用一次就想关掉
+• 有的自动发布一时爽，平台风控找上门📉
+
+💡 所以我给自己立了条规矩：
+宁可要&quot;能看过程、能中断、能接管&quot;的工具，
+也不要&quot;一步到位&quot;的黑盒。
+
+✅ 最后留下的 3 个，都是&quot;我能随时接手&quot;的那种。
+
+你手机里现在开了几个 AI 工具？
+评论区报个数👇🏻 先♥️收藏，回头挑工具不踩坑。
+
+#AI工具 #AI效率 #AI办公 #效率神器 #打工人 #AI新手村 #howto用好AI</code></pre>
+<h3>【话题标签】（7 个，三层结构）</h3>
+<table><thead><tr><th>层</th><th>标签</th><th>作用</th></tr></thead><tbody><tr><td>产品/认知话题</td><td><code>#AI工具</code> <code>#AI效率</code> <code>#AI新手村</code></td><td>蹭工具搜索流量</td></tr><tr><td>场景/人群话题</td><td><code>#AI办公</code> <code>#效率神器</code> <code>#打工人</code></td><td>命中真实需求</td></tr><tr><td>官方/活动话题</td><td><code>#howto用好AI</code></td><td>蹭平台活动池</td></tr></tbody></table>
+<blockquote>依据：<code>案例自媒体-02…/最终产物/爆文结构模板.md</code> ⑤（7-10 个、三层配方；<code>#howto用好AI</code> 见于实抓爆款 <code>为什么不要一句话让 AI 做网站</code>）。</blockquote>
+<hr>
+<h2>二、改写说明（对照手册 M2 案例 11 执行效果的三小步）</h2>
+<table><thead><tr><th>手册执行效果</th><th>本案例怎么做的</th><th>产物位置</th></tr></thead><tbody><tr><td>① <strong>识别原文逻辑结构</strong></td><td>把周报 6 段逐段标&quot;保留/删除/改写&quot;，抽出唯一对读者有用的内核（7 工具实测）</td><td><code>改写前后对照.md</code> §一</td></tr><tr><td>② <strong>替换专业术语为口语化表达</strong></td><td>术语→人话词表 + <strong>换视角</strong>（&quot;我们/指标&quot; → &quot;我/体验&quot;）；周报的 4 段汇报语言整体删除</td><td><code>改写前后对照.md</code> §二三</td></tr><tr><td>③ <strong>添加 emoji 分隔符与话题标签</strong></td><td>emoji 做 4 个视觉锚点（😅🗑️💡👇🏻）+ 7 个三层标签</td><td>本文 §一</td></tr></tbody></table>
+<p><strong>关键差异（本案例的&quot;骨&quot;）</strong>：<strong>删掉了全部内部指标</strong>（涨粉 1482 / 收藏率 118% / 环比 +22pp / 下周计划），因为它们是&quot;给老板看的&quot;；只留下&quot;读者能拿走的东西&quot;（淘汰标准 + 判断原则）。<strong>这不是换词，是换视角。</strong></p>
+<hr>
+<h2>三、发布前自检（对照 自媒体-02 结构模板 §八）</h2>
+<ul>
+<li>[x] 标题 ≤21 字（21 字），含&quot;身份+结果&quot;钩子</li>
+<li>[x] 开头第一句就是信息（无寒暄）</li>
+<li>[x] 正文每段 ≤3 行、段间空行、emoji 为视觉锚点</li>
+<li>[x] 结尾 CTA 绑具体价值（&quot;收藏，挑工具不踩坑&quot;）+ 评论互动</li>
+<li>[x] 标签 7 个，含三层</li>
+<li>[x] <strong>无&quot;报告味&quot;词</strong>：全文已无&quot;综上所述/旨在/达成率/环比/阶段性结论&quot;</li>
+</ul>
+<p><strong>报告味词扫描结果</strong>：0 命中（用 <code>grep</code> 扫过&quot;我们/达成/环比/综上/旨在/阶段性/沉淀&quot;等，正文均无）。</p>
+<hr>
+<h2>四、必须人工做的部分（边界，不忽悠）</h2>
+<ul>
+<li><strong>事实核对</strong>：笔记里的&quot;7 个/3 个/4 个&quot;来自自造周报；<strong>真实使用时，数字必须与你自己的实测一致</strong>——AI 不替你保证数据真实性。</li>
+<li><strong>合规复核</strong>：小红书对&quot;自动化/AI 生成/批量&quot;类词敏感（<code>redbook</code> 的 Note Health 模块将部分词列为限流风险）；发布前建议人工过一遍敏感词。</li>
+<li><strong>角度取舍</strong>：本条选了&quot;淘汰标准&quot;作为对外表达的角度；<strong>换一个角度（如&quot;留下哪 3 个&quot;）会更带货但更硬广</strong>——选哪个是人的判断。</li>
+<li><strong>发布</strong>：本案例<strong>不代发</strong>（平台风控 + 账号安全），文案与图人力上传即可。</li>
+</ul>
+      </article>
+    </section>
+
+
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/xhs-01-cover.png" download><span>xhs-01-cover.png</span><span class="sz">50 KB</span></a></li><li><a href="../assets/cases//artifact/小红书文案.md" download><span>小红书文案.md</span><span class="sz">4 KB</span></a></li><li><a href="../assets/cases//artifact/配图建议.md" download><span>配图建议.md</span><span class="sz">5 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>结构识别与改写<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>配图与标签<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/zi-mei-ti-03/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-03/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-03/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-03/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-03/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

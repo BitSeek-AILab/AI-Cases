@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>知识卡片《分数加减法》 · 案例库</title>
+<meta name="description" content="把当堂内容浓缩成一张 9:16 手机复习卡，发到班级群，学生碎片时间翻一翻就复习。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>教师场景</span><span class="sep">/</span><span>04-4</span>
+    </nav>
+    <h1>知识卡片《分数加减法》</h1>
+    <div class="readout">
+      <span><b>场景</b>教师</span>
+      <span><b>编号</b>04-4</span>
+      <span><b>形态</b>PNG 卡片 + 源文件 HTML</span>
+      <span><b>大小</b>480 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 案例04-4 形态四·知识卡片《分数加减法（异分母）》</h1>
+<blockquote>依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<blockquote>出处：<code>手册Markdown/第04章/第04章.md</code></blockquote>
+<h2>一、痛点原句（引用手册原文）</h2>
+<p><strong>位置1 · 形态四引入（第04章 形态四：知识卡片，让课在课后还&quot;活着&quot;）：</strong></p>
+<blockquote>&quot;这是传统课件完全没有的部分，也是新形态课件最有价值的地方之一。</blockquote>
+<blockquote>下课之后，学生怎么复习？翻笔记？翻课本？很多学生下课就忘了。</blockquote>
+<blockquote>新形态课件多给一步：把当堂内容，浓缩成一张视觉化知识卡片。手机上就能看，碎片时间翻一翻，知识点就复习了。&quot;</blockquote>
+<p><strong>位置2 · 章首导入（第04章 一、你做课件，是不是&quot;上课放完就没了&quot;？）——本形态直接对应的那句：</strong></p>
+<blockquote>&quot;更扎心的是，你辛苦做的PPT，上课放完，学生下课就忘了。它完成了一次'展示'，但没有留下任何能让学生课后带走的东西。&quot;</blockquote>
+<p><strong>位置3 · 章末收束（四、同一节课，四种形态走一遍）：</strong></p>
+<blockquote>&quot;同一节课，你备一次，四种形态。课堂上讲得清、玩得动，下课后学生还能带着复习。&quot;</blockquote>
+<blockquote>&quot;这一章，带走一句话：'同一个知识点，别只做PPT。让它能翻、能玩、能被带走，才是新形态课件。'&quot;</blockquote>
+<p><strong>位置4 · 手册自曝的二次痛点（进阶 · 出图环节）：</strong></p>
+<blockquote>&quot;实测发现一个坑：内置引擎出图，效果一般。文字容易乱码、排版糙。原因是 Baoyu Infographic 这个技能，其实只干'设计师'的活。&quot;</blockquote>
+<blockquote>&quot;baoyu-infographic 管脑子，baoyu-image-gen 管手：一个负责把内容和prompt写好，一个负责用更胜一筹的引擎把图渲染出来。&quot;</blockquote>
+<h2>二、痛点主体</h2>
+<ul>
+<li><strong>谁</strong>：五年级数学老师（本案例即&quot;上完《异分母分数加减法》第2课时&quot;的老师）。</li>
+<li><strong>场景</strong>：<strong>下课后</strong>。课上完，PPT 收进电脑，学生手里什么都没剩下。</li>
+<li><strong>学情</strong>（引自备课素材）：本课重难点是&quot;理解通分的必要性，会找最小公倍数作公分母&quot;；三个易错点（公分母找错 / 忘记约分 / 只通分母忘通分子）是<strong>当堂懂了、回家就忘</strong>的典型。</li>
+</ul>
+<h2>三、旧做法的代价</h2>
+<ul>
+<li>课后学生怎么复习：<strong>翻笔记、翻课本</strong>——笔记是抄的、课本是别人的话，没有一个&quot;这是我今天这节课&quot;的抓手。</li>
+<li>结果：&quot;<strong>很多学生下课就忘了</strong>&quot;。前面三种形态（PPT / HTML / 互动）都发生在<strong>课堂上</strong>，课上得再好，<strong>下课那一刻就断线了</strong>。</li>
+<li>老师这一侧的代价：传统做课件的流程里<strong>根本没有&quot;课后&quot;这一格</strong>——&quot;这是传统课件完全没有的部分&quot;。</li>
+</ul>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<ul>
+<li>把当堂内容<strong>浓缩成一张</strong>视觉化知识卡片：<strong>竖版 9:16、手机上能看、重点突出</strong>。</li>
+<li>学生课后<strong>碎片时间翻一翻，知识点就复习了</strong>——&quot;把课在课后还'活着'&quot;。</li>
+<li>卡片发到班级群，学生手机点开就能看，<strong>还能截图当复习资料</strong>（手册原话）。</li>
+<li>【本案例自定验收】中文<strong>零乱码</strong>、算式<strong>一个数字都不能错</strong>、9:16 版面<strong>不溢出不被裁</strong>。</li>
+<li>【本案例自定验收】卡片要真的能&quot;复习&quot;，不能只是一张漂亮海报——必须带<strong>算理图示</strong>与<strong>易错点对照</strong>。</li>
+</ul>
+<h2>五、【补全】</h2>
+<p>【补全】手册没讲透&quot;为什么这一形态是新形态课件里最有价值的部分&quot;： 前三种形态解决的都是<strong>课堂内</strong>的问题（讲得清 / 会动 / 玩得动），它们的有效期止于下课铃。而&quot;学生下课就忘&quot;这件事，<strong>恰恰发生在课堂之外</strong>——再好的课堂演示也覆盖不到。 所以这一形态的真正价值不在&quot;多做一张图&quot;，而在于<strong>把课件的生命周期从 40 分钟延长到课后</strong>：它是四种形态里<strong>唯一一个脱离老师、脱离教室、还能独立工作</strong>的产物。 这决定了两件事：① 它必须<strong>适合手机</strong>（学生手上只有手机）；② 它必须<strong>自解释</strong>（没有老师讲解，卡片自己得把话说完整）——这就解释了为什么本案例坚持要塞进&quot;分数条图示&quot;和&quot;错解/正解对照&quot;，而不是做成一张只有口诀和几个算式的漂亮图。</p>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>：老师想让学生<strong>下课后还能复习、真能记住这节课</strong> → 所以把当堂内容浓缩成一张手机能看的复习卡。 ❌ 非&quot;工具理性&quot;（不是为了&quot;我有内容所以做张图发一发&quot;）。</p>
+<h2>七、跨章线索</h2>
+<ul>
+<li>回扣第01章总纲（问答式 AI vs 能执行干活的 AI）：本案例里 AI 不是陪你讨论&quot;卡片该放什么&quot;，而是<strong>先把内容分析完、把布局风格定好、把 prompt 写好，再直接出图</strong>。</li>
+<li>回扣本章章首那句&quot;新形态课件，让它在课堂上能动起来，下课后还能被学生带走&quot;：<strong>&quot;被学生带走&quot;这件事，只有形态四做到了</strong>；形态一/二/三都在&quot;课堂上&quot;。</li>
+<li>手册在这一形态自曝的坑（内置引擎出图乱码）→ 也正因如此，本案例在出图环节做了<strong>程序化版面断言</strong>（溢出即拒绝出图），把&quot;排版糙&quot;这个坑用工程手段堵住。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 二档：PDF embed + 预览画廊 + 下载（DOCX/XLSX 只给下载） -->
+    <section class="stage tier-b">
+      <header class="stage-head">
+        <h2 class="k">产物 · 在线预览</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases//artifact/分数加减法_知识卡片_9x16.png" download>下载 分数加减法_知识卡片_9x16.png</a><a class="btn-ghost" href="../assets/cases//artifact/分数加减法_知识卡片_源文件.html" download>下载 分数加减法_知识卡片_源文件.html</a>
+        </div>
+      </header>
+
+      
+
+      
+
+      
+      <!-- 静态图网格（散图，如图表 PNG） -->
+      <div class="stage-imgs">
+        <figure><img src="../assets/cases/jiao-shi-04-4/preview/分数加减法_知识卡片_9x16.png" alt="分数加减法 知识卡片 9x16" loading="lazy"><figcaption>分数加减法 知识卡片 9x16</figcaption></figure>
+      </div>
+      
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">质检图</h2><span class="stage-note" style="border:0;padding:0">构建自核验截图，点击查看原图</span></header>
+      <div class="qc-grid">
+        <figure><a href="../assets/cases/jiao-shi-04-4/qc/card-9x16.png" target="_blank" rel="noopener"><img src="../assets/cases/jiao-shi-04-4/qc/card-9x16.png" alt="card 9x16" loading="lazy" decoding="async"></a><figcaption>card 9x16</figcaption></figure><figure><a href="../assets/cases/jiao-shi-04-4/qc/crop-traps-footer.png" target="_blank" rel="noopener"><img src="../assets/cases/jiao-shi-04-4/qc/crop-traps-footer.png" alt="crop traps footer" loading="lazy" decoding="async"></a><figcaption>crop traps footer</figcaption></figure>
+      </div>
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/分数加减法_知识卡片_9x16.png" download><span>分数加减法_知识卡片_9x16.png</span><span class="sz">480 KB</span></a></li><li><a href="../assets/cases//artifact/分数加减法_知识卡片_源文件.html" download><span>分数加减法_知识卡片_源文件.html</span><span class="sz">13 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>内容分析与设计<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>出图与校验<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/jiao-shi-04-4/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-04-4/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-04-4/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-04-4/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-04-4/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

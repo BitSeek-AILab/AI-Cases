@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>课件选中就统一（含演讲备注） · 案例库</title>
+<meta name="description" content="选中一处说一句，整份 PPT 的背景与标题跟着统一，再补上每页 30 秒演讲备注。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>教师场景</span><span class="sep">/</span><span>10-3</span>
+    </nav>
+    <h1>课件选中就统一（含演讲备注）</h1>
+    <div class="readout">
+      <span><b>场景</b>教师</span>
+      <span><b>编号</b>10-3</span>
+      <span><b>形态</b>PPTX + before/after 对比图</span>
+      <span><b>大小</b>42 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 案例10-3 课件选中就统一（人机双写·课件）</h1>
+<blockquote>依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<blockquote>出处：<code>手册Markdown/第10章/第10章.md</code>（场景三：人机双写·课件，选中就统一）</blockquote>
+<h2>一、痛点原句（引用手册原文）</h2>
+<p><strong>位置1 · 案例引入（第10章「场景三：人机双写·课件，选中就统一」）：</strong></p>
+<blockquote>&quot;第04章，你学会把课件做成四种形态。<strong>但PPT做到一半，最常见的问题不是'做不出来'，是风格不统一：这页米白底、那页带浅蓝，标题颜色各管各。</strong></blockquote>
+<blockquote><strong>以前，要么一页一页手动调，要么重新生成。现在，选中就改。</strong>&quot;</blockquote>
+<p><strong>位置2 · 案例内的实测提示（手册原文，本案例的&quot;选中区&quot;依据）：</strong></p>
+<blockquote>&quot;先说一个 PPT 里的实测发现：「AI编辑」认的是'<strong>选中的内容</strong>'，不是'选中的整页'。选中整页不一定会弹按钮，但<strong>选中这一页里的标题或文字</strong>，按钮就出来了。所以操作是：<strong>选内容，让AI改。</strong>&quot;</blockquote>
+<p><strong>位置3 · 案例的价值收束（手册原文）：</strong></p>
+<blockquote>&quot;课件做到这个程度，就不再是'<strong>能投屏</strong>'，而是'<strong>讲得顺</strong>'。&quot;</blockquote>
+<p><strong>位置4 · 章末收束（这一章记住三件事）：</strong></p>
+<blockquote>&quot;人机双写=框选即改：先选中，点「AI编辑」，输指令。教案、成绩、课件，框到哪改到哪，改完可核对。&quot;</blockquote>
+<h2>二、痛点主体</h2>
+<ul>
+<li><strong>谁</strong>：五年级数学老师（本次复刻的具体身份；素材就是五年级&quot;分数加减法&quot;的课件）。</li>
+<li><strong>场景</strong>：一份 <strong>5 页的半成品课件</strong>，做到一半——<strong>5 页背景色各不相同</strong>（米白 / 浅蓝 / 浅绿 / 浅橙 / 灰），<strong>标题颜色也各管各</strong>（深蓝 / 深靛 / 绿 / 橙 / 深灰）。</li>
+</ul>
+<h2>三、旧做法的代价</h2>
+<ul>
+<li><strong>旧流程两条路</strong>（手册原文）：&quot;<strong>要么一页一页手动调，要么重新生成。</strong>&quot;</li>
+<li><strong>一页一页手动调</strong>：逐页选中标题 → 改颜色 → 再逐页点背景 → 设填充色；5 页就是 <strong>10+ 次点击</strong>，且<strong>改了第 3 页忘了第 5 页</strong>是常事。页数一多，成本线性上升。</li>
+<li><strong>重新生成</strong>：等于<strong>把已经做好的内容全部丢掉重来</strong>——那 5 页上已经写好的例题、答案、排版，全白做。</li>
+<li>【补全】真正的代价不在&quot;改颜色&quot;这件事本身（改一个颜色只要 3 秒），而在<strong>&quot;风格不统一&quot;这件事很难被穷尽地发现和修完</strong>：老师是<strong>边做边发现</strong>的——做到第 4 页才发现&quot;咦，第 2 页底色好像不一样&quot;，这时回头改，又容易漏。于是最常见的结局是<strong>凑合着用</strong>：一份&quot;内容没问题、看着不专业&quot;的课件。而这份课件是要<strong>投屏给全班、公开课给评委、家长会讲给家长</strong>看的。</li>
+</ul>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<ul>
+<li><strong>选中一处 → 一句指令 → 整份跟着统一</strong>（不用一页页调、不用重做）。</li>
+<li>手册给的三条指令逐条落地：</li>
+<li><strong>基本</strong>：&quot;把整份 PPT 的标题统一成这个样式：<strong>蓝色、加粗、字号一致</strong>。&quot;（选中第 1 页标题）</li>
+<li><strong>进阶一</strong>：&quot;<strong>按这一页的配色，把整份PPT的背景颜色和文字统一成同一套风格。</strong>&quot;（选中某一页的标题或正文）</li>
+<li><strong>进阶二</strong>：&quot;<strong>按这页内容写30秒演讲备注，语气像对着家长讲话，别太书面。</strong>&quot;（选中某一页内容）</li>
+<li><strong>一条隐含红线</strong>：统一的是<strong>样式</strong>，不是<strong>内容</strong>——5 页上的例题、答案、文字，<strong>一个字都不能变</strong>。</li>
+<li>目标状态（手册原话）：从&quot;<strong>能投屏</strong>&quot;到&quot;<strong>讲得顺</strong>&quot;。</li>
+</ul>
+<h2>五、【补全】</h2>
+<p>【补全】手册说清了&quot;一页页调很烦&quot;，但没讲透<strong>为什么&quot;风格不统一&quot;值得专门做一个功能</strong>：</p>
+<ul>
+<li><strong>课件的第一印象是&quot;专业度&quot;，而专业度几乎全由&quot;一致性&quot;承载</strong>。同一份课件里背景色跳变、标题色跳变，学生的第一反应不是&quot;这页颜色挺好看&quot;，而是&quot;这份课件是不是拼的&quot;。<strong>不一致本身就是信号</strong>——它告诉听众&quot;这份东西没被认真做完&quot;。</li>
+<li><strong>而&quot;一致&quot;这件事，人手工做不可靠</strong>。人对相近颜色的分辨力有限（尤其投影仪偏色的情况下），靠肉眼逐页比对，<strong>漏掉一两页是常态</strong>。这正是&quot;AI 属性级统一&quot;比&quot;人手调&quot;根本强的地方：它比的是<strong>色值</strong>，不是眼睛。</li>
+<li><strong>手册把&quot;30 秒演讲备注&quot;和&quot;统一风格&quot;放在同一个场景里，是有讲究的</strong>：统一风格解决&quot;<strong>看起来</strong>是同一份课件&quot;，演讲备注解决&quot;<strong>讲起来</strong>是同一份课件&quot;。前者管视觉一致，后者管<strong>话术一致</strong>——合起来才是手册那句&quot;不再是能投屏，而是讲得顺&quot;。</li>
+</ul>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>：老师要的是&quot;<strong>这份课件投出去、讲起来像一份认真做完的东西</strong>&quot; → 所以统一风格 + 补上演讲备注。 ❌ 非&quot;工具理性&quot;（不是为了&quot;我有个 PPT 所以找个 AI 优化它&quot;）。</p>
+<h2>七、跨章线索</h2>
+<ul>
+<li>回扣第04章：<strong>不推翻</strong>&quot;课件四种形态&quot;的做法（手册原文&quot;新功能不改变前面的方法论&quot;），只在&quot;<strong>做完之后统一风格</strong>&quot;这一步提速。</li>
+<li><strong>本案例同时是&quot;视觉产物&quot;</strong> → 依 <code>子Agent执行规范.md</code> 第五节，必须做<strong>视觉检查</strong>（渲染前后逐页比对），不能只看文字描述。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 二档：PDF embed + 预览画廊 + 下载（DOCX/XLSX 只给下载） -->
+    <section class="stage tier-b">
+      <header class="stage-head">
+        <h2 class="k">产物 · 在线预览</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases//artifact/分数加减法_风格统一_含备注.pptx" download>下载 分数加减法_风格统一_含备注.pptx</a><a class="btn-ghost" href="../assets/cases//artifact/统一样式说明.md" download>下载 统一样式说明.md</a>
+        </div>
+      </header>
+
+      
+
+      
+
+      
+    </section>
+
+
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/分数加减法_风格统一_含备注.pptx" download><span>分数加减法_风格统一_含备注.pptx</span><span class="sz">42 KB</span></a></li><li><a href="../assets/cases//artifact/统一样式说明.md" download><span>统一样式说明.md</span><span class="sz">8 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>标题统一<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>全份统一<span class="stage-state">✓</span></li><li><span class="stage-no">3</span>演讲备注<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/jiao-shi-10-3/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-3/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-3/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-3/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-3/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

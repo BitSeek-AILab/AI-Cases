@@ -1,0 +1,5 @@
+_data/
+_build/
+复刻产出/
+*.log
+node_modules/

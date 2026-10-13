@@ -1,0 +1,90 @@
+Chrome 调试端口 8249
+
+=== 0. 产物规模 ===
+  AI网页实战作品集_参考复刻单页.html  36.6 KB
+  分区分区 5 个：["(hero)","about","method","works","boundary"]
+  方法卡 3 / 借换表行 5 / 作品 5 / 边界格 4 / 刻度项 4
+  <img> 0 个 / <svg> 0 个
+  外部资源引用（应为 0）：[]
+  外部链接（应为 0）：[]
+  非 0 圆角元素（应为 0）：0
+  含渐变元素（应为 0）：0 / 含阴影元素（应为 0）：0
+
+=== ① 借/换说清 ===
+  04 边界四格齐：OK
+  借/换对照表存在：true
+  页脚含参考对象声明 + 借方法声明：true / true
+  ① 借/换说清：PASS
+
+=== ② 不含原站素材（版权边界） ===
+  参考站个人身份/文案串命中（应为 0）：[]
+  参考域名出现次数（仅作参考对象声明）：3 处 → OK（纯文本声明）
+  零 <img>：true；零外部资源引用：true；零外部链接：true
+  ② 不含原站素材：PASS
+
+=== ③ 三段拆解落到具体 ===
+  三张卡：["01 结构 · 借","02 视觉 · 只借手法","03 交互 · 借行为"]
+  借/换对照表行数 5（≥5）
+  ③ 三段拆解：PASS
+
+=== ⑥ 内容真实 ===
+  占位文案命中（应为 0）：[]
+  href="#" 死链（应为 0）：0
+  作品读数：["6/6","两版","7/7","15/15","本页"] → 与来源说明一致：true
+  ⑥ 内容真实：PASS
+  出图 desktop-1440-firstscreen.png
+
+=== 交互完整性 ===
+  滚到 #about → 高亮 ["#about"] / 标记 translateY(47px) OK
+  滚到 #method → 高亮 ["#method"] / 标记 translateY(92px) OK
+  滚到 #works → 高亮 ["#works"] / 标记 translateY(138px) OK
+  滚到 #boundary → 高亮 ["#boundary"] / 标记 translateY(183px) OK
+  刻度标记随分区移动（不同位置数 4，应 ≥3）：OK
+  出图 desktop-1440-method.png
+  作品行展开：false → true（面板 none → block，高 131px）→ false（none） OK
+  出图 desktop-1440-work-open.png
+  复制反馈：按钮「复制这段」→「已复制」；复制内容 == 页内模板全文：true（629 字符） OK
+  出图 desktop-1440-copy.png
+  反馈自动复位：按钮回到「复制这段」（OK）
+  滚动揭示：.reveal 共 4 个，已显示 4（#about opacity 1）
+  交互完整性：PASS
+
+=== 风格纪律 ===
+  刻度标记（强调色）：rgb(91, 52, 232)（期望 rgb(91, 52, 232)）→ OK
+  按钮字体（应等宽）：ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace
+  H1 字体：ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace
+  正文字体栈：-apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif
+  全页是否使用 Inter（应为 false）：false
+  非 0 圆角 0 / 渐变 0 / 阴影 0（应全 0）
+  风格纪律：PASS
+
+=== ④ 能打开（零外部依赖）===
+  页面发起的网络请求共 1 条；其中非本地请求（应为 0）：[]
+  ④ 能打开：PASS
+
+=== ⑤ 手机端 390×844 核验 ===
+  innerWidth 390 / scrollWidth 390 → 横向滚动：无
+  H1 字号 32.8px / 正文 15.2px；复制按钮 78×34px 内：true
+  导航已收成粘性 chips：rail position=sticky；chip 高 41px 内：true；chips 宽 350 右缘 370
+  模板 pre 需内部横滚：false（client 348 / scroll 348）
+  出图 mobile-390-firstscreen.png
+  出图 mobile-390-method.png
+  出图 mobile-390-works.png
+  出图 mobile-390-work-open.png
+  出图 mobile-390-bottom.png
+  严格判据（摘掉 overflow）：innerWidth 390 / doc.scrollWidth 390 → 390 真装得下
+  兜底 320px：scrollWidth 320 / innerWidth 320
+  ⑤ 手机不横滚：PASS
+  出图 desktop-1440-bottom.png
+  出图 desktop-1440-fullpage.png
+
+=== 汇总（本案例验收点 6 条）===
+  PASS  ① 借/换说清（边界四格 + 借换对照表 + 页脚声明）
+  PASS  ② 不含原站素材（身份/文案串 0 命中；零 img/外链/外链资源）
+  PASS  ③ 三段拆解落到具体（结构/视觉/交互三卡 + 借换表）
+  PASS  ④ 能打开（单文件·零外部资源·离线）
+  PASS  ⑤ 手机不横滚（390 真机+严格判据，320 兜底）
+  PASS  ⑥ 内容真实（占位 0/死链 0/读数与来源一致）
+  附加 · 交互完整性：PASS
+  附加 · 风格纪律（单一强调色/零圆角/零渐变/零阴影/非 Inter）：PASS
+  总结论：全部通过（6/6）

@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小红书知识卡片 / 社媒海报 · 案例库</title>
+<meta name="description" content="一篇内容出一组风格统一、1080×1440 合规的知识卡片：品类路由 + 单一强调色 + 插桩核验。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>自媒体场景</span><span class="sep">/</span><span>04</span>
+    </nav>
+    <h1>小红书知识卡片 / 社媒海报</h1>
+    <div class="readout">
+      <span><b>场景</b>自媒体</span>
+      <span><b>编号</b>04</span>
+      <span><b>形态</b>PNG 卡片 ×4 + 拼版</span>
+      <span><b>大小</b>401 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 自媒体-04 小红书知识卡片 / 社媒海报</h1>
+<blockquote>所属材料：<strong>M7</strong>（<code>design-aesthetic-top-30-skills</code> 30 个设计 skill 榜）</blockquote>
+<blockquote>所在领域：领域二 · 自媒体（公众号爆文 / 小红书）</blockquote>
+<blockquote>提取依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<hr>
+<h2>〇、材料定位说明（与派单口述的差异，如实记录）</h2>
+<p>派单口述为&quot;看《100个WorkBuddy+应用案例合集》案例13&quot;。<strong>核对原始材料后，该手册的案例 12/13 分别是&quot;PPT 自动生成&quot;&quot;商业演示文稿&quot;，与本案例无关</strong>；本案例的真实来源是 <code>案例清单.md</code> 标注的 <strong>M7</strong>—— <code>原文</code>（M7 · #24 Xiaohongshu Card）「<strong>生成小红书风格知识卡片、社媒海报和内容封面</strong>」。 本卡以 <code>案例清单.md</code> 的 M7 来源为准（另见同榜 #07 Banner Design、#29 Bold Design 同属&quot;海报/图片生成&quot;类）。</p>
+<h2>一、痛点原句（引用手册原文）</h2>
+<blockquote><strong>原文①</strong>（M7 · #24 Xiaohongshu Card，分类&quot;海报/图片生成&quot;）</blockquote>
+<blockquote>「生成小红书风格知识卡片、社媒海报和内容封面」；产出类型标注为「生图 / HTML 卡片」。</blockquote>
+<blockquote><strong>原文②</strong>（M7 · #07 Banner Design）</blockquote>
+<blockquote>「做广告横幅、活动 banner、<strong>课程封面</strong>和促销主视觉」。</blockquote>
+<blockquote><strong>原文③</strong>（<code>案例清单.md</code> 自媒体-04 补全句）</blockquote>
+<blockquote>「文章写好了，还得做封面和内页卡片；<strong>不会设计软件，用模板又一眼撞车</strong>，做 3 张图 <strong>1 小时</strong>。」</blockquote>
+<h2>二、痛点主体（谁）</h2>
+<p><strong>内容已经写好、但卡在&quot;出图&quot;这一步的自媒体运营者 / 知识博主</strong>——文案能写、选题会找，<strong>一到配图就交不出产品</strong>。</p>
+<h2>三、旧做法的代价</h2>
+<ul>
+<li><strong>做 3 张图 1 小时</strong>（原文③）：一篇文章要&quot;1 张封面 + 2-3 张内页知识卡&quot;，纯手工拼图+配字，<strong>一小时就这么没了</strong>，还未必好看。</li>
+<li><strong>不会设计软件</strong>（原文③）：PS/AI 学不会，Canva 只会套模板；<strong>版式、字重、留白这些&quot;看着简单&quot;的事，业余做出来就是不对</strong>。</li>
+<li><strong>用模板又一眼撞车</strong>（原文③）：全网爆款模板被用烂了，<strong>发出去读者一眼认得出&quot;又是那个模板&quot;</strong>，涨粉效果打折。</li>
+<li><strong>症结不在&quot;没有图&quot;，在&quot;没有一套能反复用的版式系统&quot;</strong>：每次从零拼图，所以每次都要 1 小时，且每次风格都不统一。</li>
+</ul>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<p><strong>把一篇已写好的内容，一次性产出&quot;一组风格统一、版式专业、尺寸合规&quot;的知识卡片。</strong> 可验收：</p>
+<ul>
+<li>① <strong>一组卡片</strong>：1 张封面 + 2-3 张内容卡，<strong>同一套视觉系统</strong>（不是每张一个风格）；</li>
+<li>② <strong>尺寸精确命中平台规范</strong>：小红书 3:4 = <strong>1080×1440</strong>（可直发，不被裁）；</li>
+<li>③ <strong>版式经得起看</strong>：标题层级清楚、无溢出/不触边、手机缩略图仍可辨；</li>
+<li>④ <strong>不是模板撞车款</strong>：有明确的品类路由（内容属于哪类小红书品类 → 用哪套版式配方）。</li>
+</ul>
+<h2>五、【补全】为什么值得解决 + 目标导向 vs 工具理性</h2>
+<ul>
+<li><strong>【补全】目标导向的真相</strong>：运营者真正要的是&quot;<strong>这篇内容能带着一组好图发出去、被看进去</strong>&quot;，而不是&quot;学会做一个设计&quot;。<strong>&quot;会不会 PS&quot;是手段，&quot;图能不能帮内容涨粉&quot;才是目标。</strong></li>
+<li><strong>【补全】工具理性陷阱</strong>：最容易掉进去的做法是——去研究&quot;用哪个设计工具&quot;&quot;哪个模板站好看&quot;&quot;字体该装哪个&quot;，<strong>把时间花在工具上，而不是内容上</strong>。手册 M7 把这件事归成 <strong>skill</strong>（#24 &quot;生成…知识卡片&quot;），正是要把&quot;设计手段&quot;交给 AI，人只管内容。</li>
+<li><strong>【补全】本案例的复刻价值</strong>：把&quot;生成小红书风格知识卡片&quot;这句能力描述，<strong>做实为一套可复现的出图流程</strong>——<strong>定品类路由（哪类内容用哪套版式）→ 选视觉系统（Swiss / 电子杂志）→ 由 skill 的种子模板出真实 PNG → 插桩核验尺寸与版式</strong>。<strong>&quot;风格统一 + 尺寸合规&quot;这两件事，恰恰是业余拼图最容易漏、也最影响观感的。</strong></li>
+<li><strong>【补全】为什么值得解决</strong>：这是一个<strong>高频重复</strong>动作——每发一篇内容就要出一组图。<strong>&quot;重复的版式劳动&quot;交给 AI，&quot;内容讲什么、给谁看&quot;留给人</strong>，正是该被 agent 接手的活。</li>
+</ul>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>——解决的是&quot;内容已写好、如何快速产出合规且有设计感的一组配图&quot;这一<strong>内容交付</strong>问题； ❌ 不是&quot;我想学个设计工具所以找个东西练手&quot;式的工具理性。</p>
+<h2>七、跨章回扣</h2>
+<ul>
+<li>直接回扣 <code>案例清单.md</code> 领域二开篇：<code>原文</code>「把重复性的工作交给 AI，把创意和判断留给自己」——<strong>&quot;出图 + 排版 + 尺寸&quot;是重复劳动（交给 AI）；&quot;这篇讲什么、封面用什么钩子&quot;是创意判断（留给人）。</strong></li>
+<li>与 <strong>自媒体-03</strong> 是一条流水线的上下游：<strong>03 把周报改写成小红书文案并给出&quot;配图建议&quot;（shot list），04 负责把建议落实成一套真实的卡片 PNG</strong>（见 <code>案例自媒体-03…/最终产物/配图建议.md</code>）。</li>
+<li>与 <strong>自媒体-05</strong> 共享同一篇内容：<strong>04 出小红书 3:4 卡组，05 出公众号封面成对</strong>——同一内容、两种平台的尺寸与构图分头处理（正是 <code>platform-specs.md</code> 强调的&quot;逐张独立刷、不同注意力预算&quot;）。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 二档：PDF embed + 预览画廊 + 下载（DOCX/XLSX 只给下载） -->
+    <section class="stage tier-b">
+      <header class="stage-head">
+        <h2 class="k">产物 · 在线预览</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases//artifact/xhs-01-cover.png" download>下载 xhs-01-cover.png</a><a class="btn-ghost" href="../assets/cases//artifact/xhs-02-usages.png" download>下载 xhs-02-usages.png</a><a class="btn-ghost" href="../assets/cases//artifact/xhs-03-pipeline.png" download>下载 xhs-03-pipeline.png</a><a class="btn-ghost" href="../assets/cases//artifact/xhs-04-takeaway.png" download>下载 xhs-04-takeaway.png</a><a class="btn-ghost" href="../assets/cases//artifact/xhs-deck-preview.png" download>下载 xhs-deck-preview.png</a><a class="btn-ghost" href="../assets/cases//artifact/卡片文案.md" download>下载 卡片文案.md</a>
+        </div>
+      </header>
+
+      
+
+      
+
+      
+      <!-- 静态图网格（散图，如图表 PNG） -->
+      <div class="stage-imgs">
+        <figure><img src="../assets/cases/zi-mei-ti-04/preview/xhs-02-usages.png" alt="xhs 02 usages" loading="lazy"><figcaption>xhs 02 usages</figcaption></figure><figure><img src="../assets/cases/zi-mei-ti-04/preview/xhs-03-pipeline.png" alt="xhs 03 pipeline" loading="lazy"><figcaption>xhs 03 pipeline</figcaption></figure><figure><img src="../assets/cases/zi-mei-ti-04/preview/xhs-04-takeaway.png" alt="xhs 04 takeaway" loading="lazy"><figcaption>xhs 04 takeaway</figcaption></figure><figure><img src="../assets/cases/zi-mei-ti-04/preview/xhs-deck-preview.png" alt="xhs deck preview" loading="lazy"><figcaption>xhs deck preview</figcaption></figure>
+      </div>
+      
+    </section>
+
+
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/xhs-01-cover.png" download><span>xhs-01-cover.png</span><span class="sz">107 KB</span></a></li><li><a href="../assets/cases//artifact/xhs-02-usages.png" download><span>xhs-02-usages.png</span><span class="sz">127 KB</span></a></li><li><a href="../assets/cases//artifact/xhs-03-pipeline.png" download><span>xhs-03-pipeline.png</span><span class="sz">109 KB</span></a></li><li><a href="../assets/cases//artifact/xhs-04-takeaway.png" download><span>xhs-04-takeaway.png</span><span class="sz">107 KB</span></a></li><li><a href="../assets/cases//artifact/xhs-deck-preview.png" download><span>xhs-deck-preview.png</span><span class="sz">401 KB</span></a></li><li><a href="../assets/cases//artifact/卡片文案.md" download><span>卡片文案.md</span><span class="sz">4 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>内容与路由<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>出图与核验<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/zi-mei-ti-04/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-04/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-04/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-04/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-04/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

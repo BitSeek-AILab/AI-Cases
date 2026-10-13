@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codex 五步法 · 做出第一版网页</title>
+<style>
+:root{
+  --paper:#fafaf8; --ink:#0a0a0a;
+  --grey-1:#f0f0ee; --grey-2:#d4d4d2; --grey-3:#737373;
+  --accent:#C5E803; --accent-on:#0a0a0a;
+  --sans:"Helvetica Neue",Helvetica,Arial,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 32px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--grey-2)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.nav a{font-family:var(--mono);font-size:13px;color:var(--grey-3);text-decoration:none;margin-left:20px}
+.nav a:hover{color:var(--ink)}
+.nav a.active{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:6px}
+
+/* hero */
+.hero{padding:96px 0 72px;border-bottom:1px solid var(--grey-2);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='1.3' cy='1.3' r='1.3' fill='%230a0a0a' fill-opacity='0.07'/%3E%3C/svg%3E");
+  background-size:22px 22px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey-3)}
+h1{font-size:clamp(38px,7vw,76px);line-height:1.03;letter-spacing:-.02em;margin:18px 0 0;font-weight:700}
+.lede{font-size:clamp(16px,2.2vw,20px);color:#2b2b2b;max-width:34em;margin:22px 0 0}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px}
+.btn{display:inline-block;font-family:var(--mono);font-size:14px;text-decoration:none;padding:14px 22px;border:1px solid var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-on);border-color:var(--accent)}
+.btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn.primary:hover{background:var(--accent);color:var(--accent-on);border-color:var(--ink)}
+
+/* signature: prompt card as hero */
+.promptcard{margin-top:48px;max-width:660px;border:1px solid var(--ink);background:var(--paper)}
+.promptcard .bar{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--grey-2)}
+.promptcard .bar b{font-family:var(--mono);font-size:11.5px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--grey-3)}
+.promptcard .bar i{font-family:var(--mono);font-size:11.5px;font-style:normal;color:var(--grey-3)}
+.promptcard pre{background:transparent;border:0;padding:20px 16px;font-size:13.5px;line-height:1.85}
+.ph{background:var(--accent);color:var(--accent-on);padding:0 2px}
+
+/* sections */
+section{padding:72px 0;border-bottom:1px solid var(--grey-2)}
+h2{font-size:clamp(24px,3.4vw,34px);line-height:1.15;letter-spacing:-.01em;margin:0 0 8px;font-weight:700}
+.sub{color:var(--grey-3);max-width:44em;margin:0 0 34px}
+
+/* pain cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--grey-2)}
+.card{background:var(--paper);padding:26px 24px}
+.card .n{font-family:var(--mono);font-size:12px;color:var(--grey-3)}
+.card h3{font-size:18px;margin:10px 0 8px}
+.card p{margin:0;color:#333;font-size:15px}
+
+/* steps */
+.step{display:grid;grid-template-columns:96px 1fr;gap:0;border-top:1px solid var(--grey-2);padding:26px 0}
+.step .num{font-family:var(--mono);font-size:22px;color:var(--grey-3)}
+.step h3{margin:0 0 6px;font-size:20px}
+.step p{margin:0;color:#333}
+.step .todo{font-family:var(--mono);font-size:13px;color:var(--grey-3);margin-top:10px}
+
+/* step rail (left track) */
+.steps-layout{display:grid;grid-template-columns:190px minmax(0,1fr);gap:48px;align-items:start}
+.rail{position:sticky;top:84px;min-width:0;font-family:var(--mono);font-size:12.5px}
+.rail .rail-label{display:block;letter-spacing:.14em;text-transform:uppercase;color:var(--grey-3);margin-bottom:14px}
+.rail ol{list-style:none;margin:0;padding:0;min-width:0}
+.rail li{margin:0 0 10px}
+.rail a{display:block;text-decoration:none;color:var(--grey-3);padding:4px 0 4px 12px;border-left:2px solid var(--grey-2)}
+.rail a:hover{color:var(--ink)}
+.rail a.active{color:var(--ink);border-left-color:var(--accent)}
+.steps-body{min-width:0}
+
+/* tabs (start) */
+.tabs{display:flex;gap:1px;background:var(--grey-2);border:1px solid var(--grey-2);max-width:640px}
+.tab{flex:1;font-family:var(--mono);font-size:13px;padding:13px 8px;background:var(--paper);border:0;cursor:pointer;color:var(--grey-3);text-align:center}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-on)}
+.panel{border:1px solid var(--grey-2);border-top:0;padding:26px 24px;max-width:640px}
+.panel h3{margin:0 0 8px;font-size:19px}
+.panel p{margin:0 0 10px;color:#333}
+.panel .fit{font-family:var(--mono);font-size:13px;color:var(--grey-3);margin:0}
+pre{background:var(--grey-1);border:1px solid var(--grey-2);padding:22px;overflow:auto;font-family:var(--mono);font-size:13.5px;line-height:1.8;margin:0}
+.prewrap{position:relative}
+.prewrap pre{padding-right:120px}
+.copy{position:absolute;top:10px;right:10px;font-family:var(--mono);font-size:12px;padding:7px 12px;border:1px solid var(--ink);background:var(--paper);cursor:pointer}
+.copy:hover{background:var(--accent);border-color:var(--accent)}
+.copy.done{background:var(--accent);border-color:var(--accent)}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--grey-2);margin-top:30px}
+.four div{background:var(--paper);padding:18px}
+.four b{display:block;font-family:var(--mono);font-size:12px;color:var(--grey-3);font-weight:400}
+.four span{font-size:16px}
+
+/* checklist (accordion) */
+.check2{list-style:none;margin:0;padding:0}
+.check2 li{border-top:1px solid var(--grey-2)}
+.check2 summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:56px 1fr 24px;gap:12px;align-items:center;padding:18px 0;font-size:17px}
+.check2 summary::-webkit-details-marker{display:none}
+.check2 summary .n{font-family:var(--mono);color:var(--grey-3)}
+.check2 summary::after{content:"+";font-family:var(--mono);color:var(--grey-3);text-align:right}
+.check2 details[open] summary::after{content:"\2212"}
+.check2 details p{margin:0 0 18px;padding-left:68px;color:#333}
+
+/* refs */
+.refs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--grey-2)}
+.refs a{background:var(--paper);padding:22px;text-decoration:none;display:block}
+.refs a:hover{background:var(--grey-1)}
+.refs b{font-size:17px}
+.refs small{display:block;color:var(--grey-3);font-family:var(--mono);font-size:12px;margin-top:8px}
+
+footer{padding:56px 0;background:var(--paper)}
+footer p{margin:6px 0;color:var(--grey-3);font-size:13.5px;font-family:var(--mono)}
+
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  html{scroll-behavior:auto}
+}
+@media(max-width:760px){
+  .wrap{padding:0 18px}
+  .topbar .wrap{height:auto;flex-wrap:wrap;padding-top:10px;padding-bottom:10px;gap:6px 0}
+  .brand{white-space:nowrap}
+  .nav{display:flex;gap:14px;width:100%}
+  .nav a{margin-left:0;font-size:12px}
+  .hero{padding:56px 0 48px}
+  .cards,.refs,.four{grid-template-columns:1fr}
+  .step{grid-template-columns:52px 1fr}
+  h1{font-size:clamp(34px,9vw,48px)}
+  .steps-layout{grid-template-columns:minmax(0,1fr);gap:0}
+  .rail{position:static;margin-bottom:6px;border-bottom:1px solid var(--grey-2);padding-bottom:12px}
+  .rail .rail-label{display:none}
+  .rail ol{display:flex;gap:16px;overflow-x:auto}
+  .rail li{margin:0}
+  .rail a{border-left:0;border-bottom:2px solid var(--grey-2);padding:0 0 7px;white-space:nowrap}
+  /* 手机端：模板改为纵向换行，全文可读，不靠内部横滚 */
+  .promptcard pre{white-space:pre-wrap;overflow-wrap:anywhere}
+  .prewrap{display:flex;flex-direction:column}
+  .prewrap .copy{position:static;align-self:stretch;border-bottom:0;padding:12px 14px;text-align:center}
+  .prewrap pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:20px 18px}
+  .check2 details p{padding-left:0}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="brand">CODEX · 五步工作流</span>
+    <nav class="nav">
+      <a href="#pain">卡在哪</a>
+      <a href="#steps">五步</a>
+      <a href="#start">怎么下手</a>
+      <a href="#check">自检</a>
+      <a href="#refs">参考</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="top">
+    <div class="wrap">
+      <p class="eyebrow">Codex 网页制作 · 五步工作流</p>
+      <h1>先想清楚，<br>再让 Codex 动手</h1>
+      <p class="lede">五步，把“说不清的需求”变成一版能打开、能看、结构完整的网页。少一点名词堆叠，多一点能直接用的判断。</p>
+      <div class="cta">
+        <a class="btn primary" href="#steps">看五步怎么走</a>
+        <a class="btn" href="#start">抄走提示词模板</a>
+      </div>
+      <div class="promptcard">
+        <div class="bar"><b>直接抄的提示词模板</b><i>M4 · P12</i></div>
+<pre>我要做一个 <span class="ph">[网站类型]</span>。
+目标用户是 <span class="ph">[谁]</span>，页面目标是 <span class="ph">[动作]</span>。
+已有内容：<span class="ph">[文案 / 图片 / Logo / 链接]</span>。
+风格参考：<span class="ph">[链接]</span>，重点参考 <span class="ph">[布局 / 颜色 / 字体 / 动效]</span>。
+需要这些模块：<span class="ph">[模块列表]</span>。
+交互包括：<span class="ph">[菜单 / 表单 / 筛选 / 瀑布流 / 弹窗]</span>。
+交付为：<span class="ph">[单 HTML / React / Next.js]</span>，请适配手机。</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="pain">
+    <div class="wrap">
+      <h2>把模糊需求丢给 AI，得到的是“AI 味”模板页</h2>
+      <p class="sub">不是你不会用 AI，是三件事没说清——这三件事，正是五步法要逼你交代的。</p>
+      <div class="cards">
+        <div class="card"><span class="n">A</span><h3>不知道怎么说</h3><p>只丢一句“帮我做个网页”，AI 只能靠猜。类型没说清，骨架就定了型。</p></div>
+        <div class="card"><span class="n">B</span><h3>不知道该给什么</h3><p>没有文案、图片、模块顺序，页面只能是个空壳，内容真实度无从谈起。</p></div>
+        <div class="card"><span class="n">C</span><h3>不知道改哪</h3><p>一版出来全不对，一次改十处，越改越乱。得一轮只改一类问题。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="steps">
+    <div class="wrap steps-layout">
+      <aside class="rail" aria-label="五步导航">
+        <span class="rail-label">五步 · 按顺序</span>
+        <ol>
+          <li><a href="#s1">01 定目标</a></li>
+          <li><a href="#s2">02 给内容</a></li>
+          <li><a href="#s3">03 给参考</a></li>
+          <li><a href="#s4">04 生成第一版</a></li>
+          <li><a href="#s5">05 逐项修改</a></li>
+        </ol>
+      </aside>
+      <div class="steps-body">
+        <h2>五步怎么走</h2>
+        <p class="sub">把需求拆成五步，Codex 更容易做准。</p>
+
+        <div class="step" id="s1"><div class="num">01</div><div><h3>定目标</h3><p>谁看、看完后要做什么动作。</p><div class="todo">交代：谁看 / 看完后要做什么动作</div></div></div>
+        <div class="step" id="s2"><div class="num">02</div><div><h3>给内容</h3><p>标题、文案、图片、Logo、模块顺序。</p><div class="todo">交代：这五样</div></div></div>
+        <div class="step" id="s3"><div class="num">03</div><div><h3>给参考</h3><p>说清喜欢的是布局、颜色、字体还是动效。</p><div class="todo">交代：从这四样里点名</div></div></div>
+        <div class="step" id="s4"><div class="num">04</div><div><h3>生成第一版</h3><p>先要能打开、能看、结构完整的版本。</p><div class="todo">交代：先别追求完美</div></div></div>
+        <div class="step" id="s5"><div class="num">05</div><div><h3>逐项修改</h3><p>一次只改一类问题：内容、布局、交互、移动端。</p><div class="todo">交代：一轮只动一类</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="start">
+    <div class="wrap">
+      <h2>怎么下手：三种起点</h2>
+      <p class="sub">做网页不只有“从零写提示词”这一条路。以下三条为原文方法的意译整理（原文见《Codex 网页制作入门》P11）。</p>
+      <div class="tabs" role="tablist" aria-label="三种起点">
+        <button class="tab" role="tab" type="button" aria-selected="true" data-tab="t1">① 纯提示词</button>
+        <button class="tab" role="tab" type="button" aria-selected="false" data-tab="t2">② 参考链接</button>
+        <button class="tab" role="tab" type="button" aria-selected="false" data-tab="t3">③ 代码素材</button>
+      </div>
+      <div class="panel" id="t1" role="tabpanel"><h3>① 纯提示词</h3><p>直接从一句需求写起，不依赖任何现成素材。</p><p class="fit">适合：需求简单、无品牌限制</p></div>
+      <div class="panel" id="t2" role="tabpanel" hidden><h3>② 参考链接</h3><p>已看到喜欢的效果，让 Codex 拆它的布局 / 字体 / 颜色 / 动效。</p><p class="fit">适合：有明确想学的对象</p></div>
+      <div class="panel" id="t3" role="tabpanel" hidden><h3>③ 代码素材</h3><p>有官方示例 / 开源组件 / CodePen demo，确认授权后改造。</p><p class="fit">适合：想站在别人肩膀上</p></div>
+
+      <h2 style="margin-top:56px">直接抄的提示词模板</h2>
+      <p class="sub">四项信息各有作用：类型定骨架 / 内容定真实度 / 参考定视觉交互方向 / 交付定代码结构。</p>
+      <div class="prewrap">
+        <button class="copy" type="button" data-copy="tpl">复制模板</button>
+        <pre id="tpl">我要做一个 [网站类型]。
+目标用户是 [谁]，页面目标是 [动作]。
+已有内容：[文案 / 图片 / Logo / 链接]。
+风格参考：[链接]，重点参考 [布局 / 颜色 / 字体 / 动效]。
+需要这些模块：[模块列表]。
+交互包括：[菜单 / 表单 / 筛选 / 瀑布流 / 弹窗]。
+交付为：[单 HTML / React / Next.js]，请适配手机。</pre>
+      </div>
+      <div class="four">
+        <div><b>类型</b><span>定骨架</span></div>
+        <div><b>内容</b><span>定真实度</span></div>
+        <div><b>参考</b><span>定视觉交互方向</span></div>
+        <div><b>交付</b><span>定代码结构</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="check">
+    <div class="wrap">
+      <h2>交付前只看六件事</h2>
+      <p class="sub">把“做完了”改成“验收通过”——AI 说做完了不算，这六条过了才算。</p>
+      <p class="sub" style="font-size:13.5px;margin-bottom:28px">注：原文标题写“只看五件事”，实际列出 6 条——本页如实呈现 6 条。</p>
+      <ol class="check2">
+        <li><details><summary><span class="n">01</span><span>内容真实</span></summary><p>没有占位文案、假链接、空图片。</p></details></li>
+        <li><details><summary><span class="n">02</span><span>手机可读</span></summary><p>390 宽不横向滚动，字号可读、按钮可点。</p></details></li>
+        <li><details><summary><span class="n">03</span><span>交互完整</span></summary><p>能点、能切、有反馈——用户知道“可以做、做完了、出错了”。</p></details></li>
+        <li><details><summary><span class="n">04</span><span>风格统一</span></summary><p>单一锚点色、一致的字体与网格、直角无渐变。</p></details></li>
+        <li><details><summary><span class="n">05</span><span>授权清楚</span></summary><p>借方法不搬运：不用他人商标、图片、整站代码。</p></details></li>
+        <li><details><summary><span class="n">06</span><span>能打开</span></summary><p>单文件、无外部依赖，离线双击即可打开。</p></details></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="refs">
+    <div class="wrap">
+      <h2>参考站：看真实网站，别只看截图</h2>
+      <p class="sub">六个高频参考来源（出处 P13）。不要只截图，要告诉 Codex 参考哪里：结构 / 视觉 / 交互 / 改成自己的。借方法，不搬运文案、商标、图片和整站代码。</p>
+      <div class="refs">
+        <a href="https://www.awwwards.com/" target="_blank" rel="noopener"><b>AWWWARDS</b><small>强视觉 / 动效</small></a>
+        <a href="https://www.siteinspire.com/" target="_blank" rel="noopener"><b>SITEINSPIRE</b><small>真实网站分类</small></a>
+        <a href="https://land-book.com/" target="_blank" rel="noopener"><b>LAND-BOOK</b><small>落地页 / SaaS，学模块顺序</small></a>
+        <a href="https://mobbin.com/" target="_blank" rel="noopener"><b>MOBBIN</b><small>产品界面流程</small></a>
+        <a href="https://codepen.io/" target="_blank" rel="noopener"><b>CODEPEN</b><small>交互代码 demo</small></a>
+        <a href="https://github.com/" target="_blank" rel="noopener"><b>GITHUB</b><small>开源项目，看 License</small></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>内容出处：《Codex 网页制作入门 · 从 0 到上线》16 页 deck P07 / P10 / P11 / P12 / P13 / P14 / P15 / P16。</p>
+    <p>授权：视觉借“瑞士国际主义 + 柠檬绿”配色方法（单一锚点色 + 高级灰阶），未复制任何模板代码、商标或图片。</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* 标签切换：三种起点 */
+  document.querySelectorAll(".tabs").forEach(function(group){
+    var tabs = [].slice.call(group.querySelectorAll(".tab"));
+    var panels = [].slice.call(group.parentNode.querySelectorAll(".panel"));
+    group.addEventListener("click", function(e){
+      var btn = e.target.closest(".tab");
+      if(!btn) return;
+      var id = btn.getAttribute("data-tab");
+      tabs.forEach(function(b){ b.setAttribute("aria-selected", b===btn ? "true" : "false"); });
+      panels.forEach(function(p){ p.hidden = (p.id !== id); });
+    });
+  });
+
+  /* 复制反馈：模板 */
+  function copyFallback(text, done){
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly","");
+    ta.style.position = "fixed"; ta.style.top = "-1000px";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch(err) {}
+    document.body.removeChild(ta); done();
+  }
+  document.querySelectorAll(".copy").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var pre = document.getElementById(btn.getAttribute("data-copy"));
+      var text = pre ? pre.textContent : "";
+      var done = function(){
+        btn.classList.add("done");
+        var old = btn.textContent;
+        btn.textContent = "已复制";
+        setTimeout(function(){ btn.classList.remove("done"); btn.textContent = old; }, 1600);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, function(){ copyFallback(text, done); });
+      } else { copyFallback(text, done); }
+    });
+  });
+
+  /* 滚动高亮：顶栏分区 + 步骤轨道（以视口中线为判定线，稳定不抖动） */
+  function spy(links){
+    var pairs = links.map(function(a){
+      var t = document.querySelector(a.getAttribute("href"));
+      return t ? {a:a, t:t} : null;
+    }).filter(Boolean);
+    if(!pairs.length) return;
+    var ticking = false;
+    function update(){
+      ticking = false;
+      var line = window.innerHeight * 0.5;
+      var active = null;
+      pairs.forEach(function(p){
+        var r = p.t.getBoundingClientRect();
+        if(r.top <= line && r.bottom > line) active = p.t;
+      });
+      pairs.forEach(function(p){ p.a.classList.toggle("active", p.t === active); });
+    }
+    function onScroll(){ if(!ticking){ ticking = true; window.requestAnimationFrame(update); } }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    update();
+  }
+  spy([].slice.call(document.querySelectorAll(".nav a[href^='#']")));
+  spy([].slice.call(document.querySelectorAll(".rail a[href^='#']")));
+})();
+</script>
+
+</body>
+</html>

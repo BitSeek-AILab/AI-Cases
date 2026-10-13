@@ -1,0 +1,294 @@
+{
+  "tag": "css",
+  "file": "D:/CAREER/AI第二期/课程产品矩阵/AI沙龙-10月/横刀实战/进一步复刻_工程/复刻产出/编程/案例编程-04_瀑布流作品集/最终产物/瀑布流作品集_CSScolumns版.html",
+  "bytes": 103858,
+  "checks": [
+    {
+      "name": "骨架屏 → 内容替换",
+      "pass": true
+    },
+    {
+      "name": "卡片高度真的不一（去重 ≥8 种且最高/最矮 ≥1.5）",
+      "pass": true
+    },
+    {
+      "name": "不是普通网格（同列间距全部 ≈20px）",
+      "pass": true
+    },
+    {
+      "name": "无错位（两两相交面积为 0）",
+      "pass": true
+    },
+    {
+      "name": "未越界",
+      "pass": true
+    },
+    {
+      "name": "hover 有可见反馈（且静置态无提示）",
+      "pass": true
+    },
+    {
+      "name": "图片全部解码 + 淡入到 opacity=1",
+      "pass": true
+    },
+    {
+      "name": "\"加载更多\"错误态可见",
+      "pass": true
+    },
+    {
+      "name": "\"加载更多\"加载中态可见",
+      "pass": true
+    },
+    {
+      "name": "\"加载更多\"完成态 + 追加 4 张",
+      "pass": true
+    },
+    {
+      "name": "单文件（0 外部引用）",
+      "pass": true
+    },
+    {
+      "name": "无占位假链接（a[href] 里没有 # / 空 / javascript:）",
+      "pass": true
+    },
+    {
+      "name": "点击卡片不导航、不回顶（假链接回归测试）",
+      "pass": true
+    },
+    {
+      "name": "手机 390 不横滚（真机判据）",
+      "pass": true
+    },
+    {
+      "name": "手机 390 不横滚（摘掉 overflow 后严格判据）",
+      "pass": true
+    },
+    {
+      "name": "手机 320 不横滚",
+      "pass": true
+    },
+    {
+      "name": "手机上退到 1 列",
+      "pass": true
+    }
+  ],
+  "allPass": true,
+  "geom": {
+    "uniqCount": 13,
+    "ratio": 2.804270462633452,
+    "heights": [
+      581,
+      281,
+      314,
+      575,
+      443,
+      788,
+      320,
+      593,
+      312,
+      443,
+      560,
+      288,
+      575,
+      443,
+      606,
+      323
+    ],
+    "uniqHeights": [
+      281,
+      288,
+      312,
+      314,
+      320,
+      323,
+      443,
+      560,
+      575,
+      581,
+      593,
+      606,
+      788
+    ],
+    "overlaps": 0,
+    "colInfo": [
+      {
+        "key": "x137",
+        "n": 5,
+        "height": 2275,
+        "maxGap": 20,
+        "minGap": 20,
+        "gaps": [
+          20,
+          20,
+          20,
+          20
+        ]
+      },
+      {
+        "key": "x527",
+        "n": 5,
+        "height": 2537,
+        "maxGap": 20,
+        "minGap": 20,
+        "gaps": [
+          20,
+          20,
+          20,
+          20
+        ]
+      },
+      {
+        "key": "x918",
+        "n": 6,
+        "height": 2894,
+        "maxGap": 20,
+        "minGap": 20,
+        "gaps": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ]
+      }
+    ],
+    "gapsOk": true
+  },
+  "basic": {
+    "title": "瀑布流作品集 · CSS columns 版",
+    "cards": 16,
+    "cols": "3",
+    "colHeights": "2275,2537,2894",
+    "externalRefs": [],
+    "anchors": 1,
+    "fakeLinks": [],
+    "shown": 16,
+    "typedoc": " js"
+  },
+  "argmin": null,
+  "jump": {
+    "beforeN": 16,
+    "afterN": 20,
+    "added": 4,
+    "movedCount": 11,
+    "movedSample": [
+      "p06",
+      "p07",
+      "p08",
+      "p09",
+      "p10"
+    ],
+    "during": {
+      "state": "loading",
+      "label": "正在加载…"
+    },
+    "after": {
+      "state": "done",
+      "label": "已全部加载 · 共 20 件",
+      "disabled": true
+    },
+    "colHeights": "3083,3210,3341",
+    "colCount": "3"
+  },
+  "mobile": {
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "offenders": [],
+    "cols": "1",
+    "colHeights": "9068",
+    "bodyFont": "12.5px",
+    "cardW": 342,
+    "overflowX": "hidden"
+  },
+  "strict": {
+    "innerWidth": 390,
+    "docScrollW": 375,
+    "offenders": []
+  },
+  "imgStat": {
+    "total": 16,
+    "loaded": 16,
+    "ready": 16,
+    "opacityAll1": true,
+    "allData": true,
+    "bad": [],
+    "sample": [
+      {
+        "alt": "",
+        "w": 640,
+        "h": 880
+      },
+      {
+        "alt": "",
+        "w": 1000,
+        "h": 560
+      },
+      {
+        "alt": "",
+        "w": 800,
+        "h": 520
+      }
+    ]
+  },
+  "states": {
+    "error": {
+      "state": "error",
+      "label": "加载失败 · 点此重试",
+      "disabled": false
+    },
+    "success": {
+      "state": "done",
+      "label": "已全部加载 · 共 20 件",
+      "disabled": true
+    }
+  },
+  "colSwitch": {
+    "c4": {
+      "cols": "4",
+      "hs": "1792,1984,1995,1776"
+    },
+    "c2": {
+      "cols": "2",
+      "hs": "6901,6889"
+    },
+    "c3": {
+      "cols": "3",
+      "hs": "3083,3210,3341"
+    }
+  },
+  "hover": {
+    "mode": "真实鼠标事件",
+    "before": {
+      "isHover": false,
+      "transform": "none",
+      "shade": "0",
+      "cue": "0",
+      "img": "none"
+    },
+    "hovered": {
+      "isHover": true,
+      "transform": "matrix(1, 0, 0, 1, 0, -6)",
+      "shade": "1",
+      "cue": "1",
+      "img": "matrix(1.045, 0, 0, 1.045, 0, 0)"
+    },
+    "idleCue": {
+      "total": 16,
+      "cueShown": 1,
+      "ids": [
+        "p02"
+      ]
+    },
+    "afterAway": 0,
+    "clickTest": {
+      "tag": "DIV",
+      "hasHref": false,
+      "y0": 878,
+      "y1": 878,
+      "h0": "",
+      "h1": "",
+      "urlSame": true
+    },
+    "clickClean": true
+  }
+}

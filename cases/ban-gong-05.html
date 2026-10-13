@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>定时自动化：每天9点汇总周报并发送 · 案例库</title>
+<meta name="description" content="团队6人每周交周报，免催收/抄录/汇总/套格式/转PDF/发群，一键产出汇总周报并模拟定时发送。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>办公场景</span><span class="sep">/</span><span>05</span>
+    </nav>
+    <h1>定时自动化：每天9点汇总周报并发送</h1>
+    <div class="readout">
+      <span><b>场景</b>办公</span>
+      <span><b>编号</b>05</span>
+      <span><b>形态</b>DOCX+PDF+MD</span>
+      <span><b>大小</b>153 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 办公-05 定时自动化：每天 9 点汇总周报并发送</h1>
+<blockquote>案例来源：《100 个 WorkBuddy+ 应用案例合集》第一章「一、自动化办公类案例」<strong>案例 6：定时自动化任务</strong></blockquote>
+<blockquote>复刻日期：2026-10-12</blockquote>
+<hr>
+<h2>一、痛点原句（引用手册原文）</h2>
+<p><strong>手册出处：</strong> 案例 6</p>
+<blockquote><strong>提示词：</strong></blockquote>
+<blockquote>每天9点自动汇总D盘「周报」文件夹内Word文档，转PDF并按'日报_YYYYMMDD'命名，发送至企业微信「行政群」</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>执行效果：</strong> 设置定时任务，每天自动执行文件汇总、转换和发送。</blockquote>
+<p>同章「六、自动化定时任务类案例」亦有同族两条可佐证&quot;定时&quot;是真实需求：</p>
+<blockquote><strong>案例 27：</strong> 每天早晨8点帮我整理当天科技圈热点，生成日报推送给我</blockquote>
+<blockquote><strong>案例 28：</strong> 每周一上午9点自动检索金融监管动态，生成周报并发送到企业微信指定群聊</blockquote>
+<p><strong>提取说明：</strong> 手册此处只有「一句提示词 + 一句执行效果」，<strong>没有</strong>第二人称的痛点导入，也没有写&quot;以前要折腾多久&quot;的代价句。按《子Agent执行规范》第〇补节，痛点提取的三个位置（章首导入 / 案例引入 / 章末收束）在本案例均缺位。因此本卡的痛点主体为 <strong>【补全】</strong>，仅&quot;提示词要解决什么任务 + 执行效果&quot;部分引自原文。</p>
+<hr>
+<h2>二、痛点主体（【补全】）</h2>
+<p><strong>谁：</strong> 带 5–8 人小团队的主管/团队助理（本案例取&quot;每周五要收周报再汇总上交的李敏&quot;）。</p>
+<p><strong>真实的&quot;每周五下午&quot;场景：</strong> 团队 6 个人，公司要求每周五下班前交一份《团队周报汇总》给上级。而这条链是纯手工的：</p>
+<table><thead><tr><th>步骤</th><th>手工做法</th><th>代价</th></tr></thead><tbody><tr><td>1. 催收</td><td>群里发一遍&quot;周报记得交&quot;，人没交要挨个私聊催</td><td>从周四就开始催，<strong>耗一整个下午的零碎时间</strong></td></tr><tr><td>2. 收齐</td><td>周报散在 6 个 Word 里，交上来的命名五花八门</td><td>得自己数齐没齐，缺谁的还得回头找</td></tr><tr><td>3. 汇总</td><td>逐份打开，把每个人的&quot;本周工作/数据/下周计划&quot;抄进一份汇总文档</td><td><strong>6 份就是开 6 次、抄 6 次</strong>，1 小时起</td></tr><tr><td>4. 排版</td><td>统一标题、统一格式、去掉各人自己的模板</td><td>再花 20 分钟</td></tr><tr><td>5. 转 PDF + 命名</td><td>另存 PDF，按日期命名归档</td><td>5 分钟</td></tr><tr><td>6. 发群</td><td>发到上级群 / 行政群</td><td>忘了发就要被催</td></tr></tbody></table>
+<p><strong>旧做法的代价：</strong> 这<strong>一整套每周五重来一次，1–2 小时</strong>；而且<strong>没有任何一步是&quot;有难度&quot;的</strong>，全是体力——催人、数数、复制粘贴、套格式。人一忙就容易漏、容易晚，<strong>漏一次就要被上级催</strong>。</p>
+<p><strong>更本质的一点：</strong> 手册写的是&quot;<strong>每天</strong> 9 点&quot;，说明这类需求的要害<strong>不是&quot;这次汇总&quot;</strong>，而是&quot;<strong>到了固定时间，这件事要自己发生，不能靠人记得</strong>&quot;。人做这种&quot;周期性、无难度、固定套路&quot;的事情，最大的风险不是慢，是<strong>忘</strong>——忘一次，别人就不再信任这套流程了。</p>
+<p><strong>想要的目标：</strong> 到点自动跑一条链路——<strong>扫周报文件夹 → 汇总成一份《团队周报汇总》 → 导出 PDF 并按日期命名 → 送到该去的地方</strong>，人只需要在汇总生成后看一眼、确认发送。不是&quot;学会写计划任务/schtasks&quot;，是&quot;<strong>每周五这份汇总会自己出现，我再也不会被催</strong>&quot;。</p>
+<p><strong>【补全】为什么值得解决：</strong> 这件事的价值不在&quot;省下这 1 小时&quot;，而在&quot;<strong>把一件周期性的事从'靠人记得'变成'自己会发生'</strong>&quot;。手工做，做得好也只是&quot;这次做对了&quot;；自动化以后，<strong>规则一次定好，往后每周都稳定发生</strong>，且<strong>漏没漏一眼可查</strong>（汇总里列了收到几份、缺谁）。这才是&quot;定时自动化&quot;相对于&quot;一次性脚本&quot;的真正增量。</p>
+<hr>
+<h2>三、价值归类</h2>
+<p><strong>目标导向 ✅</strong></p>
+<p>要解决的是&quot;<strong>每周五那份团队周报汇总，到点自己出现并送到位</strong>&quot;这个业务目标。 反面想想就清楚——如果只做成&quot;教你写一段 schtasks 注册命令&quot;，那是<strong>工具理性</strong>（把注意力放在手段&quot;计划任务&quot;上）；本案例要让学员只交代&quot;<strong>每周五要交一份汇总</strong>&quot;，由 Agent 负责手段（遍历/汇总/转 PDF/命名/发送）。本卡不通过&quot;只讲怎么注册计划任务&quot;的写法。</p>
+<hr>
+<h2>四、本案例的&quot;人工易错点&quot;（复刻时特意做进素材，用来验证痛点是真的）</h2>
+<p>复刻时把下面几条做进输入素材与流程，让&quot;手工很痛&quot;变成可验证的事实：</p>
+<ol>
+<li><strong>成员周报命名五花八门、格式各不相同</strong>：<code>张三周报.docx</code>、<code>周报-李四-0807.docx</code>、<code>王五 周报（第32周）.docx</code>…… <strong>收齐没齐、缺谁，光看名字判断不了</strong>。</li>
+<li><strong>每个人的周报结构不一样</strong>：有人没写&quot;下周计划&quot;，有人把关键数据写在正文中间。<strong>逐份汇总时要人工判断&quot;这段算不算要点&quot;</strong>。</li>
+<li><strong>有一个成员本周没交（缺口）</strong>：汇总必须能显式指出&quot;<strong>本周收到 5/6 份，赵六未交</strong>&quot;，而不是静默按 5 份汇总——<strong>这正是手工最容易漏的地方</strong>。</li>
+<li><strong>&quot;每天 9 点&quot;是定时语义</strong>：交付物必须包含&quot;<strong>定时怎么注册</strong>&quot;（本机无真实定时环境 → 演示 schtasks 命令，<strong>不实际注册</strong>）。</li>
+<li><strong>&quot;发送至企业微信&quot;本机无凭证</strong>：交付物必须包含<strong>模拟发送物料</strong>（邮件/企业微信消息 payload + 发送说明），并写明平台边界。</li>
+</ol>
+<blockquote>这几条不是&quot;加戏&quot;，是把手册那句&quot;每天9点自动汇总…发送至企业微信&quot;里<strong>没有写出来的辛苦</strong>还原成可验证的素材。不做进素材，就没法证明&quot;手工真的很痛、且会漏&quot;。</blockquote>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 二档：PDF embed + 预览画廊 + 下载（DOCX/XLSX 只给下载） -->
+    <section class="stage tier-b">
+      <header class="stage-head">
+        <h2 class="k">产物 · 在线预览</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases//artifact/团队周报汇总_20260807.docx" download>下载 团队周报汇总_20260807.docx</a><a class="btn-ghost" href="../assets/cases//artifact/团队周报汇总_20260807.md" download>下载 团队周报汇总_20260807.md</a><a class="btn-ghost" href="../assets/cases//artifact/团队周报汇总_20260807.pdf" download>下载 团队周报汇总_20260807.pdf</a><a class="btn-ghost" href="../assets/cases//artifact/定时任务注册命令.md" download>下载 定时任务注册命令.md</a>
+        </div>
+      </header>
+
+      
+      <div class="stage-pdf">
+        <embed src="../assets/cases/ban-gong-05/artifact/团队周报汇总_20260807.pdf" type="application/pdf">
+        <p class="stage-note">浏览器不支持内嵌预览？<a href="../assets/cases/ban-gong-05/artifact/团队周报汇总_20260807.pdf" download>点这里下载 PDF</a>。</p>
+      </div>
+      
+
+      
+
+      
+    </section>
+
+
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/团队周报汇总_20260807.docx" download><span>团队周报汇总_20260807.docx</span><span class="sz">37 KB</span></a></li><li><a href="../assets/cases//artifact/团队周报汇总_20260807.md" download><span>团队周报汇总_20260807.md</span><span class="sz">3 KB</span></a></li><li><a href="../assets/cases//artifact/团队周报汇总_20260807.pdf" download><span>团队周报汇总_20260807.pdf</span><span class="sz">153 KB</span></a></li><li><a href="../assets/cases//artifact/定时任务注册命令.md" download><span>定时任务注册命令.md</span><span class="sz">4 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>造素材与清点<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>汇总成文<span class="stage-state">✓</span></li><li><span class="stage-no">3</span>转PDF与定时发送<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/ban-gong-05/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/ban-gong-05/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/ban-gong-05/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/ban-gong-05/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/ban-gong-05/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

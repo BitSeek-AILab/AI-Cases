@@ -1,0 +1,17 @@
+{
+  "tag": "js",
+  "state": {
+    "cards": 20,
+    "cols": "1",
+    "colHeights": "7586",
+    "shown": 20,
+    "loadState": "done",
+    "errors": [
+      "模拟网络失败"
+    ],
+    "phase": "content"
+  },
+  "errors": [],
+  "warns": [],
+  "netFails": []
+}

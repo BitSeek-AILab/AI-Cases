@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一句话生成公众号推文 · 案例库</title>
+<meta name="description" content="一句话交代主题，拿到约 2000 字四段结构推文 + 成对封面 + 公众号 HTML，并写明平台边界。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>自媒体场景</span><span class="sep">/</span><span>01</span>
+    </nav>
+    <h1>一句话生成公众号推文</h1>
+    <div class="readout">
+      <span><b>场景</b>自媒体</span>
+      <span><b>编号</b>01</span>
+      <span><b>形态</b>公众号 HTML + 封面 + 物料包</span>
+      <span><b>大小</b>23 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 自媒体-01 一句话生成公众号推文 + 自动草稿入库 ★主案例</h1>
+<blockquote>所属材料：<strong>M3</strong>《WorkBuddy：从0到1搭建公众号自动化生成爆文保姆级教程》（全文主案例）</blockquote>
+<blockquote>所在领域：领域二 · 自媒体（公众号爆文）</blockquote>
+<blockquote>提取依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<hr>
+<h2>一、痛点原句（引用手册原文）</h2>
+<blockquote><strong>原文①</strong>（M3 · 提需求段）</blockquote>
+<blockquote>「就一句话：'帮我写一篇关于微信小程序更换管理员的微信公众号推文，并帮我自动发布。'」</blockquote>
+<blockquote><strong>原文②</strong>（M3 · 结果段）</blockquote>
+<blockquote>「我只说了一句话，它帮我把公众号推文从零写到草稿入库，全程不到10分钟。」</blockquote>
+<blockquote><strong>原文③</strong>（M3 · 感受段）</blockquote>
+<blockquote>「效率提升明显： 以前手动写稿、排版、上传，怎么也要30-60分钟。WorkBuddy 全程不超过10分钟。」</blockquote>
+<blockquote><strong>原文④</strong>（M3 · 踩坑换路，体现&quot;目标导向&quot;）</blockquote>
+<blockquote>「UseSkill: xiaohongshu … 这个技能是小红书相关的，不是微信公众号。微信公众号的自动发布需要不同的方式。」</blockquote>
+<hr>
+<h2>二、痛点主体（谁）</h2>
+<p><strong>公众号运营者 / 小团队内容负责人</strong>——每周要更 3-5 篇推文，一个人包揽选题、查资料、写稿、排版、配封面、上传草稿全流程。</p>
+<h2>三、旧做法的代价</h2>
+<p>单篇推文走完 <strong>选题 → 查资料 → 写稿 → 排版 → 配封面 → 上传草稿</strong>，<strong>30-60 分钟</strong>（原文③）。 按每周 3-5 篇算，一周就是 <strong>1.5-5 小时的纯重复性体力活</strong>，且时间大量花在&quot;排版、找封面、跟后台较劲&quot;这些<strong>与内容质量无关</strong>的环节上。</p>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<p><strong>内容做出来、并且按时发出去。</strong> 具体到可验收：</p>
+<ul>
+<li>一句话交代主题，就能拿到一篇<strong>结构完整、内容有据可查</strong>的推文（约 2000 字，含操作指南/申诉流程/高频 Q&amp;A/速查表）；</li>
+<li>配好封面、排好版，<strong>直接进公众号草稿箱</strong>，人只需点一下&quot;发布&quot;；</li>
+<li>全程从 30-60 分钟压缩到 <strong>10 分钟量级</strong>。</li>
+</ul>
+<h2>五、【补全】为什么值得解决 + 目标导向 vs 工具理性</h2>
+<ul>
+<li><strong>【补全】目标导向的真相</strong>：用户真正要的是&quot;<strong>这篇推文按时发出去</strong>&quot;，而不是&quot;学会用某个排版工具&quot;&quot;搞懂微信 API&quot;。写稿、排版、配图、建草稿<strong>都是手段</strong>。</li>
+<li><strong>【补全】工具理性陷阱</strong>：运营者最容易把时间错放在手段上——研究排版工具哪个好看、研究微信 API 怎么调、纠结用哪个模型写作。<strong>越研究手段，越没时间做内容。</strong></li>
+<li><strong>【补全·本案例最有教学价值的一点】</strong>：M3 里 WorkBuddy <strong>自己就先踩了一次工具理性的坑</strong>——它先调了 <code>xiaohongshu</code>（小红书）技能（原文④），发现跑错平台后<strong>没有硬撑，而是自己换路</strong>：先去搜&quot;微信小程序更换管理员操作步骤&quot;、再去查&quot;微信公众号自动发文 API&quot;，然后才动手写。<strong>这正是&quot;目标导向&quot;的示范：手段可以换，目标（把推文发出去）不变。</strong></li>
+<li><strong>【补全】复刻价值</strong>：把&quot;工具理性&quot;打回&quot;目标导向&quot;——让用户只交代<strong>目标</strong>（写什么、发去哪），AI 负责<strong>选手段</strong>（查什么资料、怎么排版、调什么接口）。</li>
+</ul>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>——要解决的是&quot;每周多篇推文如何按时产出并发布&quot;这一内容生产问题； ❌ 不是&quot;我有个排版工具所以想优化它&quot;式的工具理性。</p>
+<h2>七、跨章回扣</h2>
+<ul>
+<li>回扣 <code>案例清单.md</code> 领域二开篇：M3 的价值在于「它把'目标导向'讲透了」——<code>原文</code>「把重复性的工作交给 AI，把创意和判断留给自己——这才是 AI 工具的正确打开方式。」</li>
+<li>与本领域 <strong>自媒体-06（平台边界）</strong> 强关联：痛点里&quot;自动发布&quot;这一环<strong>平台不允许全自动</strong>（见 <code>最终产物/平台边界说明.md</code>），是&quot;目标导向&quot;必须承认的现实边界。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 一档：iframe 内嵌单文件 HTML（可交互） -->
+    <section class="stage tier-a">
+      <header class="stage-head">
+        <h2 class="k">产物 · 可直接交互</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases/zi-mei-ti-01/artifact/article.preview.html" target="_blank" rel="noopener">新窗口打开 ↗</a>
+          <a class="btn-ghost" href="../assets/cases/zi-mei-ti-01/artifact/article.preview.html" download>下载 HTML</a>
+        </div>
+      </header>
+      <div class="stage-frame">
+        <iframe src="../assets/cases/zi-mei-ti-01/artifact/article.preview.html" title="一句话生成公众号推文 在线预览" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      <p class="stage-note">在框内直接交互，或点"新窗口打开"占满浏览器体验完整版。</p>
+    </section>
+
+
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/平台边界说明.md" download><span>平台边界说明.md</span><span class="sz">5 KB</span></a></li><li><a href="../assets/cases//artifact/推文_微信小程序更换管理员.md" download><span>推文_微信小程序更换管理员.md</span><span class="sz">9 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>查资料与写稿<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>排版与封面<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/zi-mei-ti-01/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-01/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-01/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-01/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/zi-mei-ti-01/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

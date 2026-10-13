@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 实战案例库</title>
+<meta name="description" content="每个案例都来自一个真实痛点，由团队实际跑通验证。选你的场景，找到那个让你心头一紧的痛点。">
+<style>
+/* ===== 设计令牌（借编程-07 色板，去AI味：零圆角/零渐变/静置零阴影/单一强调色） ===== */
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --spine-w:46px; --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 页头（借编程-07：左侧装订脊 + 大标题 + readout 数据条） ===== */
+header.site-head{border-bottom:1px solid var(--rule);background:var(--card)}
+.head-inner{display:grid;grid-template-columns:var(--spine-w) minmax(0,1fr)}
+.head-spine{border-right:1px solid var(--rule);background:var(--paper-2);display:flex;align-items:flex-end;justify-content:center;padding:24px 0}
+.head-spine span{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-size:.72rem;letter-spacing:.28em;color:var(--graphite)}
+.head-body{padding:36px 32px 30px}
+.stamp{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;color:var(--signal);border:1px solid var(--signal);padding:4px 10px;margin-bottom:18px}
+h1{margin:0;font-size:clamp(1.7rem,3.4vw,2.7rem);line-height:1.16;font-weight:800;letter-spacing:-.015em}
+h1 em{font-style:normal;color:var(--signal)}
+.head-lead{margin:14px 0 0;color:var(--graphite);font-size:1.02rem;max-width:56ch}
+.head-facts{display:flex;flex-wrap:wrap;gap:0;margin-top:24px;border:1px solid var(--rule);background:var(--paper-2)}
+.head-facts span{font-family:var(--mono);font-size:.82rem;color:var(--ink-2);padding:10px 16px;border-right:1px solid var(--rule)}
+.head-facts span:last-child{border-right:0}
+.head-facts b{color:var(--signal);font-size:1rem;margin-right:2px}
+
+/* ===== 吸顶筛选条 ===== */
+.filterbar{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--rule)}
+.filterbar-inner{max-width:var(--shell);margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:16px}
+.filter-label{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;color:var(--graphite);white-space:nowrap}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filter{font:0.9rem var(--sans);color:var(--ink-2);background:var(--card);border:1px solid var(--rule);padding:7px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.filter:hover{border-color:var(--ink)}
+.filter .n{font-family:var(--mono);font-size:.74rem;color:var(--graphite);border:1px solid var(--rule);padding:0 6px}
+.filter.is-active{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
+.filter.is-active .n{border-color:rgba(255,255,255,.5);color:var(--signal-ink)}
+.filter.is-disabled{opacity:.45;cursor:not-allowed;border-style:dashed}
+.filter.is-disabled:hover{border-color:var(--rule)}
+
+/* ===== 计数行 ===== */
+.tally{display:flex;justify-content:space-between;align-items:baseline;padding:20px 0 14px;font-family:var(--mono);font-size:.8rem;color:var(--graphite)}
+.tally strong{color:var(--ink)}
+.tally .hint{font-family:var(--sans);font-size:.78rem}
+
+/* ===== 案例网格（规则网格，不用瀑布流） ===== */
+.grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));padding-bottom:64px}
+
+/* ===== 卡片 ===== */
+.card{background:var(--card);border:1px solid var(--rule);display:flex;flex-direction:column;position:relative;transition:border-color .18s ease,transform .18s ease}
+.card[hidden]{display:none!important}
+.card:hover{border-color:var(--ink);transform:translateY(-3px)}
+.thumb{display:block;position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.thumb img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.thumb .tag-cat{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.94);border:1px solid var(--rule);font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;padding:3px 8px;color:var(--ink-2)}
+.thumb .tag-status{position:absolute;top:12px;right:12px;background:var(--card);border:1px solid var(--signal);color:var(--signal);font-size:.7rem;padding:3px 8px;font-family:var(--mono)}
+.thumb .kind{position:absolute;left:12px;bottom:12px;background:rgba(27,31,28,.82);color:#fff;font-family:var(--mono);font-size:.68rem;padding:3px 8px}
+.body{padding:16px 18px 16px;display:flex;flex-direction:column;gap:9px;flex:1}
+.meta-line{display:flex;align-items:baseline;gap:11px}
+.meta-line .idx{font-family:var(--mono);font-weight:700;color:var(--signal);font-size:1.05rem}
+.meta-line .src{font-family:var(--mono);font-size:.74rem;color:var(--graphite);letter-spacing:.04em}
+.body h2{margin:0;font-size:1.13rem;line-height:1.32;font-weight:800}
+.body h2 a:hover{color:var(--signal)}
+.val{margin:0;font-size:.9rem;color:var(--ink-2);line-height:1.55}
+.foot{margin-top:auto;padding-top:11px;border-top:1px solid var(--paper-2);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+.foot a{color:var(--signal);font-weight:700}
+.foot a:hover{text-decoration:underline}
+
+/* 空态 */
+.empty{display:none;border:1px dashed var(--rule);padding:60px 24px;text-align:center;color:var(--graphite);grid-column:1/-1}
+.empty.show{display:block}
+
+/* ===== 页脚 ===== */
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite)}
+
+/* ===== 响应式 ===== */
+@media (max-width:760px){
+  html,body{overflow-x:hidden}
+  .head-inner{grid-template-columns:34px minmax(0,1fr)}
+  .head-body{padding:26px 20px 22px;min-width:0}
+  .head-lead{max-width:100%}
+  .head-facts{gap:0}
+  .head-facts span{padding:8px 10px;font-size:.76rem;flex:1 1 auto;min-width:0;word-break:keep-all}
+  .filter-label{display:none}
+  .filterbar-inner{padding:10px 16px}
+  .shell{padding:0 16px}
+  .grid{grid-template-columns:1fr}
+  .card{min-width:0}
+  .thumb{min-width:0}
+  .body{min-width:0}
+  .val{overflow-wrap:break-word}
+  .foot{flex-wrap:wrap;gap:6px}
+}
+@media (max-width:400px){
+  .head-facts span{padding:8px 10px}
+  .body{padding:14px 15px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#grid">跳到案例网格</a>
+
+<header class="site-head">
+  <div class="head-inner">
+    <div class="head-spine"><span>INDEX · CASES · 实战案例</span></div>
+    <div class="head-body">
+      <span class="stamp">真实跑通 · 直击痛点</span>
+      <h1>先看痛点是不是你<br><em>再看 AI 怎么解决</em></h1>
+      <p class="head-lead">每个案例都来自一个真实痛点，由团队实际跑通验证。选你的场景，找到那个让你心头一紧的痛点。</p>
+      <div class="head-facts"><span><b>34</b> 实战案例</span><span><b>14</b> 教师场景</span><span><b>9</b> 办公场景</span><span><b>6</b> 编程场景</span><span><b>5</b> 自媒体场景</span><span>本地可开 · GitHub Pages 可部署</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="filterbar" aria-label="按场景筛选">
+  <div class="filterbar-inner">
+    <span class="filter-label">选你的场景</span>
+    <div class="filters" role="tablist">
+      <button class="filter is-active" data-filter="all" aria-pressed="true">全部 <span class="n">34</span></button>
+      <button class="filter" data-filter="teacher" aria-pressed="false">教师场景 <span class="n">14</span></button><button class="filter" data-filter="office" aria-pressed="false">办公场景 <span class="n">9</span></button><button class="filter" data-filter="coding" aria-pressed="false">编程场景 <span class="n">6</span></button><button class="filter" data-filter="media" aria-pressed="false">自媒体场景 <span class="n">5</span></button><button class="filter is-disabled" data-filter="research" aria-pressed="false" disabled title="敬请期待">科研场景 <span class="n">敬请期待</span></button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="shell">
+    <div class="tally">
+      <span>显示 <strong id="tallyWord">34</strong> / 34 个案例</span>
+      <span class="hint">先看痛点是不是你，再看 AI 怎么解决</span>
+    </div>
+    <section class="grid" id="grid" aria-live="polite">
+      <article class="card" data-scene="coding">
+        <a class="thumb" href="cases/bian-cheng-01.html">
+          <img src="assets/cases/bian-cheng-01/cover.png" alt="Codex 五步法做出第一版网页" loading="lazy" decoding="async">
+          <span class="tag-cat">编程场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">01</span><span class="src">Codex 五步法做出第一版网页</span></div>
+          <h2><a href="cases/bian-cheng-01.html">照 M4 五步法从零做出一版网页：把模糊需求按五步说清，拿到能打开、能看、结构完整的单文件落地页。</a></h2>
+          <p class="val">Codex 五步法做出第一版网页 · Codex · 五步法 / 落地页</p>
+          <div class="foot"><span>20 KB · 在线交互</span><a href="cases/bian-cheng-01.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="coding">
+        <a class="thumb" href="cases/bian-cheng-02.html">
+          <img src="assets/cases/bian-cheng-02/cover.png" alt="参考截图 / URL 复刻网页" loading="lazy" decoding="async">
+          <span class="tag-cat">编程场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML + 参考拆解表</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">02</span><span class="src">参考截图 / URL 复刻网页</span></div>
+          <h2><a href="cases/bian-cheng-02.html">看到一个喜欢的网站想照着做，把它拆成结构/视觉/交互三段、再换成自己内容，得到一个敢发出去的单页。</a></h2>
+          <p class="val">参考截图 / URL 复刻网页 · Codex · 参考复刻</p>
+          <div class="foot"><span>37 KB · 在线交互</span><a href="cases/bian-cheng-02.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="coding">
+        <a class="thumb" href="cases/bian-cheng-04.html">
+          <img src="assets/cases/bian-cheng-04/cover.png" alt="单文件瀑布流作品集" loading="lazy" decoding="async">
+          <span class="tag-cat">编程场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML ×2</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">04</span><span class="src">单文件瀑布流作品集</span></div>
+          <h2><a href="cases/bian-cheng-04.html">长短不一的图片作品，两个单文件瀑布流版本 + 量化代价：图片自然下落、无对齐空洞、手机不横滚。</a></h2>
+          <p class="val">单文件瀑布流作品集 · Codex · 瀑布流作品集</p>
+          <div class="foot"><span>101 KB · 在线交互</span><a href="cases/bian-cheng-04.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="coding">
+        <a class="thumb" href="cases/bian-cheng-06.html">
+          <img src="assets/cases/bian-cheng-06/cover.png" alt="电商运营数据看板" loading="lazy" decoding="async">
+          <span class="tag-cat">编程场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">06</span><span class="src">电商运营数据看板</span></div>
+          <h2><a href="cases/bian-cheng-06.html">把「花 40 分钟拼表才能看一眼」变成双击就看：KPI 磁贴 + 3 张图 + 可排序筛选明细表，零外链。</a></h2>
+          <p class="val">电商运营数据看板 · Codex · 数据看板</p>
+          <div class="foot"><span>67 KB · 在线交互</span><a href="cases/bian-cheng-06.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="coding">
+        <a class="thumb" href="cases/bian-cheng-07.html">
+          <img src="assets/cases/bian-cheng-07/cover.png" alt="设计美学 30 skill 榜单站" loading="lazy" decoding="async">
+          <span class="tag-cat">编程场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">07</span><span class="src">设计美学 30 skill 榜单站</span></div>
+          <h2><a href="cases/bian-cheng-07.html">30 条设计美学 skill 素材，做成一个可筛选、可复制的目录站，单文件双击即开、发出去就能用。</a></h2>
+          <p class="val">设计美学 30 skill 榜单站 · Codex · 榜单站 / 元复刻</p>
+          <div class="foot"><span>1.34 MB · 在线交互</span><a href="cases/bian-cheng-07.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="coding">
+        <a class="thumb" href="cases/bian-cheng-09.html">
+          <img src="assets/cases/bian-cheng-09/cover.png" alt="互动网站提示词库 76 条" loading="lazy" decoding="async">
+          <span class="tag-cat">编程场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">09</span><span class="src">互动网站提示词库 76 条</span></div>
+          <h2><a href="cases/bian-cheng-09.html">76 条提示词散在文档里搜不动，做成单文件工具页：边打字边搜、分类×标签叠筛、中英分别复制。</a></h2>
+          <p class="val">互动网站提示词库 76 条 · Codex · 提示词库 / 元复刻</p>
+          <div class="foot"><span>248 KB · 在线交互</span><a href="cases/bian-cheng-09.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="media">
+        <a class="thumb" href="cases/zi-mei-ti-01.html">
+          <img src="assets/cases/zi-mei-ti-01/cover.png" alt="一句话生成公众号推文" loading="lazy" decoding="async">
+          <span class="tag-cat">自媒体场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">公众号 HTML + 封面 + 物料包</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">01</span><span class="src">一句话生成公众号推文</span></div>
+          <h2><a href="cases/zi-mei-ti-01.html">一句话交代主题，拿到约 2000 字四段结构推文 + 成对封面 + 公众号 HTML，并写明平台边界。</a></h2>
+          <p class="val">一句话生成公众号推文 · 公众号 · 推文全流程 / 主案例</p>
+          <div class="foot"><span>23 KB · 在线交互</span><a href="cases/zi-mei-ti-01.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="media">
+        <a class="thumb" href="cases/zi-mei-ti-03.html">
+          <img src="assets/cases/zi-mei-ti-03/cover.png" alt="周报 → 小红书风格改写" loading="lazy" decoding="async">
+          <span class="tag-cat">自媒体场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">Markdown ×2 + 封面 PNG</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">03</span><span class="src">周报 → 小红书风格改写</span></div>
+          <h2><a href="cases/zi-mei-ti-03.html">把内部周报「翻译」成小红书笔记：先换视角再口语化 + emoji + 话题标签，附配图建议 + 封面卡。</a></h2>
+          <p class="val">周报 → 小红书风格改写 · 小红书 · 周报改写</p>
+          <div class="foot"><span>4 KB · 长文阅读</span><a href="cases/zi-mei-ti-03.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="media">
+        <a class="thumb" href="cases/zi-mei-ti-04.html">
+          <img src="assets/cases/zi-mei-ti-04/cover.png" alt="小红书知识卡片 / 社媒海报" loading="lazy" decoding="async">
+          <span class="tag-cat">自媒体场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">PNG 卡片 ×4 + 拼版</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">04</span><span class="src">小红书知识卡片 / 社媒海报</span></div>
+          <h2><a href="cases/zi-mei-ti-04.html">一篇内容出一组风格统一、1080×1440 合规的知识卡片：品类路由 + 单一强调色 + 插桩核验。</a></h2>
+          <p class="val">小红书知识卡片 / 社媒海报 · 小红书 · 知识卡片出图</p>
+          <div class="foot"><span>401 KB · 在线预览</span><a href="cases/zi-mei-ti-04.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="media">
+        <a class="thumb" href="cases/zi-mei-ti-05.html">
+          <img src="assets/cases/zi-mei-ti-05/cover.png" alt="公众号封面成对生成" loading="lazy" decoding="async">
+          <span class="tag-cat">自媒体场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">PNG 封面 ×3 + 配对预览</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">05</span><span class="src">公众号封面成对生成</span></div>
+          <h2><a href="cases/zi-mei-ti-05.html">一次产出同一主题、两种构图、比例精确不裁的成对公众号封面（21:9 + 1:1 + 上传位）。</a></h2>
+          <p class="val">公众号封面成对生成 · 公众号 · 成对封面</p>
+          <div class="foot"><span>131 KB · 在线预览</span><a href="cases/zi-mei-ti-05.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="media">
+        <a class="thumb" href="cases/zi-mei-ti-02.html">
+          <img src="assets/site/cover-fallback.svg" alt="爆文选题与结构模板" loading="lazy" decoding="async">
+          <span class="tag-cat">自媒体场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">Markdown ×2</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">02</span><span class="src">爆文选题与结构模板</span></div>
+          <h2><a href="cases/zi-mei-ti-02.html">从 redbook 实抓 172 条真实爆款反推出 20 条可直接排期的选题清单 + 一份能直接套用的爆文结构模板。</a></h2>
+          <p class="val">爆文选题与结构模板 · 小红书 · 选题方法论</p>
+          <div class="foot"><span>10 KB · 长文阅读</span><a href="cases/zi-mei-ti-02.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="office">
+        <a class="thumb" href="cases/ban-gong-01.html">
+          <img src="assets/cases/ban-gong-01/cover.png" alt="上周销售日报自动生成" loading="lazy" decoding="async">
+          <span class="tag-cat">办公场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">DOCX + PDF + 3图</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">01</span><span class="src">上周销售日报自动生成</span></div>
+          <h2><a href="cases/ban-gong-01.html">一份混含多周的销售流水表，免手工取数/算环比/套模板/导 PDF，直接拿到数字可核对、可发群的销售日报。</a></h2>
+          <p class="val">上周销售日报自动生成 · WorkBuddy · 周报自动化</p>
+          <div class="foot"><span>333 KB · 在线预览</span><a href="cases/ban-gong-01.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="office">
+        <a class="thumb" href="cases/ban-gong-02.html">
+          <img src="assets/cases/ban-gong-02/cover.png" alt="会议纪要结构化整理" loading="lazy" decoding="async">
+          <span class="tag-cat">办公场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">DOCX + PDF</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">02</span><span class="src">会议纪要结构化整理</span></div>
+          <h2><a href="cases/ban-gong-02.html">一场会的转写文本进去，拿到结论不歪、行动项不漏、带时间戳、A4 可打印的结构化纪要。</a></h2>
+          <p class="val">会议纪要结构化整理 · WorkBuddy · 会议纪要</p>
+          <div class="foot"><span>160 KB · 在线预览</span><a href="cases/ban-gong-02.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="office">
+        <a class="thumb" href="cases/ban-gong-03.html">
+          <img src="assets/cases/ban-gong-03/cover.png" alt="多个 Excel 合并 + 柱状图 + 分析报告" loading="lazy" decoding="async">
+          <span class="tag-cat">办公场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">XLSX + DOCX + 3图</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">03</span><span class="src">多个 Excel 合并 + 柱状图 + 分析报告</span></div>
+          <h2><a href="cases/ban-gong-03.html">多份格式不一的门店报表进去，拿到数字可核对的总表 + 柱状图 + 结论有据的分析报告。</a></h2>
+          <p class="val">多个 Excel 合并 + 柱状图 + 分析报告 · WorkBuddy · 多表合并分析</p>
+          <div class="foot"><span>215 KB · 在线预览</span><a href="cases/ban-gong-03.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="office">
+        <a class="thumb" href="cases/ban-gong-04.html">
+          <img src="assets/cases/ban-gong-04/cover.png" alt="文档批量转格式 + 按规则重命名" loading="lazy" decoding="async">
+          <span class="tag-cat">办公场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">PDF ×6 + XLSX</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">04</span><span class="src">文档批量转格式 + 按规则重命名</span></div>
+          <h2><a href="cases/ban-gong-04.html">一文件夹命名混乱的 Word，按内容日期批量转 PDF 重命名，附「原名 → 新名」对照表。</a></h2>
+          <p class="val">文档批量转格式 + 按规则重命名 · WorkBuddy · 批量转换重命名</p>
+          <div class="foot"><span>100 KB · 在线预览</span><a href="cases/ban-gong-04.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="office">
+        <a class="thumb" href="cases/ban-gong-05.html">
+          <img src="assets/site/cover-fallback.svg" alt="定时自动化：每天9点汇总周报并发送" loading="lazy" decoding="async">
+          <span class="tag-cat">办公场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">DOCX+PDF+MD</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">05</span><span class="src">定时自动化：每天9点汇总周报并发送</span></div>
+          <h2><a href="cases/ban-gong-05.html">团队6人每周交周报，免催收/抄录/汇总/套格式/转PDF/发群，一键产出汇总周报并模拟定时发送。</a></h2>
+          <p class="val">定时自动化：每天9点汇总周报并发送 · WorkBuddy · 定时任务</p>
+          <div class="foot"><span>153 KB · 在线预览</span><a href="cases/ban-gong-05.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="office">
+        <a class="thumb" href="cases/ban-gong-06.html">
+          <img src="assets/cases/ban-gong-06/cover.png" alt="批量简历信息提取成表格" loading="lazy" decoding="async">
+          <span class="tag-cat">办公场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">XLSX</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">06</span><span class="src">批量简历信息提取成表格</span></div>
+          <h2><a href="cases/ban-gong-06.html">一批版式各异的简历，抽成口径统一的结构化汇总表：实习/空窗识别对，工作年限可比较。</a></h2>
+          <p class="val">批量简历信息提取成表格 · WorkBuddy · 简历信息提取</p>
+          <div class="foot"><span>8 KB · 在线预览</span><a href="cases/ban-gong-06.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="office">
+        <a class="thumb" href="cases/ban-gong-07.html">
+          <img src="assets/site/cover-fallback.svg" alt="下载文件夹按日期归档" loading="lazy" decoding="async">
+          <span class="tag-cat">办公场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">归档脚本+对照表</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">07</span><span class="src">下载文件夹按日期归档</span></div>
+          <h2><a href="cases/ban-gong-07.html">下载夹堆几百文件乱成一团，一键按修改日期/类型归档到年月子目录，处理同名覆盖与无扩展名陷阱。</a></h2>
+          <p class="val">下载文件夹按日期归档 · WorkBuddy · 文件整理</p>
+          <div class="foot"><span>7 KB · 在线预览</span><a href="cases/ban-gong-07.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="office">
+        <a class="thumb" href="cases/ban-gong-12.html">
+          <img src="assets/cases/ban-gong-12/cover.png" alt="会议纪要 → PPT" loading="lazy" decoding="async">
+          <span class="tag-cat">办公场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">PPTX + HTML + 12图</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">12</span><span class="src">会议纪要 → PPT</span></div>
+          <h2><a href="cases/ban-gong-12.html">一份已整理好的会议纪要进去，拿到结构完整、能站着讲的汇报 pptx（+ 网页版 + 逐页图）。</a></h2>
+          <p class="val">会议纪要 → PPT · WorkBuddy · 纪要转 PPT</p>
+          <div class="foot"><span>50 KB · 在线预览</span><a href="cases/ban-gong-12.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="office">
+        <a class="thumb" href="cases/ban-gong-13.html">
+          <img src="assets/site/cover-fallback.svg" alt="多文档综合报告" loading="lazy" decoding="async">
+          <span class="tag-cat">办公场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">Markdown + DOCX</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">13</span><span class="src">多文档综合报告</span></div>
+          <h2><a href="cases/ban-gong-13.html">三份部门季度总结进去，拿到提炼共同主题 + 差异点 + 结论的综合报告，每条论点挂来源。</a></h2>
+          <p class="val">多文档综合报告 · WorkBuddy · 多文档综合</p>
+          <div class="foot"><span>5 KB · 长文阅读</span><a href="cases/ban-gong-13.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-03A.html">
+          <img src="assets/cases/jiao-shi-03A/cover.png" alt="出单元练习题（分数加减法）" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">DOCX + PDF 预览</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">03A</span><span class="src">出单元练习题（分数加减法）</span></div>
+          <h2><a href="cases/jiao-shi-03A.html">把凑题型、排 A4、剥答案、留答题空四件体力活交给 AI，一句追问就有答案分页、能直接印发的练习卷。</a></h2>
+          <p class="val">出单元练习题（分数加减法） · 教师 · 出练习题</p>
+          <div class="foot"><span>285 KB · 在线预览</span><a href="cases/jiao-shi-03A.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-04-1.html">
+          <img src="assets/cases/jiao-shi-04-1/cover.png" alt="课堂PPT课件《分数加减法》" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">PPTX + 8 页质检图</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">04-1</span><span class="src">课堂PPT课件《分数加减法》</span></div>
+          <h2><a href="cases/jiao-shi-04-1.html">用四件套指令直接产出可投影的 .pptx，把做课件省下的两小时还给教学。</a></h2>
+          <p class="val">课堂PPT课件《分数加减法》 · 教师 · 课堂PPT</p>
+          <div class="foot"><span>417 KB · 在线预览</span><a href="cases/jiao-shi-04-1.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-04-2.html">
+          <img src="assets/cases/jiao-shi-04-2/cover.png" alt="HTML 网页课件《分数加减法》" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML + 质检图</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">04-2</span><span class="src">HTML 网页课件《分数加减法》</span></div>
+          <h2><a href="cases/jiao-shi-04-2.html">同一节课换一个「会动」的壳：单文件 HTML 双击即开、翻页带动画，把通分算理演给学生看。</a></h2>
+          <p class="val">HTML 网页课件《分数加减法》 · 教师 · HTML课件</p>
+          <div class="foot"><span>60 KB · 在线交互</span><a href="cases/jiao-shi-04-2.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-04-3.html">
+          <img src="assets/cases/jiao-shi-04-3/cover.png" alt="互动课件《分数加减法》" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML + 质检图</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">04-3</span><span class="src">互动课件《分数加减法》</span></div>
+          <h2><a href="cases/jiao-shi-04-3.html">让学生亲手拖分数条、点选答题、答错即时指出错在哪，把「只能看」的练习变成「上手玩」。</a></h2>
+          <p class="val">互动课件《分数加减法》 · 教师 · 互动课件</p>
+          <div class="foot"><span>40 KB · 在线交互</span><a href="cases/jiao-shi-04-3.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-04-4.html">
+          <img src="assets/cases/jiao-shi-04-4/cover.png" alt="知识卡片《分数加减法》" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">PNG 卡片 + 源文件 HTML</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">04-4</span><span class="src">知识卡片《分数加减法》</span></div>
+          <h2><a href="cases/jiao-shi-04-4.html">把当堂内容浓缩成一张 9:16 手机复习卡，发到班级群，学生碎片时间翻一翻就复习。</a></h2>
+          <p class="val">知识卡片《分数加减法》 · 教师 · 知识卡片</p>
+          <div class="foot"><span>480 KB · 在线预览</span><a href="cases/jiao-shi-04-4.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-05-1.html">
+          <img src="assets/site/cover-fallback.svg" alt="高一3班期中成绩分析表" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">XLSX（多页签）</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">05-1</span><span class="src">高一3班期中成绩分析表</span></div>
+          <h2><a href="cases/jiao-shi-05-1.html">一句话让 AI 读表、算好、整理成新表，把 40 分钟的公式、排名、偏科比对压到 5 分钟。</a></h2>
+          <p class="val">高一3班期中成绩分析表 · 教师 · 成绩分析表</p>
+          <div class="foot"><span>20 KB · 在线预览</span><a href="cases/jiao-shi-05-1.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-05-2.html">
+          <img src="assets/site/cover-fallback.svg" alt="班级成绩学情报告（Word + HTML）" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">05-2</span><span class="src">班级成绩学情报告（Word + HTML）</span></div>
+          <h2><a href="cases/jiao-shi-05-2.html">拿着上一句算好的数直接写两份报告：给学校能交的 Word、给家长看得懂的图表 HTML。</a></h2>
+          <p class="val">班级成绩学情报告（Word + HTML） · 教师 · 学情报告</p>
+          <div class="foot"><span>44 KB · 在线交互</span><a href="cases/jiao-shi-05-2.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-05-3.html">
+          <img src="assets/site/cover-fallback.svg" alt="化学薄弱知识点专项练习" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">DOCX（A4 可印）</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">05-3</span><span class="src">化学薄弱知识点专项练习</span></div>
+          <h2><a href="cases/jiao-shi-05-3.html">分析查出失分点，当场对着它出 10 道阶梯练习卷，附详细解析，每道题程序校验。</a></h2>
+          <p class="val">化学薄弱知识点专项练习 · 教师 · 针对性出卷</p>
+          <div class="foot"><span>16 KB · 在线预览</span><a href="cases/jiao-shi-05-3.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-06-1.html">
+          <img src="assets/site/cover-fallback.svg" alt="《春》第一课时教案" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">DOCX（A4 可打印）</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">06-1</span><span class="src">《春》第一课时教案</span></div>
+          <h2><a href="cases/jiao-shi-06-1.html">先给框架、再展开细节、后按需打磨，把对着空白 Word 发呆的 1-2 小时压到半小时出可用稿。</a></h2>
+          <p class="val">《春》第一课时教案 · 教师 · 单篇教案</p>
+          <div class="foot"><span>18 KB · 在线预览</span><a href="cases/jiao-shi-06-1.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-06-2.html">
+          <img src="assets/site/cover-fallback.svg" alt="学期计划表批量生成教案合集" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">DOCX + PDF 预览</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">06-2</span><span class="src">学期计划表批量生成教案合集</span></div>
+          <h2><a href="cases/jiao-shi-06-2.html">把预备周填好的计划表直接变成整学期教案，同一份工作不再做两遍，几分钟拿到 10 课初稿。</a></h2>
+          <p class="val">学期计划表批量生成教案合集 · 教师 · 批量教案</p>
+          <div class="foot"><span>1.23 MB · 在线预览</span><a href="cases/jiao-shi-06-2.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-10-1.html">
+          <img src="assets/cases/jiao-shi-10-1/cover.png" alt="教案框选即改（《春》导入段）" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">DOCX + 改动说明</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">10-1</span><span class="src">教案框选即改（《春》导入段）</span></div>
+          <h2><a href="cases/jiao-shi-10-1.html">框住那一段、说一句改成什么样，只那段变、其余一字不动、格式不乱，还告诉你改了哪几处。</a></h2>
+          <p class="val">教案框选即改（《春》导入段） · 教师 · 框选即改</p>
+          <div class="foot"><span>19 KB · 在线预览</span><a href="cases/jiao-shi-10-1.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-10-2.html">
+          <img src="assets/cases/jiao-shi-10-2/cover.png" alt="成绩表圈选即分析 + 数据透视" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">XLSX + PDF + 图表</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">10-2</span><span class="src">成绩表圈选即分析 + 数据透视</span></div>
+          <h2><a href="cases/jiao-shi-10-2.html">圈一片数据说一句话，排序标红出图透视当场出来，追着问题看数据不用重新生成。</a></h2>
+          <p class="val">成绩表圈选即分析 + 数据透视 · 教师 · 圈选即分析</p>
+          <div class="foot"><span>4.19 MB · 在线预览</span><a href="cases/jiao-shi-10-2.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-10-3.html">
+          <img src="assets/cases/jiao-shi-10-3/cover.png" alt="课件选中就统一（含演讲备注）" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">PPTX + before/after 对比图</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">10-3</span><span class="src">课件选中就统一（含演讲备注）</span></div>
+          <h2><a href="cases/jiao-shi-10-3.html">选中一处说一句，整份 PPT 的背景与标题跟着统一，再补上每页 30 秒演讲备注。</a></h2>
+          <p class="val">课件选中就统一（含演讲备注） · 教师 · 课件风格统一</p>
+          <div class="foot"><span>42 KB · 在线预览</span><a href="cases/jiao-shi-10-3.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <article class="card" data-scene="teacher">
+        <a class="thumb" href="cases/jiao-shi-10-4.html">
+          <img src="assets/site/cover-fallback.svg" alt="资料库集体备课《赤壁赋》" loading="lazy" decoding="async">
+          <span class="tag-cat">教师场景</span>
+          <span class="tag-status">已完成</span>
+          <span class="kind">单文件 HTML</span>
+        </a>
+        <div class="body">
+          <div class="meta-line"><span class="idx">10-4</span><span class="src">资料库集体备课《赤壁赋》</span></div>
+          <h2><a href="cases/jiao-shi-10-4.html">从每人一版传来传去，到全组共用一份活文档：AI 改动走建议修订、定稿一键发布成链接。</a></h2>
+          <p class="val">资料库集体备课《赤壁赋》 · 教师 · 集体备课</p>
+          <div class="foot"><span>9 KB · 在线交互</span><a href="cases/jiao-shi-10-4.html">看痛点与产物 →</a></div>
+        </div>
+      </article>
+      <div class="empty" id="emptyNote">这个分类下暂无案例。</div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>AI 实战案例库</span>
+    <span>build.mjs 生成</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var filters = Array.prototype.slice.call(document.querySelectorAll('.filter:not(.is-disabled)'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('#grid .card'));
+  var tallyWord = document.getElementById('tallyWord');
+  var emptyNote = document.getElementById('emptyNote');
+  var active = 'all';
+  function apply(value){
+    active = value || 'all';
+    filters.forEach(function(b){
+      var on = b.dataset.filter === active;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var shown = 0;
+    cards.forEach(function(c){
+      var ok = active === 'all' || c.dataset.scene === active;
+      c.hidden = !ok;
+      if (ok) shown++;
+    });
+    tallyWord.textContent = shown;
+    emptyNote.classList.toggle('show', shown === 0);
+  }
+  filters.forEach(function(b){ b.addEventListener('click', function(){ apply(b.dataset.filter); }); });
+  apply('all');
+})();
+</script>
+</body>
+</html>

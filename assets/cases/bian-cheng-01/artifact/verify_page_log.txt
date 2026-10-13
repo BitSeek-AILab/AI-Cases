@@ -1,0 +1,68 @@
+Chrome 调试端口 2877
+
+=== 0. 产物规模 ===
+  Codex五步法_第一版网页.html  20.4 KB
+  分区 6 个：["top","pain","steps","start","check","refs"]
+  五步块 5 / Tab 3 / Panel 3 / 折叠条目 6 / 复制按钮 1
+  <img> 0 个（视觉全用 CSS/HTML，无图片→无“空图片”）/ <svg> 0 个
+  外部资源引用（应为 0）：[]
+  占位文案命中（应为 0）：[]
+  外链 6 条 → 主机：["codepen.io","github.com","land-book.com","mobbin.com","www.awwwards.com","www.siteinspire.com"]
+  href="#" 死链 0 条（应为 0）
+  ① 内容真实：PASS（占位 0 / 死链 0 / 空图 0 / 外链全为真实参考站）
+  出图 desktop-1440-firstscreen.png
+
+=== ③ 交互完整 ===
+  Tab t1 → 选中 true / 可见面板 ["t1"] OK
+  Tab t2 → 选中 true / 可见面板 ["t2"] OK
+  Tab t3 → 选中 true / 可见面板 ["t3"] OK
+  出图 desktop-1440-tab2.png
+  折叠展开：初始 false → 点击 true（正文可见 true）→ 再点 false OK
+  出图 desktop-1440-accordion.png
+  复制反馈：按钮「复制模板」→「已复制」；复制内容 == 页内模板全文：true（184 字符） OK
+  出图 desktop-1440-copy.png
+  反馈自动复位：按钮回到「复制模板」（OK）
+  滚到 #pain → 顶栏高亮 ["#pain"] OK
+  滚到 #steps → 顶栏高亮 ["#steps"] OK
+  滚到 #start → 顶栏高亮 ["#start"] OK
+  滚到 #check → 顶栏高亮 ["#check"] OK
+  滚到 #refs → 顶栏高亮 ["#refs"] OK
+  滚到步骤 03 → 轨道高亮 ["#s3"] OK
+  ③ 交互完整：PASS
+
+=== ④ 风格统一 ===
+  锚点色 .btn.primary 背景：rgb(197, 232, 3)（期望 rgb(197, 232, 3)）→ OK
+  非 0 圆角元素：[]（应为 []）
+  含渐变的元素：0 个（应为 0，瑞士风禁渐变）
+  正文字体栈："Helvetica Neue", Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif
+  H1 字号 76px（clamp 大字号对比）
+  页脚含出处+授权说明：true（⑤ 授权清楚：PASS）
+  ④ 风格统一：PASS
+
+=== ⑥ 能打开（零外部依赖）===
+  页面发起的网络请求共 2 条；其中非本地请求（应为 0）：[]
+  ⑥ 能打开：PASS（单文件、离线、零外部资源）
+
+=== ② 手机端 390×844 核验 ===
+  innerWidth 390 / scrollWidth 390 → 横向滚动：无
+  H1 字号 35.1px / 正文 16px；主按钮高 54px 可点：true；Tab 高 41px
+  步骤轨道已收成顶部横条：position=static / ol display=flex；steps 列：354px
+  模板 pre 需内部横滚：false（长行代码块允许，页面级不横滚即可）
+  出图 mobile-390-firstscreen.png
+  出图 mobile-390-bottom.png
+  出图 mobile-390-start.png
+  严格判据（摘掉 overflow）：innerWidth 390 / doc.scrollWidth 390 → 390 真装得下
+  兜底 320px：scrollWidth 320 / innerWidth 320
+  ② 手机可读：PASS
+  出图 desktop-1440-midpage.png
+  出图 desktop-1440-bottom.png
+  出图 desktop-1440-fullpage.png
+
+=== 汇总（对照 M4 P15 六条自检）===
+  PASS  ① 内容真实（无占位/死链/空图；外链为真实参考站）
+  PASS  ② 手机可读（390 不横滚·真机+严格判据，320 兜底）
+  PASS  ③ 交互完整（Tab/折叠/复制反馈/滚动高亮）
+  PASS  ④ 风格统一（单一锚点色 #C5E803/0 圆角/无渐变/系统无衬线）
+  PASS  ⑤ 授权清楚（页脚出处+授权；外链仅 6 个参考站）
+  PASS  ⑥ 能打开（单文件·零外部资源·离线）
+  总结论：全部通过（6/6）

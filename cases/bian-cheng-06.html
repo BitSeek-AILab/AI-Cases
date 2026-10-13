@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>电商运营数据看板 · 案例库</title>
+<meta name="description" content="把「花 40 分钟拼表才能看一眼」变成双击就看：KPI 磁贴 + 3 张图 + 可排序筛选明细表，零外链。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>编程场景</span><span class="sep">/</span><span>06</span>
+    </nav>
+    <h1>电商运营数据看板</h1>
+    <div class="readout">
+      <span><b>场景</b>编程</span>
+      <span><b>编号</b>06</span>
+      <span><b>形态</b>单文件 HTML</span>
+      <span><b>大小</b>67 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 案例编程-06 数据看板 / 运营后台页（编程网页 / CodexAI）</h1>
+<blockquote>依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<blockquote>出处：<code>案例清单.md</code> 编程-06 条目（所属材料 <strong>M7</strong> = <code>design-aesthetic-top-30-skills</code> 压缩包，第 <strong>23</strong> 号 skill <code>HTML Anything Dashboard</code>）</blockquote>
+<blockquote>素材：M7 技能目录 <code>design-aesthetic-top-30-skills_技能目录.md</code> 第 23 条（本案例<strong>无现成成品可对照</strong> —— 与编程-07/09 的&quot;元复刻&quot;不同，这里只有一句能力描述）</blockquote>
+<hr>
+<h2>一、痛点原句（引用材料原文）</h2>
+<p><strong>位置1 · M7 第 23 号 skill 的用途描述（逐字）：</strong></p>
+<blockquote>「生成数据看板、运营后台和高信息密度业务界面」</blockquote>
+<blockquote>（适合：「生成数据看板、运营后台和高信息密度业务界面」；审美备注：「适合可扫描、高信息密度的仪表盘和业务面板」；标签：dashboard, html, data）</blockquote>
+<p><strong>位置2 · 案例清单 编程-06 条目给出的痛点（逐字）：</strong></p>
+<blockquote><code>原文</code>「生成数据看板、运营后台和高信息密度业务界面」</blockquote>
+<blockquote><strong>补全</strong>：运营数据散在 Excel，<strong>想看&quot;一眼掌握&quot;的看板但不会做前端</strong>；用 BI 工具又要买授权、要连库。</blockquote>
+<p><strong>位置3 · M4 教程 P07「先判断网站要完成什么目标」（逐字，给出&quot;看板&quot;在六类网站里的定位）：</strong></p>
+<blockquote>「长期使用 → Web App → 后台、看板、CRM、SaaS、编辑器，<strong>重点是效率</strong>」</blockquote>
+<p><strong>位置4 · M4 教程 P08「六种常见交互」（逐字，本案例交互项的出处）：</strong></p>
+<blockquote>「悬停反馈 / 展开收起 / 标签切换 / <strong>筛选排序</strong> / 加载状态 / 瀑布流。<strong>&quot;交互是让用户知道'可以做、做完了、出错了'&quot;</strong>」</blockquote>
+<p><strong>位置5 · 领域总纲（M5 结束语）：</strong></p>
+<blockquote>「作品比简历更快说话。先做出一个能被别人打开的东西。」</blockquote>
+<blockquote>「不要在旧赛道卷速度…把&quot;效率&quot;误当成&quot;机会&quot;」</blockquote>
+<hr>
+<h2>二、痛点主体</h2>
+<ul>
+<li><strong>谁</strong>：<strong>中小电商/门店的运营负责人</strong>（本案例具体化为一个 5 人运营小组的负责人&quot;老周&quot;；一个人要同时看 5 个渠道、5 个品类、40 个在售商品）。</li>
+<li><strong>场景</strong>：每天早会前要报&quot;昨天卖得怎么样&quot;，每周一要报&quot;上周整体怎么样&quot;。数据来源是<strong>三个地方</strong>：① 平台后台导出的订单 Excel ② 投放后台导出的渠道报表 ③ 客服手工记的退款台账。</li>
+<li><strong>交付对象</strong>：早会上的老板和采购/客服同事（他们只问三句话：<strong>总共卖了多少？比上周好还是差？哪个渠道/哪个品在拖后腿？</strong>）。</li>
+</ul>
+<h2>三、旧做法的代价（绑定时长 / 动作量）</h2>
+<table><thead><tr><th>旧做法</th><th>具体代价（可核算）</th></tr></thead><tbody><tr><td>翻 Excel 手工拼</td><td>每天从 3 个来源导表 → 4 张 Sheet 手工 VLOOKUP 拼一起 → 拉透视表算 5 个渠道 × 5 个品类 → 再画 2 张图贴进日报。<strong>一套 40-60 分钟</strong>，每周至少重复 6 次（= 每周 4-6 小时）</td></tr><tr><td>求人跑 SQL</td><td>想临时加一个口径（&quot;把信息流广告的退款也拆出来看看&quot;）→ 找数据同事排期，<strong>等 1-2 天</strong>；改个筛选条件要再提一次需求。<strong>&quot;改一个指标&quot;的边际成本不为零，所以不敢改、不去看</strong></td></tr><tr><td>买 BI 工具</td><td>年授权几千到几万；要连库、要建模、要培训；<strong>为了&quot;看一眼数字&quot;上一整套数仓</strong>，投入产出完全不成立</td></tr><tr><td>找外包做</td><td>报价几千起、<strong>排期 2-3 周</strong>；上线后&quot;把这个指标的口径改一下&quot;要再付钱；改完还要等一版</td></tr></tbody></table>
+<p><strong>这份代价的关键不在&quot;花时间&quot;，在&quot;所以不去看&quot;</strong>：因为每次看都要先花 40 分钟，所以真实行为退化成&quot;<strong>凭印象开会</strong>&quot;——等到月底盘账才发现某个渠道的退款率已经连续三周在涨。</p>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<ol>
+<li><strong>打开就是答案</strong>：双击一个文件，第一眼就是<strong>本期净销售额（hero 数字）+ 4-6 个关键 KPI</strong>，并直接标出&quot;比上期好还是差、差多少&quot;。</li>
+<li><strong>看得见趋势</strong>：一张 <strong>30 天走势图</strong>，本期与上期叠在一起看（&quot;是这周不行，还是整整两周都在掉&quot;）。</li>
+<li><strong>看得出结构</strong>：<strong>渠道对比条</strong>（哪个渠道在涨、哪个在拖）+ <strong>品类占比条</strong>（钱主要从哪来）。</li>
+<li><strong>下钻得到明细</strong>：一张可以去重、<strong>可排序、可筛选</strong>的明细表（哪个 SKU 在掉、掉多少）。</li>
+<li><strong>改口径不求人</strong>：时间范围（近 7/14/30 天）<strong>点一下就重算全页</strong>，不产生任何&quot;排期/付费&quot;动作。</li>
+<li><strong>手机能看</strong>：早会前在手机上点开也不横滚、不挤成一团。</li>
+</ol>
+<p><strong>一句话</strong>：把&quot;要花 40 分钟准备才能看一眼&quot;变成&quot;<strong>打开就是一眼</strong>&quot;。</p>
+<h2>五、【补全】</h2>
+<p>【补全】材料只给了能力描述（&quot;生成数据看板、运营后台和高信息密度业务界面&quot;），<strong>没讲透&quot;为什么值得解决&quot;</strong>，这里补三句：</p>
+<ul>
+<li><strong>看板的真正竞品不是&quot;别的看板&quot;，是&quot;Excel + 印象&quot;。</strong> 所以它的成败标准不是&quot;图表好看&quot;，而是<strong>&quot;你会不会每天都真的打开它&quot;</strong>——会打开，才算把痛点解决了；不打开，做得多漂亮都没用。本案例把&quot;打开就能看到答案&quot;放在第一条验收点，就是为了对齐这件事。</li>
+<li><strong>&quot;高信息密度&quot;和&quot;手机可读&quot;是一对真实矛盾，必须正面解决而不是回避。</strong> 材料把&quot;高信息密度业务界面&quot;当成卖点，但密度一上来，<strong>小屏第一件事就是横向溢出</strong>。运营的真实场景恰恰是&quot;早会前在手机上瞄一眼&quot;，所以本案例把&quot;390px 不横滚&quot;列成红线，并且<strong>判据不能靠 <code>overflow-x:hidden</code> 掩盖</strong>（本项目在案例 09 已踩过这个判据陷阱）。</li>
+<li><strong>&quot;改个指标要再付钱&quot;的本质是：看板的每一次迭代都被计价了。</strong> 外包/BI 的计价模型决定了&quot;你不敢改&quot;，而&quot;不敢改&quot;会让看板很快与业务口径脱节、被弃用。单文件 HTML 把这个边际成本<strong>打到 0</strong>——改一个口径就是把代码里那一行改掉、刷新。<strong>所以&quot;免部署、免授权、改得起&quot;不是技术吹点，是它能不能活过三个月的决定因素。</strong></li>
+</ul>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>：用户要的是&quot;<strong>一眼掌握、并且能自己改口径</strong>&quot;（结果导向）→ 所以做的是 KPI 大数字 + 趋势 + 渠道/品类结构 + 可排序明细，而不是&quot;把 Excel 搬到网页上更好看&quot;。 ❌ 非&quot;工具理性&quot;：本案例的工具理性陷阱非常具体——<strong>去纠结&quot;要不要上 Superset / Metabase / Grafana&quot;&quot;要不要连数据库&quot;&quot;用什么可视化库&quot;</strong>。真正该先回答的是：&quot;我要在 5 秒内看到哪 6 个数字？谁在拖后腿？&quot;——<strong>先定问题，再定图表</strong>（这也是 dataviz skill 的第一条纪律：先选形态，最后才选颜色）。</p>
+<h2>七、跨章线索</h2>
+<ul>
+<li>回扣第01章总纲（问答式 AI vs 能执行干活的 AI）：这里 AI 不是陪你讨论&quot;看板该放哪些指标&quot;，而是<strong>把 40 个 SKU × 60 天的演示数据、3 张图和一张可排序明细表真的做出来</strong>。</li>
+<li>呼应 M4 P07「Web App = 后台、看板…重点是效率」：本案例是那张判断表里&quot;长期使用&quot;一类的具体落地——<strong>效率 = 从 40 分钟到 5 秒</strong>。</li>
+<li>呼应 M4 P08 六种交互：本案例实到 <strong>筛选排序（表格排序 + 品类/渠道筛选 + 时间范围）/ 悬停反馈（图表 tooltip + 十字准线）/ 标签切换（品类 chip、时间范围预设）/ 加载状态（空状态与&quot;无数据&quot;提示）</strong> 四类。</li>
+<li>呼应编程-12 交付自检（M4 P15 六条）：<code>任务卡.md</code> 的验收点就是那六条在看板这个具体形态上的落地（内容真实 / 手机可读 / 交互完整 / 风格统一 / 授权清楚 / 能打开）。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 一档：iframe 内嵌单文件 HTML（可交互） -->
+    <section class="stage tier-a">
+      <header class="stage-head">
+        <h2 class="k">产物 · 可直接交互</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases/bian-cheng-06/artifact/运营数据看板.html" target="_blank" rel="noopener">新窗口打开 ↗</a>
+          <a class="btn-ghost" href="../assets/cases/bian-cheng-06/artifact/运营数据看板.html" download>下载 HTML</a>
+        </div>
+      </header>
+      <div class="stage-frame">
+        <iframe src="../assets/cases/bian-cheng-06/artifact/运营数据看板.html" title="电商运营数据看板 在线预览" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      <p class="stage-note">在框内直接交互，或点"新窗口打开"占满浏览器体验完整版。</p>
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">质检图</h2><span class="stage-note" style="border:0;padding:0">构建自核验截图，点击查看原图</span></header>
+      <div class="qc-grid">
+        <figure><a href="../assets/cases/bian-cheng-06/qc/desktop-1440-dark-trend.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/desktop-1440-dark-trend.png" alt="desktop 1440 dark trend" loading="lazy" decoding="async"></a><figcaption>desktop 1440 dark trend</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/desktop-1440-light-empty-state.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/desktop-1440-light-empty-state.png" alt="desktop 1440 light empty state" loading="lazy" decoding="async"></a><figcaption>desktop 1440 light empty state</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/desktop-1440-light-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/desktop-1440-light-firstscreen.png" alt="desktop 1440 light firstscreen" loading="lazy" decoding="async"></a><figcaption>desktop 1440 light firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/desktop-1440-light-fullpage.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/desktop-1440-light-fullpage.png" alt="desktop 1440 light fullpage" loading="lazy" decoding="async"></a><figcaption>desktop 1440 light fullpage</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/desktop-1440-light-table.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/desktop-1440-light-table.png" alt="desktop 1440 light table" loading="lazy" decoding="async"></a><figcaption>desktop 1440 light table</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/desktop-1440-light-trend-tooltip.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/desktop-1440-light-trend-tooltip.png" alt="desktop 1440 light trend tooltip" loading="lazy" decoding="async"></a><figcaption>desktop 1440 light trend tooltip</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/mobile-320-light-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/mobile-320-light-firstscreen.png" alt="mobile 320 light firstscreen" loading="lazy" decoding="async"></a><figcaption>mobile 320 light firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/mobile-320-light-trend-table-open.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/mobile-320-light-trend-table-open.png" alt="mobile 320 light trend table open" loading="lazy" decoding="async"></a><figcaption>mobile 320 light trend table open</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/mobile-390-light-charts.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/mobile-390-light-charts.png" alt="mobile 390 light charts" loading="lazy" decoding="async"></a><figcaption>mobile 390 light charts</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/mobile-390-light-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/mobile-390-light-firstscreen.png" alt="mobile 390 light firstscreen" loading="lazy" decoding="async"></a><figcaption>mobile 390 light firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-06/qc/mobile-390-light-table.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-06/qc/mobile-390-light-table.png" alt="mobile 390 light table" loading="lazy" decoding="async"></a><figcaption>mobile 390 light table</figcaption></figure>
+      </div>
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/verify_dashboard_log.txt" download><span>verify_dashboard_log.txt</span><span class="sz">11 KB</span></a></li><li><a href="../assets/cases//artifact/产物说明.md" download><span>产物说明.md</span><span class="sz">7 KB</span></a></li><li><a href="../assets/cases//artifact/运营数据看板.html" download><span>运营数据看板.html</span><span class="sz">67 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>数据与结构设计<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>单文件实现<span class="stage-state">✓</span></li><li><span class="stage-no">3</span>功能与视觉核验<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/bian-cheng-06/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-06/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-06/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-06/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-06/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

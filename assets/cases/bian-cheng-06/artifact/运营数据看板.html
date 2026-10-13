@@ -1,0 +1,1319 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>运营数据看板 · 电商日销总览</title>
+<meta name="description" content="单文件 HTML 运营数据看板：KPI 大数字 + 趋势/渠道/品类图表 + 可筛选排序明细表。演示数据为虚构。">
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   设计令牌 —— 全部来自 dataviz 的默认已验证调色板（palette.md）
+   深浅两套都是"选出来的"（不是把浅色翻转），按 palette.md 的双作用域写法。
+   ══════════════════════════════════════════════════════════════════ */
+.viz-root{
+  color-scheme: light;
+  --surface-1:#fcfcfb;      /* 面板面 */
+  --plane:#f9f9f7;          /* 页面底 */
+  --text-primary:#0b0b0b;
+  --text-secondary:#52514e;
+  --text-muted:#898781;
+  --grid:#e1e0d9;           /* 网格发丝线 */
+  --axis:#c3c2b7;           /* 基线 */
+  --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --deemph:#9ec5f4;         /* 顺序蓝 200 步：sparkline 去强调 */
+  --seq-100:#cde2fb;        /* meter 轨道 */
+  --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+  --delta-good:#006300;     /* 成功态文字色（浅底 4.5:1+） */
+  --hover:rgba(11,11,11,.045);
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])) .viz-root{
+    color-scheme: dark;
+    --surface-1:#1a1a19; --plane:#0d0d0d;
+    --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+    --deemph:#1c5cab; --seq-100:#184f95;
+    --delta-good:#0ca30c;
+    --hover:rgba(255,255,255,.06);
+  }
+}
+:root[data-theme="dark"] .viz-root{
+  color-scheme: dark;
+  --surface-1:#1a1a19; --plane:#0d0d0d;
+  --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  --deemph:#1c5cab; --seq-100:#184f95;
+  --delta-good:#0ca30c;
+  --hover:rgba(255,255,255,.06);
+}
+
+/* ── 基础 ─────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--plane);color:var(--text-primary);
+  font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+  font-size:14px;line-height:1.5;
+}
+.mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace}
+.wrap{max-width:1240px;margin:0 auto;padding:22px 16px 64px}
+h1,h2,h3,p,figure,figcaption,table,ul{margin:0}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--s1);outline-offset:2px;border-radius:2px}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ── 页头 ─────────────────────────────────────────────────────── */
+.masthead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.masthead .eyebrow{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted)}
+.masthead h1{font-size:19px;font-weight:640;letter-spacing:-.01em;margin-top:3px}
+.masthead .sub{color:var(--text-secondary);font-size:12.5px;margin-top:4px}
+.themebtn{background:transparent;border:1px solid var(--border);border-radius:4px;
+  padding:7px 11px;min-height:34px;cursor:pointer;color:var(--text-secondary);white-space:nowrap}
+.themebtn:hover{background:var(--hover)}
+
+/* ── 控制台单面：一个连续面 + 发丝线分区（不是卡片墙）──────────────── */
+.console{background:var(--surface-1);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.band{padding:16px}
+.console > * + *{border-top:1px solid var(--border)}
+.band-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.band-head h2{font-size:13px;font-weight:600;letter-spacing:.01em}
+.band-head .hint{font-size:12px;color:var(--text-muted)}
+
+/* ── 过滤器：一整行，放在所有内容之上（dataviz/interaction.md）──────── */
+.filters{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.filters .flabel{font-size:12px;color:var(--text-muted)}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.seg button{appearance:none;background:transparent;border:0;border-left:1px solid var(--border);
+  padding:0 14px;height:34px;cursor:pointer;color:var(--text-secondary);font-size:13px}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--text-primary);color:var(--surface-1)}
+.seg button:not([aria-pressed="true"]):hover{background:var(--hover)}
+
+/* ── 签名元素：hero 读数带 ────────────────────────────────────── */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:22px;align-items:end}
+.hero .label{font-size:12.5px;color:var(--text-secondary)}
+.hero .value{font-size:clamp(30px,5.6vw,50px);font-weight:650;letter-spacing:-.025em;line-height:1.06;
+  margin-top:6px;font-variant-numeric:proportional-nums}
+.hero .pair{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--text-secondary)}
+.delta{display:inline-flex;align-items:center;gap:5px;font-weight:600;font-variant-numeric:tabular-nums}
+.delta.good{color:var(--delta-good)}
+.delta.bad{color:var(--critical)}
+.delta .g{font-size:11px;line-height:1}
+.ribbon{width:100%;display:block;height:auto}
+.ribbon-cap{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-muted);margin-top:6px}
+
+/* ── KPI 集群：用 1px 间隙当发丝线 ───────────────────────────── */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--border)}
+.kpi{background:var(--surface-1);padding:13px 14px}
+.kpi .k-label{font-size:12px;color:var(--text-secondary)}
+.kpi .k-value{font-size:21px;font-weight:640;letter-spacing:-.015em;margin-top:5px;line-height:1.15}
+.kpi .k-value .unit{font-size:12px;font-weight:500;color:var(--text-muted);margin-left:3px}
+.kpi .k-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:7px}
+.kpi .k-delta{font-size:12px}
+.kpi svg{display:block}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:1px 7px;border-radius:999px;
+  border:1px solid var(--border);color:var(--text-secondary)}
+.chip.warn{border-color:var(--warning);color:var(--text-primary);background:color-mix(in srgb,var(--warning) 16%,transparent)}
+.chip.warn .g{color:var(--warning)}
+
+/* ── 图表区 ──────────────────────────────────────────────────── */
+.charts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1px;background:var(--border)}
+.fig{background:var(--surface-1);padding:16px;min-width:0}
+.fig.wide{grid-column:1/-1}
+.fig figcaption{font-size:13px;font-weight:600;margin-bottom:2px}
+.fig .figsub{font-size:12px;color:var(--text-muted);margin-bottom:10px}
+.plot{position:relative}
+.plot svg{display:block;width:100%;height:auto}
+/* 可聚焦的图表：键盘聚焦给明确指示，同时去掉 UA 的默认黑框 */
+.plot svg:focus{outline:none}
+.plot svg:focus-visible{outline:2px solid var(--s1);outline-offset:3px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;font-size:12px;color:var(--text-secondary)}
+.legend .item{display:inline-flex;align-items:center;gap:6px}
+.legend .keystroke{display:inline-block;width:14px;height:2px;border-radius:1px}
+.legend .keysq{display:inline-block;width:11px;height:11px;border-radius:2px}
+.legend .v{color:var(--text-primary);font-variant-numeric:tabular-nums;font-weight:600}
+/* 图表读数窗（tooltip）：值在前、名在后 */
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;
+  left:0;top:0;max-width:calc(100% - 10px);
+  background:var(--surface-1);border:1px solid var(--border);border-radius:4px;
+  box-shadow:0 6px 20px rgba(0,0,0,.10);padding:8px 10px;min-width:150px;z-index:5}
+.tip[data-on="1"]{opacity:1}
+.tip .t-head{font-size:11.5px;color:var(--text-muted);margin-bottom:5px}
+.tip .t-row{display:flex;align-items:baseline;gap:7px;font-size:12px;color:var(--text-secondary);white-space:nowrap}
+.tip .t-row .num{color:var(--text-primary);font-weight:650;font-variant-numeric:tabular-nums;margin-left:auto}
+.tip .t-row .lk{display:inline-block;width:12px;height:2px;border-radius:1px;flex:none}
+/* 表格视图（让 tooltip 不成为读到数值的唯一途径） */
+.details{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}
+.details summary{font-size:12px;color:var(--text-secondary);cursor:pointer;min-height:28px;display:flex;align-items:center}
+.details .twrap{max-height:264px;overflow:auto;margin-top:8px;border:1px solid var(--border);border-radius:3px}
+.details table{width:100%;border-collapse:collapse;font-size:12px}
+.details th,.details td{padding:5px 9px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+.details th:first-child,.details td:first-child{text-align:left}
+.details thead th{position:sticky;top:0;background:var(--surface-1);color:var(--text-muted);font-weight:500}
+.details td{font-variant-numeric:tabular-nums}
+
+/* ── 明细表 ──────────────────────────────────────────────────── */
+.tbl-tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chipbtn{appearance:none;background:transparent;border:1px solid var(--border);border-radius:999px;
+  padding:0 12px;height:32px;cursor:pointer;color:var(--text-secondary);font-size:12.5px}
+.chipbtn[aria-pressed="true"]{background:var(--text-primary);color:var(--surface-1);border-color:var(--text-primary)}
+.chipbtn:not([aria-pressed="true"]):hover{background:var(--hover)}
+select,input[type=search]{border:1px solid var(--border);border-radius:4px;background:transparent;
+  height:32px;padding:0 9px;min-width:0}
+input[type=search]{width:188px}
+.tbl-count{font-size:12px;color:var(--text-muted);margin-left:auto;font-variant-numeric:tabular-nums}
+.tblwrap{overflow-x:auto}
+table.grid{width:100%;border-collapse:collapse;font-size:13px}
+table.grid th{text-align:left;font-weight:500;font-size:12px;color:var(--text-muted);
+  padding:0 10px 8px 0;border-bottom:1px solid var(--axis);white-space:nowrap}
+table.grid th.num,table.grid td.num{text-align:right;font-variant-numeric:tabular-nums}
+table.grid th button{background:none;border:0;padding:6px 0;cursor:pointer;color:inherit;
+  display:inline-flex;align-items:center;gap:4px;min-height:32px}
+table.grid th button:hover{color:var(--text-primary)}
+table.grid th .arrow{font-size:9px;color:var(--s1)}
+table.grid td{padding:9px 10px 9px 0;border-bottom:1px solid var(--border);vertical-align:middle}
+table.grid tr:hover td{background:var(--hover)}
+.pname{font-weight:560}
+.pcode{display:block;font-size:11px;color:var(--text-muted)}
+.tagcat{font-size:11.5px;color:var(--text-secondary);border:1px solid var(--border);border-radius:3px;padding:1px 6px;white-space:nowrap}
+.empty{padding:28px 16px;text-align:center}
+.empty h3{font-size:14px;font-weight:600}
+.empty p{color:var(--text-secondary);font-size:12.5px;margin-top:6px}
+.empty button{margin-top:12px;border:1px solid var(--border);background:transparent;border-radius:4px;
+  padding:7px 13px;min-height:34px;cursor:pointer}
+.empty button:hover{background:var(--hover)}
+.sortsel{display:none;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
+
+/* ── 页脚 ─────────────────────────────────────────────────────── */
+.foot{padding:14px 16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--text-muted);
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.foot .mono{color:var(--text-secondary)}
+
+/* ── 响应式 ──────────────────────────────────────────────────── */
+@media (max-width:1024px){
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .hero{grid-template-columns:1fr;gap:14px;align-items:start}
+}
+@media (max-width:760px){
+  .wrap{padding:16px 12px 48px}
+  .band{padding:14px 13px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .charts{grid-template-columns:minmax(0,1fr)}
+  .fig.wide{grid-column:auto}
+  .tblwrap{overflow-x:visible}
+  /* 明细表 → 卡片式行：关键列（商品 / GMV / 环比）先出现 */
+  .sortsel{display:flex}
+  .tblwrap table.grid,.tblwrap tbody,.tblwrap tr,.tblwrap td{display:block;width:auto}
+  .tblwrap thead{display:none}
+  .tblwrap tr{border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:9px}
+  .tblwrap tr:hover td{background:transparent}
+  .tblwrap td{border:0;padding:3px 0;display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+  .tblwrap td::before{content:attr(data-label);color:var(--text-muted);font-size:11.5px;flex:none}
+  .tblwrap td.num{text-align:right}
+  .tblwrap td.c-name{border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:6px;display:block}
+  .tblwrap td.c-name::before{content:none}
+  .pcode{display:inline;margin-left:6px}
+}
+@media (max-width:420px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi{padding:11px 10px}
+  .kpi .k-value{font-size:18px}
+  input[type=search]{width:100%}
+  .tbl-tools{gap:9px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+<div class="viz-root">
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">运营交班台</div>
+      <h1>电商日销总览</h1>
+      <div class="sub" id="sliceNote">—</div>
+    </div>
+    <button class="themebtn" id="themeBtn" type="button" aria-pressed="false">切换深色</button>
+  </header>
+
+  <main class="console">
+
+    <!-- 过滤器：一整行，作用于下面全部内容 -->
+    <div class="band">
+      <div class="filters">
+        <span class="flabel" id="rangeLabel">时间范围</span>
+        <div class="seg" role="group" aria-labelledby="rangeLabel" id="rangeSeg">
+          <button type="button" data-days="7"  aria-pressed="false">近 7 天</button>
+          <button type="button" data-days="14" aria-pressed="false">近 14 天</button>
+          <button type="button" data-days="30" aria-pressed="true">近 30 天</button>
+        </div>
+        <span class="hint" style="font-size:12px;color:var(--text-muted)" id="rangeHint"></span>
+      </div>
+    </div>
+
+    <!-- 签名元素：hero 读数带 -->
+    <section class="band" aria-labelledby="heroLabel">
+      <div class="hero">
+        <div>
+          <div class="label" id="heroLabel">本期净销售额（GMV − 退款）</div>
+          <div class="value" id="heroValue">—</div>
+          <div class="pair">
+            <span class="delta" id="heroDelta"></span>
+            <span id="heroPrev"></span>
+          </div>
+        </div>
+        <div>
+          <svg class="ribbon" id="ribbon" role="img" aria-label="本期每日净销售额走势"></svg>
+          <div class="ribbon-cap">
+            <span id="ribbonFrom">—</span><span id="ribbonTo">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI 集群 -->
+    <section class="band" aria-labelledby="kpiHead">
+      <div class="band-head">
+        <h2 id="kpiHead">关键指标</h2>
+        <span class="hint" id="kpiHint">每个指标都给出与「上期」同长度的对比</span>
+      </div>
+      <div class="kpis" id="kpis"></div>
+    </section>
+
+    <!-- 图表 -->
+    <section class="charts" aria-label="图表">
+      <figure class="fig wide">
+        <figcaption>每日 GMV · 本期 vs 上期</figcaption>
+        <div class="figsub" id="trendSub">—</div>
+        <div class="legend" id="trendLegend"></div>
+        <div class="plot" id="trendPlot">
+          <svg id="trendSvg" role="img" aria-label="本期与上期每日 GMV 折线图，可用左右方向键逐日读数"></svg>
+          <div class="tip" id="trendTip" role="status" aria-live="polite"></div>
+        </div>
+        <details class="details">
+          <summary>表格视图 · 每日 GMV（不用悬停也能读到每个值）</summary>
+          <div class="twrap" id="trendTableWrap"></div>
+        </details>
+      </figure>
+
+      <figure class="fig">
+        <figcaption>渠道 GMV 对比</figcaption>
+        <div class="figsub" id="chSub">—</div>
+        <div class="plot" id="chPlot">
+          <svg id="chSvg" role="img" aria-label="各渠道本期 GMV 条形图，条端标注金额"></svg>
+          <div class="tip" id="chTip" role="status" aria-live="polite"></div>
+        </div>
+      </figure>
+
+      <figure class="fig">
+        <figcaption>品类 GMV 占比</figcaption>
+        <div class="figsub" id="catSub">—</div>
+        <div class="plot" id="catPlot">
+          <svg id="catSvg" role="img" aria-label="品类 GMV 占比 100% 堆叠条，图例给出每个品类的金额与占比"></svg>
+          <div class="tip" id="catTip" role="status" aria-live="polite"></div>
+        </div>
+        <div class="legend" id="catLegend"></div>
+      </figure>
+    </section>
+
+    <!-- 明细表 -->
+    <section class="band" aria-labelledby="tblHead">
+      <div class="band-head">
+        <h2 id="tblHead">商品明细</h2>
+        <span class="hint" id="tblHint">点表头排序；筛选与排序可与上方时间范围叠加</span>
+      </div>
+
+      <div class="tbl-tools">
+        <div class="chips" id="catChips" role="group" aria-label="按品类筛选"></div>
+        <label class="sr" for="chSelect">按主渠道筛选</label>
+        <select id="chSelect"></select>
+        <label class="sr" for="qInput">搜索商品名或 SKU</label>
+        <input id="qInput" type="search" placeholder="搜索商品名 / SKU" autocomplete="off">
+        <span class="sortsel"><label for="sortSelect">排序</label>
+          <select id="sortSelect"></select></span>
+        <span class="tbl-count" id="tblCount">—</span>
+      </div>
+
+      <div class="tblwrap" id="tblWrap">
+        <table class="grid" id="tbl">
+          <caption class="sr">按 SKU 汇总的商品明细，含本期 GMV、销量、客单价、转化率、退款率与环比</caption>
+          <thead><tr id="tblHeadRow"></tr></thead>
+          <tbody id="tblBody"></tbody>
+        </table>
+      </div>
+      <div id="tblEmpty"></div>
+    </section>
+
+    <div class="foot">
+      <span>口径：净销售额 = GMV − 退款额；GMV 为当期成交金额；退款率为金额口径（退款额 ÷ GMV）；客单价 = GMV ÷ 订单数；支付转化率 = 订单数 ÷ 访客数。</span>
+      <span class="mono" id="footMeta">—</span>
+    </div>
+  </main>
+
+  <p style="font-size:11.5px;color:var(--text-muted);margin-top:12px">
+    演示数据为虚构（40 个商品名与 SKU 均为编造，不与任何真实店铺对应），由页面内固定种子生成，仅用于展示看板形态。
+    把生成函数换成真实接口即是生产看板。
+  </p>
+</div>
+</div>
+
+<script>
+"use strict";
+/* ══════════════════════════════════════════════════════════════════
+   1. 演示数据 —— 页面内 JS 生成（固定种子，无外链）
+      与 阶段1/make_reference.py 的规格逐字一致：
+      同算法、同取数顺序、同算术表达式顺序、同舍入规则（floor(x+0.5)）
+   ══════════════════════════════════════════════════════════════════ */
+const SEED = 20261012, DAYS = 60;
+const CHANNELS = ["自然搜索","信息流广告","私域社群","达人分销","直接访问"];
+const CATEGORIES = ["家居日用","数码配件","美妆个护","服饰鞋包","食品生鲜"];
+const CH_BASE_GMV = [42000,61000,28000,35000,19000];
+const CH_CVR = [0.041,0.026,0.062,0.033,0.048];
+const CH_REFUND = [0.031,0.052,0.022,0.047,0.028];
+const CH_MEMBER = [0.18,0.11,0.29,0.14,0.21];
+const PROMO = {"10-01":1.45,"10-02":1.45,"10-03":1.45,"09-19":1.30,"08-25":1.22};
+/* [商品名, SKU 码, 品类下标, 渠道下标, 基准客单价, 权重] —— 与 Python 侧逐行同序 */
+const SKU = [
+  ["云感亲肤四件套 1.8m床","HM-1001",0,0,268,1.00],
+  ["折叠收纳箱 66L 三只装","HM-1002",0,0,89,0.85],
+  ["氮化镓快充充电器 65W","DG-2001",1,0,129,1.10],
+  ["主动降噪蓝牙耳机","DG-2002",1,0,349,0.95],
+  ["氨基酸温和洁面乳 120g","BZ-3001",2,0,79,0.90],
+  ["纯棉基础圆领T恤 男款","FS-4001",3,0,99,0.80],
+  ["每日坚果混合装 750g","SP-5001",4,0,118,0.75],
+  ["手冲挂耳咖啡 20片装","SP-5002",4,0,89,0.70],
+  ["记忆棉护颈枕 慢回弹","HM-1003",0,1,149,1.20],
+  ["免安装折叠晾衣架","HM-1004",0,1,79,1.00],
+  ["蓝牙自拍杆三脚架","DG-2003",1,1,69,1.15],
+  ["手机磁吸散热背夹","DG-2004",1,1,89,1.05],
+  ["玻尿酸补水面膜 20片","BZ-3002",2,1,99,1.30],
+  ["持妆粉底液 30ml","BZ-3003",2,1,159,1.10],
+  ["冰丝速干运动裤","FS-4002",3,1,119,1.00],
+  ["低脂鸡胸肉即食装","SP-5003",4,1,69,0.90],
+  ["抗菌抑菌洗衣凝珠","HM-1005",0,2,99,1.10],
+  ["天然乳胶睡眠枕","HM-1006",0,2,199,0.90],
+  ["桌面无线充电支架","DG-2005",1,2,139,0.80],
+  ["儿童智能护眼台灯","DG-2006",1,2,259,0.85],
+  ["早C晚A精华套装","BZ-3004",2,2,329,1.20],
+  ["头皮养护洗发水 500ml","BZ-3005",2,2,129,1.05],
+  ["女士轻薄防晒衣","FS-4003",3,2,149,0.95],
+  ["有机初榨橄榄油 1L","SP-5004",4,2,139,0.80],
+  ["香薰蜡烛礼盒装","HM-1007",0,3,119,1.00],
+  ["便携折叠露营桌","HM-1008",0,3,229,0.85],
+  ["车载手机支架","DG-2007",1,3,59,1.20],
+  ["便携蓝牙音箱 防水","DG-2008",1,3,179,1.05],
+  ["视黄醇紧致眼霜","BZ-3006",2,3,219,1.15],
+  ["空气感蜜粉饼","BZ-3007",2,3,109,1.00],
+  ["云朵舒适家居拖鞋","FS-4004",3,3,69,0.95],
+  ["冻干水果混合装","SP-5005",4,3,79,1.10],
+  ["硅藻泥吸水地垫","HM-1009",0,4,69,0.90],
+  ["静音香薰加湿器","HM-1010",0,4,159,1.05],
+  ["双口快充充电宝 20000mAh","DG-2009",1,4,149,1.15],
+  ["机械键盘 87键 茶轴","DG-2010",1,4,299,0.70],
+  ["男士控油洁面套装","BZ-3008",2,4,119,0.85],
+  ["遮光透气防晒帽","FS-4005",3,4,89,0.90],
+  ["冷萃咖啡液 10条装","SP-5006",4,4,99,0.80],
+  ["海盐苏打饼干 整箱","SP-5007",4,4,59,0.75]
+];
+const DATE_START_UTC = Date.UTC(2026,7,13);
+const DAY_MS = 86400000;
+
+function mulberry32(a){
+  return function(){
+    a|=0; a=a+0x6D2B79F5|0;
+    var t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+}
+const rndInt = (x) => Math.floor(x + 0.5);            /* 与 Python rnd_int 等价 */
+const pad2 = (n) => (n<10?"0":"")+n;
+
+function buildData(){
+  const wsum=[0,0,0,0,0];
+  for(const m of SKU) wsum[m[3]] += m[4];
+  const baseGmv = SKU.map(m => CH_BASE_GMV[m[3]] * m[4] / wsum[m[3]]);
+  const rnd = mulberry32(SEED);
+  const dates=[], rows=[];
+  for(let i=0;i<DAYS;i++){
+    const d = new Date(DATE_START_UTC + i*DAY_MS);
+    dates.push(d.getUTCFullYear()+"-"+pad2(d.getUTCMonth()+1)+"-"+pad2(d.getUTCDate()));
+    const wd = (d.getUTCDay()+6)%7;                   /* Mon=0 .. Sun=6，与 Python weekday() 对齐 */
+    let f = 1 + 0.0045*i;
+    if(wd>=5) f *= 1.18;
+    f *= (PROMO[pad2(d.getUTCMonth()+1)+"-"+pad2(d.getUTCDate())] || 1);
+    f *= 0.90 + 0.20*rnd();                           /* 日噪声：每天抽 1 次 */
+    for(let si=0;si<SKU.length;si++){
+      const ch = SKU[si][3];
+      const gmv = rndInt(baseGmv[si]*f*(0.85 + 0.30*rnd()));
+      const aovJ = SKU[si][4]*(0.92 + 0.16*rnd());
+      const orders = Math.max(1, rndInt(gmv/aovJ));
+      const cvrJ = CH_CVR[ch]*(0.85 + 0.30*rnd());
+      const uv = Math.max(orders, rndInt(orders/cvrJ));
+      const refund = rndInt(gmv*CH_REFUND[ch]*(0.70 + 0.60*rnd()));
+      const members = rndInt(orders*CH_MEMBER[ch]*(0.80 + 0.40*rnd()));
+      rows.push({di:i,si:si,gmv:gmv,orders:orders,uv:uv,refund:refund,members:members});
+    }
+  }
+  return {dates:dates, rows:rows};
+}
+const DATA = buildData();
+/* 暴露原始数据，供独立核验脚本自行复算（不是"页面自己的中间变量"） */
+window.__RAW__ = DATA;
+window.__SPEC__ = {seed:SEED, days:DAYS, channels:CHANNELS, categories:CATEGORIES,
+  sku:SKU, dateStart:DATA.dates[0], dateEnd:DATA.dates[DAYS-1]};
+
+/* ══════════════════════════════════════════════════════════════════
+   2. 聚合 —— 所有视图都从同一张事实表 (DATA.rows) 聚合
+   ══════════════════════════════════════════════════════════════════ */
+function emptySums(){ return {gmv:0,orders:0,uv:0,refund:0,members:0}; }
+function addTo(s,r){ s.gmv+=r.gmv; s.orders+=r.orders; s.uv+=r.uv; s.refund+=r.refund; s.members+=r.members; return s; }
+function kpiOf(s){
+  return {
+    netSales: s.gmv - s.refund,
+    orders: s.orders,
+    aov: s.orders ? s.gmv/s.orders : 0,
+    cvr: s.uv ? 100*s.orders/s.uv : 0,
+    uv: s.uv,
+    refundRate: s.gmv ? 100*s.refund/s.gmv : 0,
+    members: s.members
+  };
+}
+function sliceOf(nDays){
+  const from = DAYS - nDays;
+  const cur = [], prev = [];
+  for(const r of DATA.rows){
+    if(r.di >= from) cur.push(r);
+    else if(r.di >= DAYS - 2*nDays && r.di < from) prev.push(r);
+  }
+  return {cur:cur, prev:prev, from:from};
+}
+function byDay(rows){
+  const out = Array.from({length:DAYS}, ()=>emptySums());
+  for(const r of rows) addTo(out[r.di], r);
+  return out;
+}
+/* 12 点 sparkline 序列（不足 12 天就用实际天数）*/
+function buckets(series, want){
+  const n = series.length, k = Math.min(want, n);
+  if(k <= 1) return series.slice();
+  const out = [];
+  for(let b=0;b<k;b++){
+    const a = Math.floor(b*n/k), z = Math.floor((b+1)*n/k);
+    let sum=0, cnt=0;
+    for(let i=a;i<z;i++){ sum += series[i]; cnt++; }
+    out.push(cnt ? sum/cnt : 0);
+  }
+  return out;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   3. 工具
+   ══════════════════════════════════════════════════════════════════ */
+const NS = "http://www.w3.org/2000/svg";
+function E(tag, attrs, text){
+  const n = document.createElementNS(NS, tag);
+  if(attrs) for(const k in attrs) n.setAttribute(k, attrs[k]);
+  if(text != null) n.textContent = text;   /* 标签一律 textContent，绝不拼 innerHTML */
+  return n;
+}
+function H(tag, attrs, text){
+  const n = document.createElement(tag);
+  if(attrs) for(const k in attrs){ if(k==="cls") n.className=attrs[k]; else n.setAttribute(k, attrs[k]); }
+  if(text != null) n.textContent = text;
+  return n;
+}
+const fmtInt = (n) => Math.round(n).toLocaleString("en-US");
+/* 中文口径的紧凑数字：万 */
+function fmtWan(n, digits){
+  if(Math.abs(n) >= 10000) return (n/10000).toFixed(digits==null?1:digits) + "万";
+  return fmtInt(n);
+}
+const fmtMoneyWan = (n) => (Math.abs(n)>=10000 ? "¥"+(n/10000).toFixed(1)+"万" : "¥"+fmtInt(n));
+const fmtPct = (n, d) => (n).toFixed(d==null?2:d) + "%";
+function cssVar(name){
+  return getComputedStyle(document.querySelector(".viz-root")).getPropertyValue(name).trim();
+}
+function niceMax(v){
+  if(!(v > 0)) return 1;
+  const exp = Math.pow(10, Math.floor(Math.log10(v)));
+  const f = v/exp;
+  const step = f<=1?1 : f<=2?2 : f<=2.5?2.5 : f<=5?5 : 10;
+  return step*exp;
+}
+/* 数据端 4px 圆角的横条路径；dir=1 向右长（左端贴基线，方角） */
+function barPathRight(x0, y, w, h, r){
+  r = Math.max(0, Math.min(r, w, h/2));
+  if(w <= r) return `M${x0},${y} h${w} v${h} h${-w} Z`;
+  return `M${x0},${y} H${x0+w-r} Q${x0+w},${y} ${x0+w},${y+r} V${y+h-r} Q${x0+w},${y+h} ${x0+w-r},${y+h} H${x0} Z`;
+}
+/* 段填充下的文字用白/墨（dataviz 允许的唯一例外） */
+function inkOn(hex){
+  const m = hex.replace("#","");
+  const r = parseInt(m.slice(0,2),16)/255, g = parseInt(m.slice(2,4),16)/255, b = parseInt(m.slice(4,6),16)/255;
+  const lin = (c) => c<=0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+  const L = 0.2126*lin(r) + 0.7152*lin(g) + 0.0722*lin(b);
+  return L > 0.45 ? "#0b0b0b" : "#ffffff";
+}
+/* 粗略估宽：中文字 ≈ 1em，数字/字母 ≈ 0.56em */
+function estWidth(s, fs){
+  let w=0;
+  for(const ch of s) w += (/[一-鿿＀-￯]/.test(ch) ? 1 : 0.56) * fs;
+  return w;
+}
+
+/* 数值 → 好读的轴刻度（上限封在 maxV，避免网格线跑到绘图区之外） */
+function ticks(maxV, count){
+  const raw = maxV/count;
+  const exp = Math.pow(10, Math.floor(Math.log10(raw)));
+  const f = raw/exp;
+  const step = (f<=1?1 : f<=2?2 : f<=2.5?2.5 : f<=5?5 : 10)*exp;
+  const out=[];
+  for(let i=0; ; i++){
+    const v = i*step;
+    if(v > maxV + 1e-9) break;
+    out.push(v);
+  }
+  return out;
+}
+function axisLabel(v){
+  if(v === 0) return "0";
+  if(Math.abs(v) >= 10000) return (v/10000) + "万";
+  return fmtInt(v);
+}
+
+/* ── tooltip 助手 ── */
+function tipShow(tipEl, hostEl, x, y, headText, rows){
+  tipEl.textContent = "";
+  tipEl.appendChild(H("div",{cls:"t-head"}, headText));
+  for(const r of rows){
+    const row = H("div",{cls:"t-row"});
+    const lk = H("span",{cls:"lk"});
+    lk.style.background = r.color;
+    row.appendChild(lk);
+    row.appendChild(H("span",null,r.name));
+    row.appendChild(H("span",{cls:"num"}, r.value));
+    tipEl.appendChild(row);
+  }
+  tipEl.dataset.on = "1";
+  /* 读数窗永远不许把容器撑出横向溢出：先夹到容器宽度内，再把 left 夹进 [0, hw-tw] */
+  const hw = hostEl.clientWidth;
+  const tw = Math.min(tipEl.offsetWidth, Math.max(120, hw - 10));
+  let left = x + 14;
+  if(left + tw > hw - 4) left = x - tw - 14;
+  left = Math.max(0, Math.min(left, Math.max(0, hw - tw - 4)));
+  tipEl.style.left = left + "px";
+  tipEl.style.top = Math.max(0, y - 8) + "px";
+}
+function tipHide(tipEl){ tipEl.dataset.on = "0"; tipEl.style.left = "0px"; tipEl.style.top = "0px";}
+function hideAllTips(){
+  for(const idp of [["trendTip","trendPlot"],["chTip","chPlot"],["catTip","catPlot"]]){
+    const t = document.getElementById(idp[0]); if(t) tipHide(t);
+  }
+}
+/* 事件坐标 → SVG 用户单位（不用 offsetX：它在不同元素/SVG 上的参照不一致） */
+function localXY(e, hostEl, svgW){
+  const r = hostEl.getBoundingClientRect();
+  const s = (svgW && r.width) ? (r.width/svgW) : 1;
+  return {x:(e.clientX - r.left)/s, y:(e.clientY - r.top)/s};
+}
+
+/* ── sparkline ── */
+function sparkline(values, w, h, idleColor, accentColor, surface){
+  const svg = E("svg",{width:w, height:h, viewBox:"0 0 "+w+" "+h, "aria-hidden":"true", focusable:"false"});
+  if(values.length < 2) return svg;
+  const mn = Math.min.apply(null,values), mx = Math.max.apply(null,values);
+  const pad = 2.5, span = (mx-mn) || 1;
+  const X = (i) => pad + i*(w-2*pad)/(values.length-1);
+  const Y = (v) => h-pad - (v-mn)/span*(h-2*pad);
+  let d = "";
+  for(let i=0;i<values.length;i++) d += (i?"L":"M") + X(i).toFixed(2) + "," + Y(values[i]).toFixed(2);
+  svg.appendChild(E("path",{d:d, fill:"none", stroke:idleColor, "stroke-width":1.6,
+    "stroke-linejoin":"round","stroke-linecap":"round"}));
+  const li = values.length-1;
+  svg.appendChild(E("circle",{cx:X(li).toFixed(2), cy:Y(values[li]).toFixed(2), r:2.8,
+    fill:accentColor, stroke:surface, "stroke-width":2}));
+  return svg;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   4. 状态与渲染
+   ══════════════════════════════════════════════════════════════════ */
+const state = { days:30, cat:"全部", ch:"全部", q:"", sortKey:"gmv", sortDir:"desc" };
+const SORT_COLS = [
+  {key:"name",   label:"商品",   num:false},
+  {key:"cat",    label:"品类",   num:false},
+  {key:"ch",     label:"主渠道", num:false},
+  {key:"gmv",    label:"本期 GMV", num:true},
+  {key:"orders", label:"销量(单)", num:true},
+  {key:"aov",    label:"客单价",  num:true},
+  {key:"cvr",    label:"转化率",  num:true},
+  {key:"refundRate", label:"退款率", num:true},
+  {key:"deltaPct",   label:"环比",   num:true}
+];
+const REFUND_WARN_MULT = 1.25;   /* 退款率警示线 = 本期切片均值 × 1.25（口径随切片滚动，不是一个拍脑袋的绝对值）*/
+let REFUND_WARN = 4.5;
+
+/* 依切片聚出 40 行 SKU 明细 */
+function skuAgg(nDays){
+  const s = sliceOf(nDays);
+  const cur = new Array(SKU.length), prev = new Array(SKU.length);
+  for(let i=0;i<SKU.length;i++){ cur[i]=emptySums(); prev[i]=emptySums(); }
+  for(const r of s.cur) addTo(cur[r.si], r);
+  for(const r of s.prev) addTo(prev[r.si], r);
+  return SKU.map((m,si) => {
+    const g = cur[si].gmv, gp = prev[si].gmv, o = cur[si].orders, u = cur[si].uv, rf = cur[si].refund;
+    return { si:si, name:m[0], code:m[1], cat:CATEGORIES[m[2]], ch:CHANNELS[m[3]],
+      gmv:g, gmvPrev:gp, deltaPct: gp ? 100*(g-gp)/gp : null,
+      orders:o, uv:u, refund:rf,
+      aov: o?g/o:0, cvr: u?100*o/u:0, refundRate: g?100*rf/g:0 };
+  });
+}
+
+/* ── hero + KPI ── */
+function renderHero(k, kp, dailyNet, dates, from){
+  document.getElementById("heroValue").textContent = "¥" + fmtInt(k.netSales);
+  const d = k.netSales - kp.netSales;
+  const pct = kp.netSales ? 100*d/kp.netSales : 0;
+  const bad = d < 0;
+  const el = document.getElementById("heroDelta");
+  el.className = "delta " + (bad ? "bad" : "good");
+  el.textContent = "";
+  el.appendChild(H("span",{cls:"g"}, bad ? "▼" : "▲"));
+  el.appendChild(H("span",null, (bad?"":"+") + pct.toFixed(2) + "%"));
+  document.getElementById("heroPrev").textContent =
+    "较上期 " + fmtMoneyWan(kp.netSales) + "　·　上期为前 " + state.days + " 天";
+
+  /* 签名元素：每日净销售额 ribbon（注意别用 H 当局部变量名：H 是上面的建节点助手）*/
+  const host = document.getElementById("ribbon");
+  const RW = Math.max(240, Math.round(host.parentElement.clientWidth || 520)), RH = 62;
+  host.setAttribute("width","100%"); host.setAttribute("viewBox","0 0 "+RW+" "+RH);
+  host.textContent = "";
+  const vals = dailyNet.map(s => s.gmv - s.refund);
+  const mn = Math.min.apply(null,vals), mx = Math.max.apply(null,vals), span = (mx-mn)||1;
+  const pad = 4;
+  const X = (i) => pad + i*(RW-2*pad)/(vals.length-1);
+  const Y = (v) => RH-pad - (v-mn)/span*(RH-2*pad);
+  let line = "", area = "";
+  for(let i=0;i<vals.length;i++){ line += (i?"L":"M")+X(i).toFixed(2)+","+Y(vals[i]).toFixed(2); }
+  area = line + "L"+X(vals.length-1).toFixed(2)+","+RH+"L"+X(0).toFixed(2)+","+RH+"Z";
+  const surface = cssVar("--surface-1");
+  host.appendChild(E("path",{d:area, fill:cssVar("--deemph"), opacity:0.28, stroke:"none"}));
+  host.appendChild(E("path",{d:line, fill:"none", stroke:cssVar("--deemph"), "stroke-width":2,
+    "stroke-linejoin":"round","stroke-linecap":"round"}));
+  host.appendChild(E("circle",{cx:X(vals.length-1).toFixed(2), cy:Y(vals[vals.length-1]).toFixed(2), r:4,
+    fill:cssVar("--s1"), stroke:surface, "stroke-width":2}));
+  document.getElementById("ribbonFrom").textContent = dates[from];
+  document.getElementById("ribbonTo").textContent = dates[DAYS-1];
+}
+
+const KPI_DEFS = [
+  {key:"orders",     label:"订单数",       up:true,  unit:"单", fmt:(v)=>fmtInt(v)},
+  {key:"aov",        label:"客单价",       up:true,  unit:"元", fmt:(v)=>v.toFixed(2)},
+  {key:"cvr",        label:"支付转化率",   up:true,  unit:"%",  fmt:(v)=>v.toFixed(2)},
+  {key:"uv",         label:"访客数",       up:true,  unit:"",   fmt:(v)=>fmtWan(v)},
+  {key:"refundRate", label:"退款率",       up:false, unit:"%",  fmt:(v)=>v.toFixed(2)},
+  {key:"members",    label:"新增会员",     up:true,  unit:"人", fmt:(v)=>fmtInt(v)}
+];
+function renderKpis(k, kp, daily, dates){
+  const host = document.getElementById("kpis");
+  host.textContent = "";
+  const W = 96, Hh = 24;
+  const surface = cssVar("--surface-1"), idle = cssVar("--deemph"), accent = cssVar("--s1");
+  for(const def of KPI_DEFS){
+    const v = k[def.key], pv = kp[def.key];
+    const diff = v - pv;
+    const pct = pv ? 100*diff/pv : 0;
+    const rising = diff > 0;
+    const good = rising === def.up;             /* delta 颜色 = 方向 × 这个方向是不是好事 */
+    const tile = H("div",{cls:"kpi"});
+    tile.appendChild(H("div",{cls:"k-label"}, def.label));
+    const val = H("div",{cls:"k-value"});
+    val.appendChild(document.createTextNode(def.fmt(v)));
+    if(def.unit) val.appendChild(H("span",{cls:"unit"}, def.unit));
+    tile.appendChild(val);
+    const foot = H("div",{cls:"k-foot"});
+    const dl = H("span",{cls:"delta k-delta " + (good ? "good" : "bad")});
+    dl.appendChild(H("span",{cls:"g"}, rising ? "▲" : "▼"));
+    dl.appendChild(H("span",null, (rising?"+":"") + pct.toFixed(1) + "%"));
+    dl.title = "较上期 " + def.fmt(pv) + def.unit + "（" + (rising?"上升":"下降") + "）";
+    foot.appendChild(dl);
+    const series = daily.map(s => def.key==="aov" ? (s.orders? s.gmv/s.orders : 0)
+                       : def.key==="cvr" ? (s.uv? 100*s.orders/s.uv : 0)
+                       : def.key==="refundRate" ? (s.gmv? 100*s.refund/s.gmv : 0)
+                       : def.key==="members" ? s.members
+                       : def.key==="uv" ? s.uv : s.orders);
+    foot.appendChild(sparkline(buckets(series,12), W, Hh, idle, accent, surface));
+    tile.appendChild(foot);
+    /* 退款率的"偏高"状态：颜色 + 图标 + 文字，绝不只靠颜色 */
+    if(def.key === "refundRate" && v >= REFUND_WARN){
+      const c = H("span",{cls:"chip warn"});
+      c.appendChild(H("span",{cls:"g"},"⚠"));
+      c.appendChild(H("span",null,"高于均值 25%"));
+      c.title = "本期均值 " + k.refundRate.toFixed(2) + "%，警示线 " + REFUND_WARN.toFixed(2) + "%";
+      tile.appendChild(c);
+    }
+    host.appendChild(tile);
+  }
+}
+
+/* ── 折线：本期 vs 上期 ── */
+let trendIndex = -1;
+function renderTrend(trend, dates, from){
+  const host = document.getElementById("trendSvg");
+  const W = Math.max(300, Math.round(document.getElementById("trendPlot").clientWidth || 640));
+  const HG = 268, m = {t:16, r:64, b:30, l:58};
+  const pw = Math.max(40, W-m.l-m.r), ph = HG-m.t-m.b;
+  host.setAttribute("viewBox","0 0 "+W+" "+HG);
+  host.textContent = "";
+
+  const maxV = Math.max.apply(null, trend.map(p => Math.max(p.cur,p.prev)));
+  const yMax = niceMax(maxV*1.06);
+  const tk = ticks(yMax, 4);
+  const X = (i) => m.l + (trend.length<2 ? pw/2 : i*pw/(trend.length-1));
+  const Y = (v) => m.t + ph - (v/yMax)*ph;
+
+  /* 网格：实线发丝线（禁虚线） */
+  for(const v of tk){
+    host.appendChild(E("line",{x1:m.l, y1:Y(v).toFixed(1), x2:m.l+pw, y2:Y(v).toFixed(1),
+      stroke: cssVar("--grid"), "stroke-width":1}));
+    host.appendChild(E("text",{x:m.l-9, y:(Y(v)+3.5).toFixed(1), "text-anchor":"end",
+      "font-size":11, fill: cssVar("--text-muted")}, axisLabel(v)));
+  }
+  host.appendChild(E("line",{x1:m.l, y1:m.t+ph, x2:m.l+pw, y2:m.t+ph, stroke: cssVar("--axis"), "stroke-width":1}));
+
+  /* x 轴：按可用宽度决定抽稀步长；末尾那个点只有当它离前一个刻度足够远才补，
+     否则两个日期会贴在一起（dataviz 反模式：标签碰撞 / 被裁切） */
+  const minPx = 78;
+  const stepLbl = Math.max(1, Math.ceil((trend.length * minPx) / pw));
+  const labelIdx = [];
+  for(let i=0;i<trend.length;i+=stepLbl) labelIdx.push(i);
+  const lastI = trend.length-1;
+  if(labelIdx[labelIdx.length-1] !== lastI
+     && (lastI - labelIdx[labelIdx.length-1]) >= Math.max(1, Math.round(stepLbl*0.7))) labelIdx.push(lastI);
+  for(const i of labelIdx){
+    host.appendChild(E("text",{x:X(i).toFixed(1), y:HG-10, "text-anchor":"middle",
+      "font-size":11, fill: cssVar("--text-muted")}, dates[from+i].slice(5)));
+  }
+
+  /* 两条线（2px，圆角接头）；上期在下层 */
+  const pairs = [["prev", cssVar("--s2"), "上期"], ["cur", cssVar("--s1"), "本期"]];
+  for(const [key,color] of pairs){
+    let d = "";
+    for(let i=0;i<trend.length;i++) d += (i?"L":"M")+X(i).toFixed(2)+","+Y(trend[i][key]).toFixed(2);
+    host.appendChild(E("path",{d:d, fill:"none", stroke:color, "stroke-width":2,
+      "stroke-linejoin":"round","stroke-linecap":"round"}));
+  }
+  /* 端点：≥8px 直径 + 2px 面色描边环（在下层画环，保证重叠也可读） */
+  const surface = cssVar("--surface-1");
+  for(const [key,color] of pairs){
+    const li = trend.length-1;
+    host.appendChild(E("circle",{cx:X(li).toFixed(2), cy:Y(trend[li][key]).toFixed(2), r:4.5,
+      fill:color, stroke:surface, "stroke-width":2}));
+  }
+  /* 端点直标（只标端点，不给每个点标数）；文字用 ink token，身份靠旁边的色点。
+     两条线的端点挨得很近时（<34px），四段文本会互相压到 —— dataviz 给的处置是
+     "退回图例 + tooltip"：这里只直标「本期」这一个端点（上期的值在图例、读数窗、
+     下方表格视图里都拿得到），必要时垂直推开一点并用一条 1px 引线牵回色点。 */
+  {
+    const li = trend.length-1;
+    const yCur = Y(trend[li].cur), yPrev = Y(trend[li].prev);
+    const gap = Math.abs(yCur - yPrev);
+    const put = (v, y, label, withName) => {
+      host.appendChild(E("text",{x:(X(li)+10).toFixed(1), y:(y+4).toFixed(1),
+        "font-size":11.5, "font-weight":600, fill: cssVar("--text-primary"),
+        "font-variant-numeric":"tabular-nums"}, fmtWan(v)));
+      if(withName) host.appendChild(E("text",{x:(X(li)+10).toFixed(1), y:(y+17).toFixed(1),
+        "font-size":10.5, fill: cssVar("--text-muted")}, label));
+    };
+    host.__endLabelMode = (gap >= 34) ? "value+name" : (gap >= 14 ? "value-only" : "value-nudged");
+    if(gap >= 34){
+      /* 端点分得开：每个系列各一行"值 + 系列名" */
+      put(trend[li].prev, yPrev, "上期", true);
+      put(trend[li].cur, yCur, "本期", true);
+    } else {
+      /* 端点挨得近：系列名交给图例（图例本来就有），只留两行"值"；
+         两行值本身若还挤（<14px），把上/下两行各推开一点，并用 1px 引线牵回色点 */
+      let yA = yPrev, yB = yCur;
+      if(gap < 14){
+        const mid = (yPrev + yCur) / 2;
+        yA = mid - 9; yB = mid + 9;
+        if(yPrev > yCur){ yA = mid + 9; yB = mid - 9; }
+      }
+      yA = Math.max(m.t + 7, Math.min(m.t + ph - 4, yA));
+      yB = Math.max(m.t + 7, Math.min(m.t + ph - 4, yB));
+      put(trend[li].prev, yA, "上期", false);
+      put(trend[li].cur, yB, "本期", false);
+      if(gap < 14){
+        for(const [color, y0, y1] of [[cssVar("--s2"), yPrev, yA], [cssVar("--s1"), yCur, yB]]){
+          if(Math.abs(y1 - y0) > 3){
+            host.appendChild(E("line",{x1:(X(li)+5).toFixed(1), y1:y0.toFixed(1),
+              x2:(X(li)+9).toFixed(1), y2:y1.toFixed(1),
+              stroke: cssVar("--text-muted"), "stroke-width":1}));
+          }
+        }
+      }
+    }
+  }
+
+  /* 十字准线层：读者瞄"某一天"，不必命中那 2px 的线 */
+  const cross = E("line",{x1:0,y1:m.t,x2:0,y2:m.t+ph, stroke: cssVar("--text-muted"), "stroke-width":1, opacity:0});
+  host.appendChild(cross);
+  const dots = pairs.map(([key,color]) => {
+    const c = E("circle",{r:5, fill:color, stroke:surface, "stroke-width":2, opacity:0});
+    host.appendChild(c); return c;
+  });
+  host.__cross = cross; host.__dots = dots; host.__geom = {W:W,H:HG,m:m,pw:pw,ph:ph,X:X,Y:Y,n:trend.length,trend:trend,dates:dates,from:from};
+
+  /* 图例（≥2 系列必须有） */
+  const lg = document.getElementById("trendLegend");
+  lg.textContent = "";
+  for(const [key,color,label] of pairs){
+    const it = H("span",{cls:"item"});
+    const k = H("span",{cls:"keystroke"}); k.style.background = color;
+    it.appendChild(k);
+    it.appendChild(H("span",null, label));
+    lg.appendChild(it);
+  }
+
+  /* 表格视图：保证 tooltip 不是读到每日数值的唯一途径 */
+  const tw = document.getElementById("trendTableWrap");
+  tw.textContent = "";
+  const t = H("table");
+  const th = H("thead"); const tr = H("tr");
+  for(const s of ["日期","本期 GMV","上期 GMV","环比"]) tr.appendChild(H("th",null,s));
+  th.appendChild(tr); t.appendChild(th);
+  const tb = H("tbody");
+  trend.forEach((p,i) => {
+    const r = H("tr");
+    r.appendChild(H("td",null, dates[from+i]));
+    r.appendChild(H("td",null, fmtInt(p.cur)));
+    r.appendChild(H("td",null, fmtInt(p.prev)));
+    const pct = p.prev ? 100*(p.cur-p.prev)/p.prev : 0;
+    r.appendChild(H("td",null, (pct>=0?"+":"")+pct.toFixed(1)+"%"));
+    tb.appendChild(r);
+  });
+  t.appendChild(tb); tw.appendChild(t);
+
+  if(trendIndex >= 0) showTrendAt(trendIndex);
+}
+function showTrendAt(i){
+  const host = document.getElementById("trendSvg");
+  const g = host.__geom; if(!g) return;
+  trendIndex = Math.max(0, Math.min(g.n-1, i));
+  const X = g.X(trendIndex);
+  host.__cross.setAttribute("x1",X.toFixed(2)); host.__cross.setAttribute("x2",X.toFixed(2));
+  host.__cross.setAttribute("opacity","0.55");
+  const colors = [cssVar("--s2"), cssVar("--s1")];
+  ["prev","cur"].forEach((key,idx) => {
+    host.__dots[idx].setAttribute("cx",X.toFixed(2));
+    host.__dots[idx].setAttribute("cy",g.Y(g.trend[trendIndex][key]).toFixed(2));
+    host.__dots[idx].setAttribute("opacity","1");
+  });
+  const p = g.trend[trendIndex];
+  const pct = p.prev ? 100*(p.cur-p.prev)/p.prev : 0;
+  tipShow(document.getElementById("trendTip"), document.getElementById("trendPlot"),
+    X, g.Y(Math.max(p.cur,p.prev)) - 4,
+    g.dates[g.from+trendIndex] + "（第 " + (trendIndex+1) + " / " + g.n + " 天）",
+    [{color:cssVar("--s1"), name:"本期", value:fmtInt(p.cur)+" 元"},
+     {color:cssVar("--s2"), name:"上期", value:fmtInt(p.prev)+" 元"},
+     {color:cssVar("--text-muted"), name:"环比", value:(pct>=0?"+":"")+pct.toFixed(1)+"%"}]);
+}
+function hideTrend(){
+  const host = document.getElementById("trendSvg");
+  if(host.__cross){ host.__cross.setAttribute("opacity","0");
+    host.__dots.forEach(d=>d.setAttribute("opacity","0")); }
+  trendIndex = -1; tipHide(document.getElementById("trendTip"));
+}
+
+/* ── 条形：渠道（单色！名义类别不套数值色阶）── */
+function renderChannels(chGmv, chOrders, total){
+  const host = document.getElementById("chSvg");
+  const W = Math.max(280, Math.round(document.getElementById("chPlot").clientWidth || 520));
+  const rowH = 38, m = {t:10, r:70, b:6, l:96};
+  const GH = m.t + rowH*CHANNELS.length + m.b;
+  const pw = Math.max(40, W-m.l-m.r);
+  host.setAttribute("viewBox","0 0 "+W+" "+GH);
+  host.textContent = "";
+  const maxV = Math.max.apply(null, chGmv) || 1;
+  const barH = 20;                       /* ≤24px */
+  const surface = cssVar("--surface-1");
+  host.__marks = [];
+
+  CHANNELS.forEach((name,c) => {
+    const bandY = m.t + c*rowH;
+    const y = bandY + (rowH-barH)/2;
+    const w = Math.max(1, chGmv[c]/maxV*pw);
+    const share = total ? 100*chGmv[c]/total : 0;
+    /* 左列：名称 + 占比（占比是可见文本，不在 tooltip 里"藏"着） */
+    host.appendChild(E("text",{x:m.l-12, y:(y+10).toFixed(1), "text-anchor":"end",
+      "font-size":12.5, fill: cssVar("--text-secondary")}, name));
+    host.appendChild(E("text",{x:m.l-12, y:(y+24).toFixed(1), "text-anchor":"end",
+      "font-size":11, fill: cssVar("--text-muted")}, share.toFixed(1)+"%"));
+    /* 单色条：所有条同一个颜色 */
+    const p = E("path",{d:barPathRight(m.l, y, w, barH, 4), fill: cssVar("--s1")});
+    p.style.cursor = "default";
+    const hit = E("rect",{x:m.l, y:bandY, width:pw, height:rowH, fill:"transparent"});
+    hit.setAttribute("tabindex","0");
+    hit.setAttribute("role","img");
+    hit.setAttribute("aria-label", name+" 本期 GMV "+fmtInt(chGmv[c])+" 元，占 "+share.toFixed(1)+"%，订单 "+fmtInt(chOrders[c])+" 单");
+    const on = (px,py) => {
+      p.setAttribute("opacity","0.82");
+      tipShow(document.getElementById("chTip"), document.getElementById("chPlot"), px, py,
+        name, [{color:cssVar("--s1"), name:"本期 GMV", value:fmtInt(chGmv[c])+" 元"},
+               {color:cssVar("--text-muted"), name:"占比", value:share.toFixed(1)+"%"},
+               {color:cssVar("--text-muted"), name:"订单", value:fmtInt(chOrders[c])+" 单"}]);
+    };
+    const onEv = (e) => { const pt = localXY(e, document.getElementById("chPlot"), W); on(pt.x, pt.y); };
+    hit.addEventListener("pointerenter", onEv);
+    hit.addEventListener("pointermove", onEv);
+    hit.addEventListener("focus", () => on(m.l+w/2, y));
+    hit.addEventListener("pointerleave", () => { p.removeAttribute("opacity"); tipHide(document.getElementById("chTip")); });
+    hit.addEventListener("blur", () => { p.removeAttribute("opacity"); tipHide(document.getElementById("chTip")); });
+    host.appendChild(p);
+    host.appendChild(hit);
+    /* 值标在条端（外部，绝不裁剪） */
+    host.appendChild(E("text",{x:(m.l+w+9).toFixed(1), y:(y+14).toFixed(1),
+      "font-size":12, "font-weight":600, fill: cssVar("--text-primary"),
+      "font-variant-numeric":"tabular-nums"}, fmtWan(chGmv[c])));
+  });
+  /* 基线 */
+  host.appendChild(E("line",{x1:m.l, y1:m.t, x2:m.l, y2:GH-m.b, stroke: cssVar("--axis"), "stroke-width":1}));
+}
+
+/* ── 堆叠条：品类占比（100%）── */
+function renderCategories(catGmv, total){
+  const host = document.getElementById("catSvg");
+  const W = Math.max(280, Math.round(document.getElementById("catPlot").clientWidth || 520));
+  const Hgt = 24, m = {t:8, r:0, b:8, l:0};     /* bar 厚 ≤24px */
+  const CTH = m.t + Hgt + m.b;
+  const pw = W;
+  host.setAttribute("viewBox","0 0 "+W+" "+CTH);
+  host.textContent = "";
+  const sum = catGmv.reduce((a,b)=>a+b,0) || 1;
+  const colors = [cssVar("--s1"),cssVar("--s2"),cssVar("--s3"),cssVar("--s4"),cssVar("--s5")];
+  let x = 0;
+  CATEGORIES.forEach((name,c) => {
+    const wRaw = catGmv[c]/sum*pw;
+    const first = c===0, last = c===CATEGORIES.length-1;
+    const x0 = x + (first?0:1);
+    const w = Math.max(1, wRaw - (first?0:1) - (last?0:1));   /* 2px 面色间隙（不是描边） */
+    const r = 4;
+    let d;
+    if(first && last) d = `M${x0+r},${m.t} H${x0+w-r} Q${x0+w},${m.t} ${x0+w},${m.t+r} V${m.t+Hgt-r} Q${x0+w},${m.t+Hgt} ${x0+w-r},${m.t+Hgt} H${x0+r} Q${x0},${m.t+Hgt} ${x0},${m.t+Hgt-r} V${m.t+r} Q${x0},${m.t} ${x0+r},${m.t} Z`;
+    else if(first) d = `M${x0+r},${m.t} H${x0+w} V${m.t+Hgt} H${x0+r} Q${x0},${m.t+Hgt} ${x0},${m.t+Hgt-r} V${m.t+r} Q${x0},${m.t} ${x0+r},${m.t} Z`;
+    else if(last)  d = `M${x0},${m.t} H${x0+w-r} Q${x0+w},${m.t} ${x0+w},${m.t+r} V${m.t+Hgt-r} Q${x0+w},${m.t+Hgt} ${x0+w-r},${m.t+Hgt} H${x0} Z`;
+    else           d = `M${x0},${m.t} H${x0+w} V${m.t+Hgt} H${x0} Z`;
+    const seg = E("path",{d:d, fill:colors[c]});
+    seg.setAttribute("tabindex","0");
+    seg.setAttribute("role","img");
+    seg.setAttribute("aria-label", name+" GMV "+fmtInt(catGmv[c])+" 元，占 "+(100*catGmv[c]/sum).toFixed(1)+"%");
+    const on = (px,py) => {
+      seg.setAttribute("opacity","0.82");
+      tipShow(document.getElementById("catTip"), document.getElementById("catPlot"), px, py,
+        name, [{color:colors[c], name:"本期 GMV", value:fmtInt(catGmv[c])+" 元"},
+               {color:cssVar("--text-muted"), name:"占比", value:(100*catGmv[c]/sum).toFixed(1)+"%"}]);
+    };
+    seg.addEventListener("pointerenter", (e)=>{ const pt=localXY(e, document.getElementById("catPlot"), W); on(pt.x, pt.y); });
+    seg.addEventListener("pointermove",  (e)=>{ const pt=localXY(e, document.getElementById("catPlot"), W); on(pt.x, pt.y); });
+    seg.addEventListener("focus", ()=>on(x0+w/2, m.t+Hgt));
+    seg.addEventListener("pointerleave", ()=>{ seg.removeAttribute("opacity"); tipHide(document.getElementById("catTip")); });
+    seg.addEventListener("blur", ()=>{ seg.removeAttribute("opacity"); tipHide(document.getElementById("catTip")); });
+    host.appendChild(seg);
+    /* 段内只放"放得下"的百分比标签（放不下就不放，绝不裁剪） */
+    const pct = (100*catGmv[c]/sum).toFixed(0)+"%";
+    if(w - 10 >= estWidth(pct, 11)){
+      host.appendChild(E("text",{x:(x0+w/2).toFixed(1), y:(m.t+Hgt/2+4).toFixed(1), "text-anchor":"middle",
+        "font-size":11, "font-weight":600, fill: inkOn(colors[c])}, pct));
+    }
+    x += wRaw;
+  });
+  /* 图例：名称 + 金额 + 占比（每个值都以可见文本给出）*/
+  const lg = document.getElementById("catLegend");
+  lg.textContent = "";
+  CATEGORIES.forEach((name,c) => {
+    const it = H("span",{cls:"item"});
+    const sq = H("span",{cls:"keysq"}); sq.style.background = colors[c];
+    it.appendChild(sq);
+    it.appendChild(H("span",null,name));
+    it.appendChild(H("span",{cls:"v"}, (100*catGmv[c]/sum).toFixed(1)+"%"));
+    it.appendChild(H("span",null,"·"));
+    it.appendChild(H("span",{cls:"v"}, fmtWan(catGmv[c])+" 元"));
+    lg.appendChild(it);
+  });
+}
+
+/* ── 明细表 ── */
+function filteredRows(){
+  const rows = skuAgg(state.days);
+  const q = state.q.trim().toLowerCase();
+  const out = rows.filter(r =>
+    (state.cat==="全部" || r.cat === state.cat) &&
+    (state.ch === "全部" || r.ch === state.ch) &&
+    (!q || r.name.toLowerCase().indexOf(q) >= 0 || r.code.toLowerCase().indexOf(q) >= 0));
+  const dir = state.sortDir === "asc" ? 1 : -1;
+  const k = state.sortKey;
+  out.sort((a,b) => {
+    let av = a[k], bv = b[k];
+    if(k === "name" || k === "cat" || k === "ch") return String(av).localeCompare(String(bv),"zh-Hans-CN") * dir;
+    if(av === null) av = -Infinity; if(bv === null) bv = -Infinity;   /* 无上期的排最后 */
+    return (av - bv) * dir;
+  });
+  return out;
+}
+function renderTable(){
+  const headRow = document.getElementById("tblHeadRow");
+  headRow.textContent = "";
+  for(const c of SORT_COLS){
+    const th = H("th",{cls: c.num ? "num" : ""});
+    const active = state.sortKey === c.key;
+    th.setAttribute("aria-sort", active ? (state.sortDir==="asc"?"ascending":"descending") : "none");
+    const btn = H("button",{type:"button"});
+    btn.appendChild(H("span",null, c.label));
+    if(active) btn.appendChild(H("span",{cls:"arrow"}, state.sortDir==="asc"?"▲":"▼"));
+    btn.addEventListener("click", () => {
+      if(state.sortKey === c.key) state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+      else { state.sortKey = c.key; state.sortDir = c.num ? "desc" : "asc"; }
+      renderTable(); syncSortSelect();
+    });
+    th.appendChild(btn);
+    headRow.appendChild(th);
+  }
+
+  const rows = filteredRows();
+  const all = skuAgg(state.days);
+  const body = document.getElementById("tblBody");
+  body.textContent = "";
+  const surface = cssVar("--surface-1");
+  for(const r of rows){
+    const tr = H("tr");
+    const tdn = H("td",{cls:"c-name"});
+    tdn.appendChild(H("span",{cls:"pname"}, r.name));
+    tdn.appendChild(H("span",{cls:"pcode"}, r.code));
+    tdn.setAttribute("data-label","商品");
+    tr.appendChild(tdn);
+
+    const tdc = H("td",{cls:"num"}); tdc.setAttribute("data-label","品类");
+    tdc.appendChild(H("span",{cls:"tagcat"}, r.cat)); tr.appendChild(tdc);
+    const tdh = H("td",null); tdh.setAttribute("data-label","主渠道"); tdh.textContent = r.ch; tr.appendChild(tdh);
+    tr.appendChild(cellNum(r.gmv, "本期 GMV", "¥"+fmtInt(r.gmv)));
+    tr.appendChild(cellNum(r.orders, "销量", fmtInt(r.orders)+" 单"));
+    tr.appendChild(cellNum(r.aov, "客单价", "¥"+r.aov.toFixed(2)));
+    tr.appendChild(cellNum(r.cvr, "转化率", fmtPct(r.cvr)));
+    const tdr = cellNum(r.refundRate, "退款率", fmtPct(r.refundRate));
+    if(r.refundRate >= REFUND_WARN){
+      const c = H("span",{cls:"chip warn"});
+      c.appendChild(H("span",{cls:"g"},"⚠"));
+      c.appendChild(H("span",null,"偏高"));
+      c.title = "退款率高于本期均值 25%（警示线 " + REFUND_WARN.toFixed(2) + "%）";
+      tdr.appendChild(document.createTextNode(" "));
+      tdr.appendChild(c);
+    }
+    tr.appendChild(tdr);
+    /* 环比：方向 × 好坏，且带符号与文字（不只靠颜色） */
+    const d = H("td",{cls:"num"}); d.setAttribute("data-label","环比");
+    if(r.deltaPct === null) d.textContent = "—";
+    else {
+      const up = r.deltaPct >= 0;
+      const sp = H("span",{cls:"delta " + (up?"good":"bad")});
+      sp.appendChild(H("span",{cls:"g"}, up?"▲":"▼"));
+      sp.appendChild(H("span",null, (up?"+":"")+r.deltaPct.toFixed(1)+"%"));
+      d.appendChild(sp);
+    }
+    tr.appendChild(d);
+    body.appendChild(tr);
+  }
+
+  document.getElementById("tblCount").textContent = "显示 " + rows.length + " / 共 " + all.length + " 件商品";
+  const emp = document.getElementById("tblEmpty");
+  emp.textContent = "";
+  const wrap = document.getElementById("tblWrap");
+  if(rows.length === 0){
+    wrap.style.display = "none";
+    const box = H("div",{cls:"empty"});
+    box.appendChild(H("h3",null,"没有匹配的商品"));
+    box.appendChild(H("p",null,"当前筛选（" + state.cat + " · " + state.ch + (state.q ? " · 关键词「"+state.q+"」" : "") + "）没有结果。试试清空筛选或换个关键词。"));
+    const b = H("button",{type:"button"},"清空全部筛选");
+    b.addEventListener("click", () => {
+      state.cat="全部"; state.ch="全部"; state.q=""; state.sortKey="gmv"; state.sortDir="desc";
+      document.getElementById("qInput").value = ""; document.getElementById("chSelect").value = "全部";
+      renderChips(); renderTable(); syncSortSelect();
+    });
+    box.appendChild(b);
+    emp.appendChild(box);
+  } else {
+    wrap.style.display = "";
+    emp.textContent = "";
+  }
+}
+function cellNum(v, label, text){
+  const td = H("td",{cls:"num"});
+  td.setAttribute("data-label", label);
+  td.textContent = text;
+  return td;
+}
+function renderChips(){
+  const host = document.getElementById("catChips");
+  host.textContent = "";
+  const opts = ["全部"].concat(CATEGORIES);
+  for(const o of opts){
+    const b = H("button",{cls:"chipbtn", type:"button"});
+    b.textContent = o;
+    b.setAttribute("aria-pressed", String(state.cat === o));
+    b.addEventListener("click", () => { state.cat = o; renderChips(); renderTable(); });
+    host.appendChild(b);
+  }
+}
+function renderChSelect(){
+  const sel = document.getElementById("chSelect");
+  sel.textContent = "";
+  for(const o of ["全部"].concat(CHANNELS)){
+    const op = H("option",{value:o}, o === "全部" ? "全部渠道" : o);
+    sel.appendChild(op);
+  }
+  sel.value = "全部";
+  sel.addEventListener("change", () => { state.ch = sel.value; renderTable(); });
+}
+/* 选项在初始化时建好，这里只同步当前排序键（不必每次点表头都重建一遍下拉）*/
+function syncSortSelect(){
+  const sel = document.getElementById("sortSelect");
+  if(sel) sel.value = state.sortKey;
+}
+function renderSortSelectInit(){
+  const sel = document.getElementById("sortSelect");
+  sel.textContent = "";
+  for(const c of SORT_COLS){
+    const op = H("option",{value:c.key}, "按「"+c.label+"」");
+    sel.appendChild(op);
+  }
+  sel.value = state.sortKey;
+  sel.addEventListener("change", () => {
+    state.sortKey = sel.value;
+    state.sortDir = SORT_COLS.filter(c=>c.key===sel.value)[0].num ? "desc" : "asc";
+    renderTable();
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   5. 全量渲染
+   ══════════════════════════════════════════════════════════════════ */
+function renderAll(){
+  hideAllTips(); trendIndex = -1;      /* 重绘前先收起读数窗：残留的 left/top 会撑出横向溢出 */
+  const n = state.days;
+  const sl = sliceOf(n);
+  const sCur = sl.cur.reduce(addTo, emptySums());
+  const sPrev = sl.prev.reduce(addTo, emptySums());
+  const k = kpiOf(sCur), kp = kpiOf(sPrev);
+  const dCur = byDay(sl.cur), dPrev = byDay(sl.prev);
+  REFUND_WARN = k.refundRate * REFUND_WARN_MULT;      /* 警示线跟着切片走 */
+  document.getElementById("tblHint").textContent =
+    "点表头排序；筛选与排序可与上方时间范围叠加；退款率带 ⚠ 表示高于本期均值 25%（" + REFUND_WARN.toFixed(2) + "%）";
+
+  const sn = document.getElementById("sliceNote");
+  sn.textContent = "";
+  /* 每段用 nowrap 包住：否则窄屏会把「上期」从中间折开（"上/期 2026-08-13…"）*/
+  const snSeg = (t) => { const s = H("span"); s.style.whiteSpace = "nowrap"; s.textContent = t; return s; };
+  sn.appendChild(snSeg("本期 " + DATA.dates[sl.from] + " → " + DATA.dates[DAYS-1] + "（" + n + " 天）"));
+  sn.appendChild(H("span",null,"　·　"));
+  sn.appendChild(snSeg("上期 " + DATA.dates[DAYS-2*n] + " → " + DATA.dates[sl.from-1]));
+  document.getElementById("rangeHint").textContent =
+    "本期与前 " + n + " 天逐日对比；下方所有内容都跟着这个范围走";
+
+  renderHero(k, kp, dCur.slice(sl.from), DATA.dates, sl.from);   /* 只喂切片内的日序列 */
+  renderKpis(k, kp, dCur.slice(sl.from), DATA.dates);
+
+  /* 趋势：本期 vs 上期同偏移对齐 */
+  const trend = [];
+  for(let i=0;i<n;i++) trend.push({cur:dCur[sl.from+i].gmv, prev:dPrev[sl.from-n+i].gmv});
+  document.getElementById("trendSub").textContent =
+    "本期 " + DATA.dates[sl.from] + " → " + DATA.dates[DAYS-1] + "　对比　上期 " + DATA.dates[sl.from-n] + " → " + DATA.dates[sl.from-1];
+  renderTrend(trend, DATA.dates, sl.from);
+
+  /* 渠道 / 品类：与 KPI 同一切片 */
+  const chGmv = CHANNELS.map(()=>0), chOrders = CHANNELS.map(()=>0);
+  const catGmv = CATEGORIES.map(()=>0);
+  for(const r of sl.cur){
+    const m = SKU[r.si];
+    chGmv[m[3]] += r.gmv; chOrders[m[3]] += r.orders; catGmv[m[2]] += r.gmv;
+  }
+  document.getElementById("chSub").textContent = "本期合计 " + fmtWan(sCur.gmv,2) + " 元（条端为销售额，左列为占比）";
+  renderChannels(chGmv, chOrders, sCur.gmv);
+  document.getElementById("catSub").textContent = "本期合计 " + fmtWan(sCur.gmv,2) + " 元（段内为占比，图例给出金额）";
+  renderCategories(catGmv, sCur.gmv);
+
+  renderTable();
+  document.getElementById("footMeta").textContent =
+    "演示数据集 " + DATA.dates[0] + " → " + DATA.dates[DAYS-1] + "　·　固定种子 20261012　·　2400 行（60 天 × 40 SKU）";
+}
+
+/* ── 事件绑定 ── */
+document.getElementById("rangeSeg").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-days]");
+  if(!b) return;
+  state.days = Number(b.dataset.days);
+  for(const x of document.querySelectorAll("#rangeSeg button")) x.setAttribute("aria-pressed", String(x === b));
+  renderAll();
+});
+(function(){
+  const plot = document.getElementById("trendPlot");
+  const svg = document.getElementById("trendSvg");
+  svg.setAttribute("tabindex","0");
+  plot.addEventListener("pointermove", (e) => {
+    const g = svg.__geom; if(!g) return;
+    const r = plot.getBoundingClientRect();
+    const scale = r.width / g.W;
+    const px = (e.clientX - r.left)/scale;
+    const rel = (px - g.m.l) / (g.pw || 1);
+    const i = Math.round(rel * (g.n-1));
+    if(i >= 0 && i < g.n) showTrendAt(i);
+  });
+  plot.addEventListener("pointerleave", hideTrend);
+  svg.addEventListener("blur", hideTrend);
+  svg.addEventListener("keydown", (e) => {
+    const g = svg.__geom; if(!g) return;
+    if(e.key === "ArrowRight"){ showTrendAt(trendIndex < 0 ? 0 : trendIndex+1); e.preventDefault(); }
+    else if(e.key === "ArrowLeft"){ showTrendAt(trendIndex < 0 ? g.n-1 : trendIndex-1); e.preventDefault(); }
+    else if(e.key === "Home"){ showTrendAt(0); e.preventDefault(); }
+    else if(e.key === "End"){ showTrendAt(g.n-1); e.preventDefault(); }
+    else if(e.key === "Escape"){ hideTrend(); }
+  });
+})();
+document.getElementById("qInput").addEventListener("input", (e) => { state.q = e.target.value; renderTable(); });
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const dark = cur === "dark";
+  const next = dark ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  document.getElementById("themeBtn").textContent = next === "dark" ? "切换浅色" : "切换深色";
+  document.getElementById("themeBtn").setAttribute("aria-pressed", String(next === "dark"));
+  try{ localStorage.setItem("dash-theme", next); }catch(_){}
+  renderAll();
+});
+/* 初始主题：尊重系统设置 + 记住上次选择 */
+try{
+  const saved = localStorage.getItem("dash-theme");
+  if(saved === "dark" || saved === "light"){
+    document.documentElement.setAttribute("data-theme", saved);
+    document.getElementById("themeBtn").textContent = saved === "dark" ? "切换浅色" : "切换深色";
+    document.getElementById("themeBtn").setAttribute("aria-pressed", String(saved === "dark"));
+  }
+}catch(_){}
+
+/* ── 启动渲染 + 尺寸变化重绘（几何按真实宽度算，避免手机端文字被缩到看不清）── */
+renderChSelect();
+renderChips();
+renderSortSelectInit();
+renderAll();
+let rz = null;
+window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(renderAll, 130); });
+</script>
+</body>
+</html>

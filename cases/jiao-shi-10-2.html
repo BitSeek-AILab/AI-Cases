@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>成绩表圈选即分析 + 数据透视 · 案例库</title>
+<meta name="description" content="圈一片数据说一句话，排序标红出图透视当场出来，追着问题看数据不用重新生成。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>教师场景</span><span class="sep">/</span><span>10-2</span>
+    </nav>
+    <h1>成绩表圈选即分析 + 数据透视</h1>
+    <div class="readout">
+      <span><b>场景</b>教师</span>
+      <span><b>编号</b>10-2</span>
+      <span><b>形态</b>XLSX + PDF + 图表</span>
+      <span><b>大小</b>4.19 MB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 案例10-2 成绩表圈选即分析（人机双写·成绩）</h1>
+<blockquote>依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<blockquote>出处：<code>手册Markdown/第10章/第10章.md</code>（场景二：人机双写·成绩，圈一片就分析）</blockquote>
+<h2>一、痛点原句（引用手册原文）</h2>
+<p><strong>位置1 · 案例引入（第10章「场景二：人机双写·成绩，圈一片就分析」）：</strong></p>
+<blockquote>&quot;第05章，成绩分析你已经会用四件套出报告了。<strong>但报告是&quot;生成&quot;出来的，表格是&quot;死&quot;的。你想换个角度看数据，还得再下一次指令，重新生成。</strong></blockquote>
+<blockquote>人机双写让这件事变成：<strong>表格就在眼前，圈哪片看哪片。</strong>&quot;</blockquote>
+<p><strong>位置2 · 案例内的&quot;进阶&quot;（手册原文，点出第二个痛点）：</strong></p>
+<blockquote>&quot;它还支持一个以前很麻烦的用法：<strong>数据透视。不用你记透视表怎么建</strong>，圈一片数据，直接让它做。&quot;</blockquote>
+<p><strong>位置3 · 章内提醒（手册原文，本案例强制的红线）：</strong></p>
+<blockquote>&quot;<strong>AI算数字、出图表可以，但结果要核一眼。媒体实测就出过AI改数据图表把单位搞错的例子。</strong> 成绩要上报、要发家长，先自己过一遍。&quot;</blockquote>
+<p><strong>位置4 · 案例价值的收束（手册原文）：</strong></p>
+<blockquote>&quot;这个场景的价值不是&quot;算得快&quot;，是<strong>你随时可以追着问题看数据</strong>。平均分低了，圈出来看是哪科拖的；一科瘸腿了，圈出来看是哪些学生拉低的。<strong>不用把表格切来切去。</strong>&quot;</blockquote>
+<p><strong>位置5 · 章末收束（这一章记住三件事）：</strong></p>
+<blockquote>&quot;人机双写=框选即改：先选中，点「AI编辑」，输指令。教案、成绩、课件，框到哪改到哪，<strong>改完可核对</strong>。&quot;</blockquote>
+<h2>二、痛点主体</h2>
+<ul>
+<li><strong>谁</strong>：高一3班班主任（沿用第05章复刻的同一身份与同一份数据）。</li>
+<li><strong>场景</strong>：第05章已用四件套出过一份成绩分析报告。但<strong>报告出完就定死了</strong>——想换个角度看同一批数据（比如&quot;按总分排一下&quot;&quot;把不及格的挑出来&quot;&quot;看看哪科平均分最低&quot;），就得<strong>再下一次指令、重新生成一遍</strong>。</li>
+<li><strong>第二层痛点</strong>：<strong>不会建数据透视表</strong>。Excel 的透视表要记字段拖拽，是很多老师的&quot;Excel 门槛&quot;。</li>
+</ul>
+<h2>三、旧做法的代价</h2>
+<ul>
+<li><strong>旧流程</strong>（手册原文）：&quot;你想换个角度看数据，还得<strong>再下一次指令，重新生成</strong>。&quot;</li>
+<li>【补全】代价有三层：</li>
+</ul>
+<ol>
+<li><strong>&quot;看数据&quot;被切成了一次次&quot;生成任务&quot;</strong>。每换一个角度 = 一次新对话、一次等待、一份新文件；老师想问的往往是<strong>递进的追问</strong>（&quot;平均分低了 → 是哪科拖的？→ 那科是哪些学生拉低的？&quot;），而旧流程每追问一步都要重来。</li>
+<li><strong>旧报告是&quot;死的&quot;</strong>：排序、标红、出图都在生成那一下就固定了；报告里那张表<strong>碰不得、圈不动</strong>。</li>
+<li><strong>数据透视表本身是一道技术门槛</strong>：&quot;不用你记透视表怎么建&quot;——这句话反过来说明，旧做法就是&quot;要记怎么建&quot;。</li>
+</ol>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<ul>
+<li><strong>圈选整片数据区 → 一句指令 → 当场出结果</strong>（不用重新生成、不用切表格）。</li>
+<li>手册给的两级指令都要做到：</li>
+<li><strong>基本</strong>：&quot;按总分从高到低排序，把不及格的标红，出一张各科平均分的柱状图。&quot;</li>
+<li><strong>进阶</strong>：&quot;①每科出一张分数段分布图；②每科图下方写上该科平均分，保留1位小数；③把每科低于平均分的分数单元格改成高亮底色；④每科下方标出低于平均分的人数。&quot;</li>
+<li><strong>数据透视不用手工建</strong>：要有一张&quot;分数段 × 科目&quot;的透视结果。</li>
+<li><strong>⚠ 红线</strong>：<strong>数字与单位必须核过</strong>（&quot;成绩要上报、要发家长，先自己过一遍&quot;）。</li>
+</ul>
+<h2>五、【补全】</h2>
+<p>【补全】手册把痛点写成了&quot;表格是死的、要重新生成&quot;，但没说透<strong>为什么这件事对班主任是高频且刚需</strong>：</p>
+<ul>
+<li><strong>成绩分析的真实用法是&quot;追问&quot;，不是&quot;出报告&quot;</strong>。第05章的四件套解决的是一次性出报告；而真实场景里，班主任是<strong>对着数字想问题</strong>的——&quot;这次数学怎么掉了？&quot;&quot;物理那几个是不是同一批人？&quot;。<strong>每一步追问都在旧流程里变成一次重新生成</strong>，于是&quot;想问&quot;的成本高到老师干脆不问。</li>
+<li><strong>&quot;数据透视&quot;是 Excel 里最被高估门槛、最被低估价值的功能</strong>。会的人天天用，不会的人一辈子绕开。把它变成&quot;圈一下、说一句&quot;，等于把一类<strong>原来根本不发生的分析</strong>（多维交叉看）变成日常动作。</li>
+<li><strong>越方便改，越危险</strong>。手册紧接着就提醒&quot;AI 算数字出图表可以，但结果要核一眼……媒体实测就出过 AI 改数据图表把单位搞错的例子&quot;。所以这个案例的价值主张是<strong>&quot;随手可看&quot;＋&quot;必须可核&quot;</strong>：产物里必须自带口径与单位，且数字能被第三方复算。</li>
+</ul>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>：班主任要的是&quot;<strong>追着问题看数据</strong>——哪科拖了、谁拉低了、下一步该抓谁&quot; → 所以做这个&quot;圈选即分析&quot;。 ❌ 非&quot;工具理性&quot;（不是为了&quot;我有个 Excel 所以找个 AI 优化它&quot;）。</p>
+<h2>七、跨章线索</h2>
+<ul>
+<li>回扣第05章：<strong>不推翻</strong>四件套（手册原文&quot;新功能不改变前面的方法论&quot;），只是把&quot;出报告&quot;之后的&quot;<strong>看数据/追问</strong>&quot;这一段补上——05章是&quot;生成报告&quot;，10-2 是&quot;报告之外随手看&quot;。</li>
+<li>回扣第01章总纲：AI 不是陪你讨论&quot;这个平均分说明什么&quot;，而是<strong>直接打开你的表格把数排好、标好、画出来</strong>。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 二档：PDF embed + 预览画廊 + 下载（DOCX/XLSX 只给下载） -->
+    <section class="stage tier-b">
+      <header class="stage-head">
+        <h2 class="k">产物 · 在线预览</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases//artifact/高一3班期中成绩_圈选即分析.xlsx" download>下载 高一3班期中成绩_圈选即分析.xlsx</a>
+        </div>
+      </header>
+
+      
+      <div class="stage-pdf">
+        <embed src="../assets/cases/jiao-shi-10-2/artifact/workbook.pdf" type="application/pdf">
+        <p class="stage-note">浏览器不支持内嵌预览？<a href="../assets/cases/jiao-shi-10-2/artifact/workbook.pdf" download>点这里下载 PDF</a>。</p>
+      </div>
+      
+
+      
+
+      
+    </section>
+
+
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/高一3班期中成绩_圈选即分析.xlsx" download><span>高一3班期中成绩_圈选即分析.xlsx</span><span class="sz">28 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>圈选与排序<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>透视与出图<span class="stage-state">✓</span></li><li><span class="stage-no">3</span>复核<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/jiao-shi-10-2/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-2/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-2/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-2/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-2/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

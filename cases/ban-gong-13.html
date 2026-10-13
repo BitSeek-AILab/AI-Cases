@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>多文档综合报告 · 案例库</title>
+<meta name="description" content="三份部门季度总结进去，拿到提炼共同主题 + 差异点 + 结论的综合报告，每条论点挂来源。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>办公场景</span><span class="sep">/</span><span>13</span>
+    </nav>
+    <h1>多文档综合报告</h1>
+    <div class="readout">
+      <span><b>场景</b>办公</span>
+      <span><b>编号</b>13</span>
+      <span><b>形态</b>Markdown + DOCX</span>
+      <span><b>大小</b>5 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 办公-13 多文档综合：提取共同主题生成综合报告</h1>
+<blockquote>案例来源：《100+ WorkBuddy 通用指令》<strong>「高级技巧提示词 · 1. 组合指令」多文档处理</strong></blockquote>
+<blockquote>复刻日期：2026-10-12</blockquote>
+<hr>
+<h2>一、痛点原句（引用手册原文）</h2>
+<p><strong>手册出处：</strong> M1 高级技巧提示词 → 组合指令</p>
+<blockquote><strong>多文档处理：</strong> 同时处理[文档1]、[文档2]、[文档3]，<strong>提取共同主题，生成综合报告</strong></blockquote>
+<p><strong>提取说明：</strong> 手册此处是<strong>一条指令模板</strong>（把 <code>[文档N]</code> 当占位符），<strong>没有</strong>第二人称痛点导入、没有代价句、没有案例展开。按《子Agent执行规范》第〇补节，痛点提取的三个位置（章首导入 / 案例引入 / 章末收束）在本案例均缺位。因此本卡的痛点主体为 <strong>【补全】</strong>，仅&quot;要解决什么任务&quot;（多文档→共同主题→综合报告）引自原文。</p>
+<blockquote>同一节 M1 的自述也点了痛点的根：<strong><code>原文</code>「过于简略：信息不足导致理解偏差　过于复杂：信息过多影响处理效率」</strong>——多份材料一起丢进去，人容易&quot;只逐份复述&quot;，综合不出&quot;共同主题&quot;。</blockquote>
+<hr>
+<h2>二、痛点主体（【补全】）</h2>
+<p><strong>谁：</strong> 手里压着好几份<strong>同主题材料</strong>、要写一份<strong>向上汇报 / 跨部门对齐</strong>的综合报告的人（本案例取&quot;要给管理层写季度跨部门综合分析的运营负责人&quot;）。</p>
+<p><strong>真实场景：</strong> 季度末，市场部、客服部、研发部各交了一份 Q3 季度总结（3 份 docx）。现在要写一份<strong>跨部门综合报告</strong>，向上汇报&quot;这个季度全公司到底跑出了什么&quot;。这不是把三份拼在一起，而是要<strong>从三份里提炼出共同的东西</strong>：</p>
+<table><thead><tr><th>步骤</th><th>手工做法</th><th>代价</th></tr></thead><tbody><tr><td>1. 逐份读</td><td>3 份报告从头读到尾，记住各自的数字与结论</td><td>每份 10 分钟，<strong>3 份 30 分钟</strong></td></tr><tr><td>2. 划重点</td><td>每份划出成果 / 问题 / 计划</td><td>手工标记，容易一带而过</td></tr><tr><td>3. <strong>找共同主题</strong></td><td>把三份的重点<strong>横向对齐</strong>，找出<strong>跨部门重复出现的主题</strong></td><td><strong>最费脑</strong>：要在三份不同部门的话术里认出&quot;这其实是同一件事&quot;</td></tr><tr><td>4. 找差异点</td><td>认出三家<strong>侧重不同</strong>的地方</td><td>容易写成&quot;每份都重要&quot;，等于没差异</td></tr><tr><td>5. 配出处</td><td>每个论点标注<strong>来自哪份报告</strong></td><td>手工回翻，费劲且易错</td></tr><tr><td>6. 成文</td><td>写成一份有结论、能汇报的报告</td><td>又一轮写作</td></tr></tbody></table>
+<p><strong>旧做法的代价：</strong> 3 份报告对读、提炼共同主题、写成综合报告，<strong>人工要 2 小时左右</strong>（逐份读 + 横向对齐 + 写作）。而且最容易犯的错是<strong>只写出&quot;每篇讲了什么&quot;</strong>——三段各讲一份，<strong>就是没有&quot;共同主题&quot;</strong>，等于把综合报告写成了三份摘要的拼接。材料越多（4 份、5 份），横向对齐的难度是<strong>乘法级</strong>上升。</p>
+<p><strong>想要的目标：</strong> 把 3–5 份同主题材料丢进去，直接拿到 <strong>一份综合报告</strong>：<strong>① 共同主题（跨文档重复出现的，每条标注来源文档） ② 差异点（各家侧重不同之处） ③ 结论与建议</strong>。不是&quot;学会写综述&quot;，是&quot;<strong>这份综合报告已经写好了，能交上去了</strong>&quot;。</p>
+<p><strong>【补全】为什么值得解决：</strong> 综合报告的真实价值在&quot;<strong>横向对齐</strong>&quot;——把散在各份材料里的<strong>共同信号</strong>提出来，让管理层一眼看到&quot;公司层面在发生什么&quot;。手工 2 小时里，真正耗人的是<strong>&quot;从三份不同部门的话术里认出同一件事&quot;</strong>这一步，也是最容易出错、最该交出去的一步。而且这活儿<strong>每个季度、每个月都来一次</strong>：<strong>一次固化出归纳口径，下次换几份材料重跑一次即可</strong>。</p>
+<hr>
+<h2>三、价值归类</h2>
+<p><strong>目标导向 ✅</strong></p>
+<p>要解决的是&quot;<strong>必须交出一份提炼出共同主题、标注了出处的跨部门综合报告</strong>&quot;这个业务目标。 反面想想就清楚——如果只做成&quot;教你怎么写综述&quot;或&quot;一个报告模板&quot;，那是<strong>工具理性</strong>，本卡不通过。</p>
+<hr>
+<h2>四、本案例的&quot;易错点&quot;（复刻时特意守住，用来验证痛点是真的）</h2>
+<p>复刻时，从&quot;多份报告 → 综合报告&quot;这一步最容易出这三种错，产物必须逐条守住：</p>
+<ol>
+<li><strong>只复述、无综合</strong>：综合报告<strong>必须提炼出跨文档共同主题</strong>，而不是&quot;市场部讲了A、客服部讲了B、研发部讲了C&quot;的三段拼接。检验法：看每个&quot;共同主题&quot;是否<strong>至少引用了 2 份（最好 3 份）文档</strong>。</li>
+<li><strong>无出处、不可回溯</strong>：每条共同主题/差异点都要<strong>标注来自哪份报告的哪条</strong>，否则&quot;看起来有观点、其实没依据&quot;。检验法：抽查一条主题，能回原报告找到对应原文。</li>
+<li><strong>数字张冠李戴</strong>：三份报告各有数字（CAC、CSAT、交付率…），综合报告引用时<strong>不得串号、不得编造</strong>。检验法：抽查每个数字，必须在它标注的那份报告里找得到。</li>
+</ol>
+<p>第 1 条是最关键的：<strong>&quot;每篇讲了什么&quot;和&quot;共同主题是什么&quot;长得很像</strong>，人一顺手就写成了前者。本案例产物的第一章就是&quot;共同主题&quot;，且每条<strong>强制挂 ≥2 个来源</strong>。</p>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 三档：Markdown 渲染 HTML（内联长文阅读） -->
+    <section class="stage tier-c">
+      <header class="stage-head">
+        <h2 class="k">产物 · 长文阅读</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases/ban-gong-13/rendered.html" target="_blank" rel="noopener">新窗口打开 ↗</a>
+          <a class="btn-ghost" href="../assets/cases/ban-gong-13/artifact/2026Q3跨部门综合报告.md" download>下载 Markdown</a>
+        </div>
+      </header>
+      <article class="md-render">
+<h1>云启科技 · 2026 年 Q3 跨部门综合报告</h1>
+<blockquote>基于 3 份部门季度总结：市场部（周敏，市场部<em>2026Q3季度总结.docx）；客服部（孙涛，客服部</em>2026Q3季度总结.docx）；研发部（郑凯，研发部_2026Q3季度总结.docx）</blockquote>
+<h2>一、共同主题（跨文档重复出现，每条标注来源）</h2>
+<h3>★ 主题 1：AI 从「试点」推进到「业务在用」，成为跨部门共同主线</h3>
+<ul>
+<li><strong>综合判断</strong>：三个部门在 Q3 都把 AI 落到了具体业务环节，且都有可量化的产出——这是本季度最一致的信号。</li>
+<li><strong>来源（3 份）</strong>：</li>
+<li>市场部：AI 内容生产（产出 +220%）　原文「引入 AI 生成素材，单条创意制作周期由 3 天缩短至 4 小时，素材产出量提升 220%。」</li>
+<li>客服部：AI 智能客服（解决率 46%）　原文「上线智能应答，AI 独立解决率 46%，人工话务量下降 35%」</li>
+<li>研发部：大模型接口开放（5 场景 / 评审 +30%）　原文「支撑客服、市场等 5 个业务场景接入；研发内部引入 AI 辅助编码，代码评审效率提升 30%」</li>
+</ul>
+<h3>★ 主题 2：客户 / 用户体验成为三部门共同焦点，但切入点在各环节</h3>
+<ul>
+<li><strong>综合判断</strong>：市场部盯转化链路的体验断点、客服部盯服务满意度、研发部盯性能——同一条用户体验，三个断面。</li>
+<li><strong>来源（3 份）</strong>：</li>
+<li>市场部：转化链路 / 体验一致性　原文「私域转化链路偏长，用户流失集中在后半段，体验一致性不足。」</li>
+<li>客服部：CSAT 93% / NPS 42　原文「客户满意度 CSAT 由 88% 提升至 93%；净推荐值 NPS 由 31 提升至 42。」</li>
+<li>研发部：P95 延迟 420→210ms　原文「核心接口 P95 延迟由 420ms 降至 210ms。」</li>
+</ul>
+<h3>★ 主题 3：降本增效 / 人效提升是共同考核方向</h3>
+<ul>
+<li><strong>综合判断</strong>：三部门都用「单位成本 / 单位产出」衡量 Q3：市场部看获客成本、客服部看单人人效、研发部看交付率。</li>
+<li><strong>来源（3 份）</strong>：</li>
+<li>市场部：CAC -29%　原文「获客成本（CAC）由 86 元降至 61 元，下降 29%」</li>
+<li>客服部：人效 78→105 单　原文「单人日均处理量由 78 单提升至 105 单。」</li>
+<li>研发部：按期交付率 94%　原文「需求按期交付率由 86% 提升至 94%。」</li>
+</ul>
+<h3>★ 主题 4：「数据驱动」普遍落地为自建看板 + 定期复盘机制</h3>
+<ul>
+<li><strong>综合判断</strong>：三部门各自建了看板并定了复盘节奏，说明数据驱动已从口号变成日常动作。</li>
+<li><strong>来源（3 份）</strong>：</li>
+<li>市场部：投放归因看板（日复盘）　原文「建立投放归因看板，每日复盘各渠道投放数据」</li>
+<li>客服部：问题分类看板（周复盘）　原文「建立问题分类看板，按周复盘 Top 问题并反哺知识库。」</li>
+<li>研发部：研发效能看板　原文「建立研发效能看板，跟踪需求交付、故障与延迟指标。」</li>
+</ul>
+<h2>二、差异点（各文档侧重不同之处）</h2>
+<ul>
+<li><strong>市场部</strong> 侧重：增长与投放效率。关注曝光、投放 ROI、CAC 与私域转化；AI 主要作为<strong>内容生产与投放优化工具</strong>。（依据：投放 ROI 由 Q2 的 2.1 提升至 Q3 的 3.0）</li>
+<li><strong>客服部</strong> 侧重：服务时效与满意度。关注响应时长、CSAT/NPS 与人效；AI 主要作为<strong>服务前台</strong>（智能应答 + 全量质检）。（依据：平均首次响应时长由 96 秒降至 28 秒）</li>
+<li><strong>研发部</strong> 侧重：交付稳定性与能力建设。关注交付率、故障、延迟与技术债；AI 既是<strong>内部提效工具</strong>，也是<strong>对外开放的能力底座</strong>。（依据：线上 P0/P1 故障由 Q2 的 5 起降至 1 起）</li>
+</ul>
+<h2>三、结论与建议</h2>
+<ol>
+<li>四条共同主题指向同一判断：<strong>AI 已在三部门真实产生业务价值</strong>，下阶段的关键不再是「要不要用」，而是「如何用好、如何不重复建」。</li>
+<li>研发部自陈的「AI 能力缺少统一治理、各业务线存在重复建设」，正好解释了为什么市场部/客服部的 AI 应用可能会各自为战——<strong>统一治理是共同主题的必然下一步</strong>。</li>
+<li>三个部门的「体验问题」（市场部转化链路、客服部 AI→人工断点、研发部性能）<strong>是同一条用户体验旅程的三个断面</strong>，应合并看、打通看。</li>
+<li>三家各自建了看板，说明数据驱动已落地，但<strong>口径分散、未打通</strong>——建议统一指标口径，让「共同主题」可被持续监控。</li>
+</ol>
+<p><strong>跨部门协同建议：</strong> 建议下季度以「<strong>AI 能力统一治理 + 全链路体验 + 数据打通</strong>」三项跨部门协同为抓手，由研发部牵头 AI 能力治理、市场部与服务部共建体验、三方统一数据口径。</p>
+<h2>附：来源索引</h2>
+<ul>
+<li>市场部（周敏）：市场部_2026Q3季度总结.docx　·　引用：产出量提升 220%；CAC 下降 29%；投放 ROI 3.0</li>
+<li>客服部（孙涛）：客服部_2026Q3季度总结.docx　·　引用：AI 独立解决率 46%；CSAT 93% / NPS 42；响应 96→28 秒</li>
+<li>研发部（郑凯）：研发部_2026Q3季度总结.docx　·　引用：交付率 94%；P95 420→210ms；大模型接口 5 场景</li>
+</ul>
+      </article>
+    </section>
+
+
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/2026Q3跨部门综合报告.docx" download><span>2026Q3跨部门综合报告.docx</span><span class="sz">39 KB</span></a></li><li><a href="../assets/cases//artifact/2026Q3跨部门综合报告.md" download><span>2026Q3跨部门综合报告.md</span><span class="sz">5 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>读多份报告<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>归纳共同主题<span class="stage-state">✓</span></li><li><span class="stage-no">3</span>成文综合报告<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/ban-gong-13/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/ban-gong-13/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/ban-gong-13/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/ban-gong-13/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/ban-gong-13/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

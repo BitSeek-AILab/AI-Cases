@@ -1,0 +1,694 @@
+<title>赤壁赋第一课时教案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&display=swap">
+<style>
+  /* 版式概念：一页到底的竖排文档，左侧一条时间轴贯穿教学过程；
+     月白底 + 深墨蓝字 + 青玉作强调色（取自"江上清风、山间明月"的色域）。 */
+  :root{
+    color-scheme: light;
+    --ground:#F5F7F8;
+    --surface:#FFFFFF;
+    --surface-2:#EFF3F4;
+    --ink:#1B2631;
+    --ink-2:#4E5A67;
+    --muted:#858F9A;
+    --line:#E0E5E9;
+    --line-2:#C9D2D8;
+    --accent:#2F7166;
+    --accent-soft:#E4EFEC;
+    --joy:#2F7166;
+    --grief:#6B5B8A;
+    --rule:#D8DEE3;
+    --shadow:0 1px 2px rgba(27,38,49,.05), 0 6px 18px rgba(27,38,49,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --ground:#12161A;
+      --surface:#191E23;
+      --surface-2:#202730;
+      --ink:#E7EAED;
+      --ink-2:#A7B1BB;
+      --muted:#78828C;
+      --line:#2A3138;
+      --line-2:#39424B;
+      --accent:#71BCA9;
+      --accent-soft:#1D2A28;
+      --joy:#71BCA9;
+      --grief:#A99BD1;
+      --rule:#2E363E;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --ground:#12161A;
+    --surface:#191E23;
+    --surface-2:#202730;
+    --ink:#E7EAED;
+    --ink-2:#A7B1BB;
+    --muted:#78828C;
+    --line:#2A3138;
+    --line-2:#39424B;
+    --accent:#71BCA9;
+    --accent-soft:#1D2A28;
+    --joy:#71BCA9;
+    --grief:#A99BD1;
+    --rule:#2E363E;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.75;
+    -webkit-text-size-adjust:100%;
+  }
+  .page{
+    max-width:760px;
+    margin:0 auto;
+    padding-block:0 64px;
+    padding-inline:16px;
+  }
+
+  /* ---------- 顶部条 ---------- */
+  .topbar{
+    position:sticky;
+    top:env(safe-area-inset-top, 0px);
+    z-index:20;
+    margin-inline:-16px;
+    padding-inline:16px;
+    background:color-mix(in srgb, var(--ground) 88%, transparent);
+    backdrop-filter:saturate(140%) blur(8px);
+    -webkit-backdrop-filter:saturate(140%) blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-in{
+    max-width:760px;margin:0 auto;
+    display:flex;align-items:center;gap:10px;
+    padding-block:10px;
+  }
+  .topbar b{
+    font-family:"Noto Serif SC",Songti SC,serif;
+    font-weight:700;font-size:15px;letter-spacing:.02em;
+  }
+  .topbar .spacer{flex:1}
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:12px;line-height:1;
+    padding:5px 9px;border-radius:999px;
+    background:var(--surface-2);color:var(--ink-2);
+    border:1px solid var(--line);
+    white-space:nowrap;
+  }
+  .chip.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-weight:500}
+
+  /* ---------- 抬头 ---------- */
+  header.hero{padding-block:34px 8px}
+  .eyebrow{
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  h1{
+    font-family:"Noto Serif SC",Songti SC,serif;
+    font-weight:700;
+    font-size:clamp(1.6rem,6.4vw,2.15rem);
+    line-height:1.3;
+    letter-spacing:.01em;
+    margin:10px 0 6px;
+    text-wrap:balance;
+  }
+  .subtitle{color:var(--ink-2);font-size:15px;margin:0}
+  .meta-row{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;
+  }
+
+  /* ---------- 节 ---------- */
+  section{padding-block:26px 0}
+  h2{
+    font-family:"Noto Serif SC",Songti SC,serif;
+    font-weight:700;
+    font-size:1.18rem;
+    letter-spacing:.01em;
+    margin:0 0 4px;
+    display:flex;align-items:baseline;gap:10px;
+  }
+  h2 .num{
+    font-family:"Noto Sans SC",system-ui,sans-serif;
+    font-size:12px;font-weight:500;color:var(--accent);
+    letter-spacing:.1em;
+  }
+  h2 + .lede{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+  .rule{height:1px;background:var(--rule);margin:0 0 18px}
+
+  /* ---------- 基本信息 ---------- */
+  dl.kv{
+    display:grid;grid-template-columns:auto 1fr;
+    gap:0;margin:0;
+    border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;background:var(--surface);
+  }
+  dl.kv dt,dl.kv dd{
+    margin:0;padding:10px 14px;font-size:14.5px;
+    border-bottom:1px solid var(--line);
+  }
+  dl.kv dt{color:var(--muted);background:var(--surface-2);white-space:nowrap;font-size:13.5px}
+  dl.kv dd{color:var(--ink)}
+  dl.kv dt:last-of-type,dl.kv dd:last-of-type{border-bottom:0}
+  dl.kv dd b{color:var(--accent);font-weight:500}
+
+  /* ---------- 目标 ---------- */
+  ol.goals{margin:0;padding-left:0;list-style:none;counter-reset:g}
+  ol.goals li{
+    counter-increment:g;
+    position:relative;
+    padding:12px 0 12px 40px;
+    border-bottom:1px solid var(--line);
+    font-size:15px;
+  }
+  ol.goals li:last-child{border-bottom:0}
+  ol.goals li::before{
+    content:counter(g,decimal-leading-zero);
+    position:absolute;left:0;top:12px;
+    font-size:12px;color:var(--accent);font-weight:700;
+    letter-spacing:.06em;
+  }
+  ol.goals li b{font-weight:700}
+
+  /* ---------- 重难点 ---------- */
+  .two-col{display:grid;gap:12px;grid-template-columns:1fr}
+  @media (min-width:620px){ .two-col{grid-template-columns:1fr 1fr} }
+  .panel{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:14px 16px;
+  }
+  .panel h3{
+    margin:0 0 8px;font-size:13px;letter-spacing:.08em;
+    color:var(--accent);font-weight:700;
+  }
+  .panel ul{margin:0;padding-left:1.1em}
+  .panel li{font-size:14.5px;margin-bottom:6px}
+  .panel li:last-child{margin-bottom:0}
+
+  /* ---------- 时间轴 ---------- */
+  .timebar{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:14px 16px 12px;margin-bottom:18px;
+  }
+  .timebar .tlabel{
+    font-size:12px;letter-spacing:.08em;color:var(--muted);margin-bottom:9px;
+    display:flex;justify-content:space-between;
+  }
+  .bar{display:flex;height:26px;border-radius:7px;overflow:hidden;background:var(--surface-2)}
+  .bar span{
+    display:block;height:100%;
+    background:var(--accent);
+    border-right:2px solid var(--surface);
+  }
+  .bar span:last-child{border-right:0}
+  .barlegend{
+    display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px;
+    font-size:12.5px;color:var(--ink-2);
+  }
+  .barlegend i{
+    font-style:normal;color:var(--muted);
+    font-variant-numeric:tabular-nums;margin-left:3px;
+  }
+
+  /* ---------- 环节 ---------- */
+  .steps{display:flex;flex-direction:column;gap:14px}
+  .step{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:16px;box-shadow:var(--shadow);
+  }
+  .step-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:12px}
+  .step-head h3{
+    margin:0;font-family:"Noto Serif SC",Songti SC,serif;
+    font-size:1.02rem;font-weight:700;line-height:1.45;
+  }
+  .step-head .t{
+    font-size:12px;font-weight:500;color:var(--accent);
+    background:var(--accent-soft);border-radius:999px;padding:3px 9px;
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .role{display:grid;gap:10px}
+  .role > div{font-size:14.5px}
+  .role .who{
+    display:block;font-size:12px;letter-spacing:.1em;color:var(--muted);
+    margin-bottom:3px;
+  }
+  .role .who.t{color:var(--accent)}
+  .role p{margin:0 0 7px}
+  .role p:last-child{margin-bottom:0}
+  .aim{
+    margin-top:12px;padding-top:11px;border-top:1px dashed var(--line-2);
+    font-size:13px;color:var(--ink-2);
+  }
+  .aim b{color:var(--muted);font-weight:500;letter-spacing:.06em;font-size:12px}
+  .q{
+    background:var(--accent-soft);
+    border-radius:8px;padding:8px 11px;margin:9px 0;
+    font-size:14px;color:var(--ink);
+  }
+  .q::before{content:"师";font-size:11px;letter-spacing:.08em;color:var(--accent);margin-right:7px;font-weight:700}
+
+  /* ---------- 情感线 ---------- */
+  .arc{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:16px;margin-bottom:18px;
+  }
+  .arc svg{display:block;width:100%;max-width:100%;height:auto}
+  .arc figcaption{font-size:12.5px;color:var(--muted);margin-top:10px}
+
+  /* ---------- 表格 ---------- */
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;
+      border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;min-width:440px;font-size:14px}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{
+    background:var(--surface-2);color:var(--muted);
+    font-size:12px;letter-spacing:.06em;font-weight:500;white-space:nowrap;
+  }
+  tbody tr:last-child td{border-bottom:0}
+  td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* ---------- 作业 ---------- */
+  .hw{display:flex;flex-direction:column;gap:12px}
+  .hw .tier{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;border-left:3px solid var(--accent);
+  }
+  .hw .tier.b{border-left-color:var(--line-2)}
+  .hw .tier.c{border-left-style:dashed}
+  .hw .tier h3{
+    margin:0 0 8px;font-size:14px;font-weight:700;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .hw .tier h3 .tag{
+    font-size:11.5px;font-weight:500;color:var(--muted);
+    background:var(--surface-2);border-radius:999px;padding:3px 8px;
+  }
+  .hw ul{margin:0;padding-left:1.15em;font-size:14.5px}
+  .hw li{margin-bottom:5px}
+
+  /* ---------- 板书 ---------- */
+  pre.board{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:16px;overflow-x:auto;
+    font-family:"Noto Sans SC",ui-monospace,monospace;
+    font-size:13px;line-height:1.7;color:var(--ink);margin:0;
+    white-space:pre;
+  }
+
+  /* ---------- 思政 ---------- */
+  .quote{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:14px 16px;margin-bottom:12px;
+  }
+  .quote .h{
+    font-size:12px;letter-spacing:.08em;color:var(--accent);font-weight:700;margin-bottom:6px;
+  }
+  .quote p{margin:0;font-size:14.5px}
+  .quote p + p{margin-top:7px}
+  .warn{
+    border-left:3px solid var(--grief);
+  }
+  .warn .h{color:var(--grief)}
+
+  /* ---------- 待办 ---------- */
+  .done{color:var(--accent);font-weight:500;white-space:nowrap}
+  .doing{color:var(--muted);white-space:nowrap}
+
+  footer{
+    margin-top:40px;padding-top:18px;border-top:1px solid var(--rule);
+    font-size:12.5px;color:var(--muted);line-height:1.8;
+  }
+  footer b{color:var(--ink-2);font-weight:500}
+</style>
+
+<div class="page">
+
+  <div class="topbar">
+    <div class="topbar-in">
+      <b>《赤壁赋》第一课时</b>
+      <span class="spacer"></span>
+      <span class="chip acc">定稿</span>
+      <span class="chip">45 分钟</span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">部编版 高中语文 必修上册 · 文言文精读课</div>
+    <h1>《赤壁赋》第一课时教案</h1>
+    <p class="subtitle">情感线：乐 → 悲（"喜"留第二课时）</p>
+    <div class="meta-row">
+      <span class="chip">主备人 李老师</span>
+      <span class="chip">同议 王老师 · 张老师 · 陈老师</span>
+      <span class="chip">语文 · 高一</span>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="num">01</span>基本信息</h2>
+    <div class="rule"></div>
+    <dl class="kv">
+      <dt>课题</dt><dd>部编版高中语文必修上册《赤壁赋》（第一课时）</dd>
+      <dt>课型</dt><dd>文言文精读课</dd>
+      <dt>课时</dt><dd>1 课时（45 分钟）</dd>
+      <dt>授课对象</dt><dd>高一学生</dd>
+      <dt>主备人</dt><dd>李老师</dd>
+      <dt>配套课件</dt><dd>张老师负责（清单见第八节）</dd>
+      <dt>本课时主线</dt><dd><b>情感线：乐 → 悲</b></dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span>教学目标</h2>
+    <p class="lede">四条按语文核心素养四个维度展开，均可课后检测。</p>
+    <div class="rule"></div>
+    <ol class="goals">
+      <li><b>语言建构与运用</b>：能读准"壬戌、窈窕、嫠妇、舳舻、酹"等字音，疏通第一、二段文言词句，积累"少焉""白露""纵一苇之所如""冯虚御风"等词句。</li>
+      <li><b>思维发展与提升</b>：能说出作者情感的变化线（乐 → 悲），并用原文依据说明每一段"乐从何来""悲从何来"。</li>
+      <li><b>审美鉴赏与创造</b>：能找出第一段写景的句子，说出"清风、白露、江水、明月"这组意象营造出怎样的境界。</li>
+      <li><b>文化传承与理解</b>：初步体会苏轼在最失意处仍能"与江月同游"的豁达，理解这种态度的可贵。</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span>教学重难点</h2>
+    <div class="rule"></div>
+    <div class="two-col">
+      <div class="panel">
+        <h3>教学重点</h3>
+        <ul>
+          <li>理清第一、二段的情感线索：由"乐"转"悲"是怎么发生的。</li>
+          <li>读懂第一段"写景即抒情"——景不是背景，是心境。</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>教学难点</h3>
+        <ul>
+          <li><b>情、景、理如何交融</b>："悲"不是突然来的，它是从"乐"里面长出来的（越乐，越觉人生短）。</li>
+          <li><b>"变与不变"的哲理理解</b>：本课时只作铺垫，完整的哲理讨论留在第二课时。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span>教学过程</h2>
+    <p class="lede">7 + 8 + 12 + 7 + 6 + 5 = 45 分钟</p>
+    <div class="rule"></div>
+
+    <div class="timebar">
+      <div class="tlabel"><span>时间分配</span><span>共 45 分钟</span></div>
+      <div class="bar" role="img" aria-label="六环节时间分配：导入7分钟、初读正音8分钟、精读第一段12分钟、精读第二段7分钟、小组讨论6分钟、小结与作业5分钟">
+        <span style="width:15.56%"></span>
+        <span style="width:17.78%"></span>
+        <span style="width:26.67%"></span>
+        <span style="width:15.56%"></span>
+        <span style="width:13.33%"></span>
+        <span style="width:11.11%"></span>
+      </div>
+      <div class="barlegend">
+        <span>导入<i>7′</i></span>
+        <span>初读正音<i>8′</i></span>
+        <span>精读一段<i>12′</i></span>
+        <span>精读二段<i>7′</i></span>
+        <span>小组讨论<i>6′</i></span>
+        <span>小结作业<i>5′</i></span>
+      </div>
+    </div>
+
+    <figure class="arc">
+      <svg viewBox="0 0 640 128" role="img" aria-label="情感线示意图：本课时由乐到悲，喜留在第二课时">
+        <line x1="46" y1="62" x2="600" y2="62" style="stroke:var(--rule)" stroke-width="1"/>
+        <circle cx="80" cy="62" r="11" style="fill:var(--joy)"/>
+        <text x="80" y="67" text-anchor="middle" font-size="13" style="fill:var(--surface)" font-family="Noto Sans SC">乐</text>
+        <text x="80" y="98" text-anchor="middle" font-size="12.5" style="fill:var(--ink-2)" font-family="Noto Sans SC">景美 · 自由</text>
+        <text x="80" y="36" text-anchor="middle" font-size="11" style="fill:var(--muted)" font-family="Noto Sans SC">第一段</text>
+        <path d="M104 62 H212" style="stroke:var(--line-2)" stroke-width="1"/>
+        <path d="M205 57 l8 5 -8 5" fill="none" style="stroke:var(--line-2)" stroke-width="1"/>
+        <circle cx="248" cy="62" r="11" style="fill:var(--grief)"/>
+        <text x="248" y="67" text-anchor="middle" font-size="13" style="fill:var(--surface)" font-family="Noto Sans SC">悲</text>
+        <text x="248" y="98" text-anchor="middle" font-size="12.5" style="fill:var(--ink-2)" font-family="Noto Sans SC">人生短暂</text>
+        <text x="248" y="36" text-anchor="middle" font-size="11" style="fill:var(--muted)" font-family="Noto Sans SC">第二段</text>
+        <path d="M272 62 H428" style="stroke:var(--line)" stroke-width="1" stroke-dasharray="5 5"/>
+        <path d="M421 57 l8 5 -8 5" fill="none" style="stroke:var(--line-2)" stroke-width="1"/>
+        <circle cx="466" cy="62" r="11" fill="none" style="stroke:var(--line-2)" stroke-width="1.4"/>
+        <text x="466" y="67" text-anchor="middle" font-size="13" style="fill:var(--muted)" font-family="Noto Sans SC">喜</text>
+        <text x="466" y="98" text-anchor="middle" font-size="12.5" style="fill:var(--muted)" font-family="Noto Sans SC">变与不变</text>
+        <text x="466" y="36" text-anchor="middle" font-size="11" style="fill:var(--muted)" font-family="Noto Sans SC">第二课时</text>
+      </svg>
+      <figcaption>本课时停在"悲"上，把"怎么走出来"留成悬念——思政的正式落点在第二课时。</figcaption>
+    </figure>
+
+    <div class="steps">
+
+      <article class="step">
+        <div class="step-head"><h3>环节一 · 导入：看图猜诗句</h3><span class="t">7′</span></div>
+        <div class="role">
+          <div>
+            <span class="who t">教师做什么</span>
+            <p>① 播放"赤壁江月"风光视频约 60 秒，<b>不讲解</b>。</p>
+            <p>② <b>看图猜诗句（2 分钟）</b>：出示 3 张图（赤壁江月 / 秋江白露 / 孤舟明月），每张停约 20 秒。学生答出课文原句最好，答别的咏月诗也接住。</p>
+            <p class="q">不用举手，想到就说——这三张图，让你想起哪句诗？</p>
+            <p>收拢："这些句子有个共同点——<b>都是对着水和月写的</b>。今天要读的这篇，也是。"</p>
+            <p>③ <b>苏轼三句话</b>：他 21 岁考中进士，主考官说"我要避这个人一头"；他 44 岁被关进大牢 103 天，<b>差点死在里面</b>——就是乌台诗案；出狱后被贬到黄州，一个没有实权的闲官。<b>《赤壁赋》就写在这个时候。</b></p>
+            <p>④ 抛问："一个刚从死牢里出来、被贬到偏远小城的人，写出来的东西，你猜是苦的，还是别的味道？"</p>
+          </div>
+          <div>
+            <span class="who">学生做什么</span>
+            <p>看视频 → 看图联想、自由说诗句 → 听三句话 → 自由猜测回答（2—3 人）</p>
+          </div>
+        </div>
+        <div class="aim"><b>设计意图</b> 先用画面唤起诗句（零门槛、全班可参与），再用"反差"制造疑问：越惨的人越可能写出越开阔的东西——这个矛盾就是本课的入口。</div>
+      </article>
+
+      <article class="step">
+        <div class="step-head"><h3>环节二 · 初读正音</h3><span class="t">8′</span></div>
+        <div class="role">
+          <div>
+            <span class="who t">教师做什么</span>
+            <p>① 布置自由朗读全文，圈出读不准的字。</p>
+            <p>② 出示易错字音：<b>壬戌（rén xū）、窈窕（yǎo tiǎo）、嫠妇（lí fù）、舳舻（zhú lú）、酹（lèi）、少焉（shǎo）</b>。</p>
+            <p>③ 请 2 名学生分段朗读第一、二段，<b>其余学生对照课本圈出错处</b>。</p>
+            <p>④ 齐读第一段。</p>
+          </div>
+          <div>
+            <span class="who">学生做什么</span>
+            <p>自由朗读 → 圈注字音 → 2 人分段读 → <b>其余人带着"找错"任务听并纠正</b> → 齐读</p>
+          </div>
+        </div>
+        <div class="aim"><b>设计意图</b> 扫清字音障碍；给"听的学生"派任务，避免旁听走神。</div>
+      </article>
+
+      <article class="step">
+        <div class="step-head"><h3>环节三 · 精读第一段：写景与"乐从何来"</h3><span class="t">12′</span></div>
+        <div class="role">
+          <div>
+            <span class="who t">教师做什么</span>
+            <p>① 抛问："第一段里，苏轼和朋友在做什么？请用原文回答。"（<b>"苏子与客泛舟游于赤壁之下"</b>——秋夜泛舟。）</p>
+            <p>② 追问："这一段写了哪些景？"引导找出：<b>清风、白露、江水、明月</b>。</p>
+            <p>③ 再追问："<b>'乐'从哪里来？</b>"收敛成两个词：<b>景美 + 自由</b>。</p>
+            <p>· 自由："<b>纵一苇之所如，凌万顷之茫然</b>"——想漂到哪就漂到哪（<b>此句单独挑出来讲</b>）。</p>
+            <p>· 景美："浩浩乎如冯虚御风""飘飘乎如遗世独立"——像要飞起来。</p>
+            <p>④ 板书情感线起点：<b>乐 —— 景美 · 自由</b>。</p>
+          </div>
+          <div>
+            <span class="who">学生做什么</span>
+            <p>齐读第一段 → 圈画写景词句 → 回答、补充 → 批注"乐：景美 + 自由"</p>
+          </div>
+        </div>
+        <div class="aim"><b>设计意图</b> 把"写景即抒情"讲透：景写得越美，越说明此刻心里是松的——这是"悲"的对照面。</div>
+      </article>
+
+      <article class="step">
+        <div class="step-head"><h3>环节四 · 精读第二段："悲从何来"</h3><span class="t">7′</span></div>
+        <div class="role">
+          <div>
+            <span class="who t">教师做什么</span>
+            <p>① <b>范读第二段</b>，要求全班听"心里的变化"。</p>
+            <p>② 抛问："<b>这一段，'乐'还在吗？</b>"（不在了。）</p>
+            <p>③ 追问："悲从哪里来？"抓关键词：<b>"渺渺兮予怀，望美人兮天一方"</b>（心里有个够不着的东西）；<b>"其声呜呜然……如怨如慕，如泣如诉"</b>（客的箫声是悲的）。</p>
+            <p>④ 点明：<b>"悲"不是突然来的，是从"乐"里面长出来的</b>——越是觉得此刻好，越会想到这样的时刻不长久。</p>
+            <p>⑤ 板书情感线：<b>乐 → 悲</b>。</p>
+          </div>
+          <div>
+            <span class="who">学生做什么</span>
+            <p>听读 → 圈出写"悲"的词句 → 回答讨论 → 批注"悲：人生短暂"</p>
+          </div>
+        </div>
+        <div class="aim"><b>设计意图</b> 让学生看到情感的转折机制，而不是把"乐—悲—喜"当三个孤立标签背下来。</div>
+      </article>
+
+      <article class="step">
+        <div class="step-head"><h3>环节五 · 小组讨论："悲"到底在悲什么</h3><span class="t">6′</span></div>
+        <div class="role">
+          <div>
+            <span class="who t">教师做什么</span>
+            <p>① 出示讨论题：<b>"客悲的是什么？请从第二段里找依据，说出你的判断。"</b></p>
+            <p>② 四人为一组，分工：<b>记录员、发言人、计时员、点评员</b>。</p>
+            <p>③ 巡视，对卡住的小组给提示（回看"望美人兮天一方"和箫声那两句）。</p>
+            <p>④ 请 2—3 组发言，教师<b>不急着评判对错</b>，先把不同答案写在黑板上。</p>
+          </div>
+          <div>
+            <span class="who">学生做什么</span>
+            <p>四人小组：找依据 → 讨论 → 记录 → 发言；其余组倾听并补充或质疑</p>
+          </div>
+        </div>
+        <div class="aim"><b>设计意图</b> 课堂互动第一处：把结论的生成权交给学生，老师只负责收敛。</div>
+      </article>
+
+      <article class="step">
+        <div class="step-head"><h3>环节六 · 小结与作业布置</h3><span class="t">5′</span></div>
+        <div class="role">
+          <div>
+            <span class="who t">教师做什么</span>
+            <p>① 带全班回看板书情感线：<b>乐 → 悲</b>。</p>
+            <p>② 留悬念："悲到这儿就完了吗？<b>没有。</b>下节课看苏轼怎么从'悲'里走出来——那才是这篇文章最厉害的地方。"</p>
+            <p>③ <b>思政一句预告</b>（见第九节）：</p>
+            <p class="q">被贬到黄州的时候，苏轼写下了"清风徐来，水波不兴"。一个人在最难的地方，还能看见风和水——下节课我们就看他怎么做到的。</p>
+            <p>④ 布置作业（见第六节），说清交什么、什么时候交、怎么评。</p>
+          </div>
+          <div>
+            <span class="who">学生做什么</span>
+            <p>齐读板书要点 → 记录作业条目</p>
+          </div>
+        </div>
+        <div class="aim"><b>设计意图</b> 小结"挂住下一课时"；作业分层可做；思政埋而不发。</div>
+      </article>
+
+      <article class="step" style="border-style:dashed">
+        <div class="step-head"><h3>备选互动 · "一句话说给苏轼听"</h3><span class="t">30″</span></div>
+        <div class="role">
+          <div>
+            <span class="who t">怎么用</span>
+            <p>时间充裕时：请每人在纸上写<b>一句话</b>给此刻的苏轼（不必署名）；收 3—5 张念出来。时间紧可直接砍。</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">05</span>课堂互动</h2>
+    <div class="rule"></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>#</th><th>位置</th><th>活动</th><th>形式</th><th>参与面</th></tr></thead>
+        <tbody>
+          <tr><td class="n">1</td><td>环节一</td><td><b>看图猜诗句</b>（3 张图 → 自由说诗句）</td><td>全班口头</td><td>全班</td></tr>
+          <tr><td class="n">2</td><td>环节二</td><td><b>朗读纠错</b>（2 人分段读，其余人对照课本圈错）</td><td>个别 + 全班</td><td>全班</td></tr>
+          <tr><td class="n">3</td><td>环节五</td><td><b>小组讨论"悲在悲什么"</b>（引原文作依据，2—3 组发言）</td><td>四人小组</td><td>全班</td></tr>
+          <tr><td class="n">4</td><td>备选</td><td>一句话说给苏轼听</td><td>全班动笔 + 抽样呈现</td><td>全班</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span>作业设计</h2>
+    <p class="lede">上交与批阅：全员下节课前交（课代表按组收齐）；基础层抽查、提升层全批、拓展层面批 2—3 份并下节课展示。</p>
+    <div class="rule"></div>
+    <div class="hw">
+      <div class="tier">
+        <h3>基础层 <span class="tag">人人必做</span></h3>
+        <ul>
+          <li><b>背诵《赤壁赋》第一、二段</b>——下节课开头抽查（同桌互背 → 抽查 3 人）。</li>
+          <li>抄写并解释下列词句：<b>少焉、纵一苇之所如、凌万顷之茫然、冯虚御风、遗世独立</b>。</li>
+        </ul>
+      </div>
+      <div class="tier b">
+        <h3>提升层 <span class="tag">选做，鼓励做</span></h3>
+        <ul>
+          <li>仿照第一段写景手法，写一段身边的景（<b>150 字左右</b>），要求：① 至少写两处景；② <b>景中要能看出当时的心情</b>（乐 / 悲 / 静 / 别的，都行）；③ 在段末用一句话说明"我借这个景写的是哪种心情"。</li>
+        </ul>
+      </div>
+      <div class="tier c">
+        <h3>拓展层 <span class="tag">学有余力</span></h3>
+        <ul>
+          <li>查一查<b>乌台诗案</b>的经过，用 150 字说明：<b>一个人在什么处境下，会写得出"清风徐来，水波不兴"这样的句子？</b></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">07</span>板书设计</h2>
+    <div class="rule"></div>
+    <pre class="board">《赤壁赋》 苏轼（黄州）
+
+情感线：   乐  →  悲  →（下课时：喜）
+            │        │
+         景美·自由  人生短暂
+        （清风 白露   （望美人兮天一方
+          江水 明月）    箫声：如怨如慕）</pre>
+  </section>
+
+  <section>
+    <h2><span class="num">08</span>配套课件与教学资源</h2>
+    <p class="lede">张老师负责。原则：素材 5 项以内，每项都对应具体环节；没有用途的不进课件。</p>
+    <div class="rule"></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>#</th><th>素材</th><th>用途</th><th>备注</th></tr></thead>
+        <tbody>
+          <tr><td class="n">1</td><td>赤壁江月风光视频（约 60 秒）</td><td>环节一导入</td><td>先播后讲</td></tr>
+          <tr><td class="n">2</td><td><b>看图猜诗句三张图</b>（赤壁江月 / 秋江白露 / 孤舟明月）</td><td>环节一（新增）</td><td>每张停约 20 秒</td></tr>
+          <tr><td class="n">3</td><td>《赤壁赋》书法作品图（苏轼或后人）</td><td>环节二 / 三过渡</td><td>看到"赋"的书写形态</td></tr>
+          <tr><td class="n">4</td><td>赤壁古战场示意图 / 赤壁图</td><td>环节三</td><td>建立空间感</td></tr>
+          <tr><td class="n">5</td><td>易错字音卡片（壬戌、窈窕、嫠妇、舳舻、酹）</td><td>环节二</td><td>可直接做成课件页</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">09</span>思政融入："豁达"</h2>
+    <div class="rule"></div>
+    <div class="quote">
+      <div class="h">落点一 · 本课时（环节六，一句预告，不展开）</div>
+      <p>"被贬到黄州的时候，苏轼写下了'清风徐来，水波不兴'。一个人在最难的地方，还能看见风和水——<b>下节课我们就看他怎么做到的。</b>"</p>
+    </div>
+    <div class="quote">
+      <div class="h">落点二 · 第二课时（讲完"变与不变"后收束）</div>
+      <p>"苏轼没有说'我不难过'。他说的是：水一直在流，可它从没真正流走；月亮一直有圆缺，可它从没真正增减。<b>换个角度看，得失本来就不那么绝对。</b>"</p>
+    </div>
+    <div class="quote warn">
+      <div class="h">边界句 · 必须讲</div>
+      <p>"苏轼的豁达<b>不是不在乎</b>，是<b>看清了以后仍然在场</b>——他该难过还是难过，只是没被难过困住。"</p>
+    </div>
+    <p class="lede">不从"我们要学习苏轼的乐观精神"这样的口号入手，而是从文本本身生发：学生读到"清风徐来，水波不兴"时那种"他怎么还能这么写"的震动，就是思政最好的入口。不贴"爱国主义 / 价值观"标签。</p>
+  </section>
+
+  <section>
+    <h2><span class="num">10</span>待办</h2>
+    <div class="rule"></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>事项</th><th>负责人</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td>各环节学生活动的具体设计</td><td>王老师</td><td class="done">已完成（环节一/二/五）</td></tr>
+          <tr><td>课件素材（赤壁图、苏轼书法、视频链接）</td><td>张老师</td><td class="doing">按第八节清单准备</td></tr>
+          <tr><td>作业分层细化措辞</td><td>陈老师</td><td class="doing">再核一次</td></tr>
+          <tr><td>思政切入点（"豁达"）落地</td><td>陈老师 / 主备人</td><td class="done">已完成（第九节）</td></tr>
+          <tr><td>三张"看图猜诗句"图的选图</td><td>张老师 + 王老师</td><td class="doing">下周三备课会前定</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>文档性质</b>　定稿。已接受《建议修订》R-01（导入加"看图猜诗句"）、R-02（作业分层）、R-03（思政落"豁达"）及 AI 建议 A-01—A-12；正文不再保留【AI建议】标记。</p>
+    <p><b>过程留痕</b>　初稿见《赤壁赋第一课时教案（初稿·AI扩写建议版）》；全部改动逐条见《建议修订》。</p>
+    <p><b>共库</b>　高一语文集体备课 · 语文 · 高一 · 本学期</p>
+  </footer>
+
+</div>

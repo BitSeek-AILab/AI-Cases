@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>分数加减法 · 知识卡片 9:16</title>
+<style>
+  /* ==========================================================
+     知识卡片 · 竖版 9:16 · 1080 × 1920
+     布局：Bento 网格   风格：手绘教育风（清爽纸感 + 单一暖色高亮）
+     对应手册：Baoyu Infographic 的"布局 × 风格"组合
+     ========================================================== */
+  :root{
+    --ink:#12294a;          /* 主墨色 · 深靛蓝，与本章网页课件同族 */
+    --ink-2:#3d5a80;
+    --paper:#fbf7ef;        /* 纸感米白 */
+    --paper-2:#f3ece0;
+    --accent:#e8763a;       /* 单一高亮色 · 暖橙（手绘教育风） */
+    --accent-soft:#fdece0;
+    --ok:#2f7d5c;
+    --rule:rgba(18,41,74,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#888}
+  body{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;-webkit-font-smoothing:antialiased}
+
+  .card{
+    width:1080px;height:1920px;background:var(--paper);color:var(--ink);
+    position:relative;overflow:hidden;display:flex;flex-direction:column;
+    padding:44px 52px 36px;gap:11px;
+  }
+  /* 纸感纹理：极淡点阵，不影响阅读 */
+  .card::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(18,41,74,.05) 1px, transparent 1px);
+    background-size:22px 22px;
+  }
+  .card>*{position:relative}
+
+  /* ---------- 1 · 页眉 ---------- */
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:12px;align-self:flex-start;
+    font-size:24px;font-weight:700;letter-spacing:.14em;color:var(--accent);
+    border:3px solid var(--accent);border-radius:999px;padding:7px 20px;
+  }
+  h1{font-size:94px;line-height:1.0;letter-spacing:-.02em;font-weight:800}
+  h1 em{font-style:normal;color:var(--accent)}
+  .sub{font-size:40px;font-weight:600;color:var(--ink-2);letter-spacing:.01em}
+
+  /* ---------- 2 · 口诀 hero ---------- */
+  .motto{
+    background:var(--accent);color:#fff;border-radius:22px;padding:20px 28px;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .motto .tag{font-size:22px;font-weight:700;letter-spacing:.2em;opacity:.85}
+  .motto .txt{font-size:50px;font-weight:800;line-height:1.2;letter-spacing:.01em}
+
+  /* ---------- 通用区块 ---------- */
+  .sec-head{display:flex;align-items:center;gap:14px;font-size:32px;font-weight:800}
+  .sec-head .n{
+    width:40px;height:40px;flex:none;border-radius:11px;background:var(--ink);color:var(--paper);
+    font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;
+  }
+  .sec-head .en{font-size:22px;font-weight:700;letter-spacing:.18em;color:var(--ink-2);opacity:.7;margin-left:auto}
+
+  .panel{background:#fff;border:3px solid var(--rule);border-radius:20px;padding:18px 24px}
+
+  /* ---------- 3 · 算理 + 分数条 ---------- */
+  .why{display:flex;flex-direction:column;gap:10px}
+  .why .lead{font-size:32px;line-height:1.42;color:var(--ink-2)}
+  .why .lead b{color:var(--ink);font-weight:800}
+  .bars{display:flex;flex-direction:column;gap:9px;margin-top:2px}
+  .barrow{display:flex;align-items:center;gap:18px}
+  .barlbl{width:190px;flex:none;font-size:26px;font-weight:800;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+  .bar{flex:1;height:42px;border:3px solid var(--ink);border-radius:0;display:flex;overflow:hidden}
+  .bar i{flex:1 1 0;border-right:3px solid var(--ink);opacity:.22}
+  .bar i:last-child{border-right:0}
+  .bar i.on{background:var(--accent);opacity:1}
+  .bar i.on2{background:var(--ink-2);opacity:1}
+  .note{font-size:26px;color:var(--ink-2);letter-spacing:.01em}
+  .note b{color:var(--accent)}
+
+  /* ---------- 4 · 例题三步 ---------- */
+  .steps{display:flex;flex-direction:column;gap:9px}
+  .steprow{display:flex;align-items:center;gap:14px;background:#fff;border:3px solid var(--rule);border-radius:18px;padding:17px 22px}
+  .stepno{
+    width:48px;height:48px;flex:none;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+    font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;
+  }
+  .stepbody{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:32px}
+  .stepname{font-size:28px;font-weight:800;width:86px;flex:none}
+  .stepdesc{font-size:22px;color:var(--ink-2);margin-left:auto;text-align:right;line-height:1.35}
+
+  /* 分数排版 */
+  .frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1;font-weight:800;vertical-align:middle;margin:0 4px}
+  .frac .num{padding:0 8px 4px}
+  .frac .den{padding:4px 8px 0;border-top:4px solid currentColor}
+  .barlbl .frac,.note .frac{font-size:0.82em}
+  .trap .frac{font-size:0.86em}
+  .frac.a{color:var(--accent)}
+  .frac.b{color:var(--ink-2)}
+
+  /* ---------- 5 · 易错点 ---------- */
+  .traps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px}
+  .trap{background:#fff;border:3px solid var(--rule);border-top:8px solid var(--accent);border-radius:16px;padding:16px 16px 16px;display:flex;flex-direction:column;gap:9px}
+  .trap .t{font-size:29px;font-weight:800;line-height:1.25}
+  .trap .d{font-size:22px;line-height:1.4;color:var(--ink-2)}
+  .trap .fix{font-size:23px;font-weight:800;color:var(--ok);line-height:1.35}
+  .trap .bad{font-size:23px;font-weight:700;color:#b1462f;line-height:1.35}
+  .trap .fix,.trap .bad{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .lbl{font-size:18px;font-weight:800;border-radius:6px;padding:2px 7px;flex:none;letter-spacing:.04em}
+  .bad .lbl{background:#fbe0d8;color:#b1462f}
+  .fix .lbl{background:#dcefe4;color:#2f7d5c}
+
+  /* ---------- 6 · 课后一练 ---------- */
+  .quiz{display:flex;align-items:center;gap:22px;background:var(--ink);color:var(--paper);border-radius:20px;padding:20px 28px}
+  .quiz .q{font-size:34px;font-weight:800;line-height:1.3;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .quiz .ans{margin-left:auto;text-align:right;flex:none}
+  .quiz .ans .k{font-size:22px;letter-spacing:.16em;opacity:.6;font-weight:700}
+  .quiz .ans .v{font-size:32px;font-weight:800;color:#ffd9a8;display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:6px}
+
+  /* ---------- 7 · 页脚 ---------- */
+  .foot{margin-top:auto;display:flex;align-items:flex-end;justify-content:space-between;border-top:3px solid var(--rule);padding-top:12px}
+  .foot .l{font-size:24px;font-weight:700;color:var(--ink-2)}
+  .foot .r{font-size:22px;color:var(--ink-2);opacity:.8;letter-spacing:.02em}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+
+  <!-- 1 · 页眉 -->
+  <div class="eyebrow">五年级数学 · 第 2 课时</div>
+  <h1>分数<em>加减法</em></h1>
+  <div class="sub">异分母分数相加减 · 课后复习卡</div>
+
+  <!-- 2 · 口诀 -->
+  <div class="motto">
+    <div class="tag">本课口诀</div>
+    <div class="txt">先通分，再计算，<br>能约分的要约分。</div>
+  </div>
+
+  <!-- 3 · 算理 + 分数条 -->
+  <div class="sec-head"><span class="n">1</span>为什么要通分<span class="en">THE REASON</span></div>
+  <div class="panel why">
+    <div class="lead">分母不同，就是<b>计数单位不同</b>——一个是三等份、一个是四等份，<b>不能直接加</b>。</div>
+    <div class="bars">
+      <div class="barrow">
+        <div class="barlbl"><span class="frac a"><span class="num">1</span><span class="den">3</span></span></div>
+        <div class="bar"><i class="on"></i><i></i><i></i></div>
+      </div>
+      <div class="barrow">
+        <div class="barlbl"><span class="frac b"><span class="num">1</span><span class="den">4</span></span></div>
+        <div class="bar"><i class="on2"></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="barrow">
+        <div class="barlbl">都切成 12 份</div>
+        <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="barrow">
+        <div class="barlbl">&nbsp;</div>
+        <div class="bar"><i class="on2"></i><i class="on2"></i><i class="on2"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+    <div class="note">切成 12 份后：<span class="frac a"><span class="num">1</span><span class="den">3</span></span> <b>=</b> <span class="frac a"><span class="num">4</span><span class="den">12</span></span>，<span class="frac b"><span class="num">1</span><span class="den">4</span></span> <b>=</b> <span class="frac b"><span class="num">3</span><span class="den">12</span></span>。12 是 3 和 4 的<b>最小公倍数</b>。</div>
+  </div>
+
+  <!-- 4 · 例题三步 -->
+  <div class="sec-head"><span class="n">2</span>三步走 · 以 <span class="frac"><span class="num">1</span><span class="den">3</span></span> + <span class="frac"><span class="num">1</span><span class="den">4</span></span> 为例<span class="en">3 STEPS</span></div>
+  <div class="steps">
+    <div class="steprow">
+      <div class="stepno">1</div>
+      <div class="stepname">通分</div>
+      <div class="stepbody">
+        <span class="frac a"><span class="num">1</span><span class="den">3</span></span><span>+</span>
+        <span class="frac a"><span class="num">1</span><span class="den">4</span></span><span>=</span>
+        <span class="frac a"><span class="num">4</span><span class="den">12</span></span><span>+</span>
+        <span class="frac a"><span class="num">3</span><span class="den">12</span></span>
+      </div>
+      <div class="stepdesc">分子分母<br>同乘一个数</div>
+    </div>
+    <div class="steprow">
+      <div class="stepno">2</div>
+      <div class="stepname">计算</div>
+      <div class="stepbody">
+        <span class="frac a"><span class="num">4</span><span class="den">12</span></span><span>+</span>
+        <span class="frac a"><span class="num">3</span><span class="den">12</span></span><span>=</span>
+        <span class="frac a"><span class="num">7</span><span class="den">12</span></span>
+      </div>
+      <div class="stepdesc">分母不变<br>分子相加减</div>
+    </div>
+    <div class="steprow">
+      <div class="stepno">3</div>
+      <div class="stepname">约分</div>
+      <div class="stepbody">
+        <span class="frac b"><span class="num">7</span><span class="den">12</span></span>
+        <span style="font-size:26px;color:var(--ink-2)">7 和 12 只有公因数 1</span>
+      </div>
+      <div class="stepdesc">已是最简<br>不用再约</div>
+    </div>
+  </div>
+
+  <!-- 5 · 易错点 -->
+  <div class="sec-head"><span class="n">3</span>三个坑，别踩<span class="en">WATCH OUT</span></div>
+  <div class="traps">
+    <div class="trap">
+      <div class="t">公分母找错</div>
+      <div class="bad"><span class="lbl">错解</span>取 3×4×2=24</div>
+      <div class="fix"><span class="lbl">正解</span>应为 12（最小公倍数）</div>
+    </div>
+    <div class="trap">
+      <div class="t">忘记约分</div>
+      <div class="bad"><span class="lbl">错解</span>答案写 <span class="frac"><span class="num">4</span><span class="den">8</span></span></div>
+      <div class="fix"><span class="lbl">正解</span>要约成 <span class="frac"><span class="num">1</span><span class="den">2</span></span>（最简）</div>
+    </div>
+    <div class="trap">
+      <div class="t">只通分母，忘通分子</div>
+      <div class="bad"><span class="lbl">错解</span><span class="frac"><span class="num">1</span><span class="den">2</span></span> 写成 <span class="frac"><span class="num">1</span><span class="den">4</span></span>+<span class="frac"><span class="num">1</span><span class="den">4</span></span></div>
+      <div class="fix"><span class="lbl">正解</span><span class="frac"><span class="num">1</span><span class="den">2</span></span> = <span class="frac"><span class="num">2</span><span class="den">4</span></span> = <span class="frac"><span class="num">3</span><span class="den">6</span></span></div>
+    </div>
+  </div>
+
+  <!-- 6 · 课后一练 -->
+  <div class="quiz">
+    <div class="q">
+      <span>课后一练</span>
+      <span class="frac" style="color:#ffd9a8"><span class="num">5</span><span class="den">6</span></span>
+      <span>−</span>
+      <span class="frac" style="color:#ffd9a8"><span class="num">1</span><span class="den">4</span></span>
+      <span>=</span>
+    </div>
+    <div class="ans">
+      <div class="k">答案</div>
+      <div class="v"><span class="frac"><span class="num">7</span><span class="den">12</span></span></div>
+    </div>
+  </div>
+
+  <!-- 7 · 页脚 -->
+  <div class="foot">
+    <div class="l">先通分 · 再计算 · 能约分的要约分</div>
+    <div class="r">把这张卡存到手机，碎片时间翻一翻</div>
+  </div>
+
+</div>
+</body>
+</html>

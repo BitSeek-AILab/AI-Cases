@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>设计美学 30 skill 榜单站 · 案例库</title>
+<meta name="description" content="30 条设计美学 skill 素材，做成一个可筛选、可复制的目录站，单文件双击即开、发出去就能用。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>编程场景</span><span class="sep">/</span><span>07</span>
+    </nav>
+    <h1>设计美学 30 skill 榜单站</h1>
+    <div class="readout">
+      <span><b>场景</b>编程</span>
+      <span><b>编号</b>07</span>
+      <span><b>形态</b>单文件 HTML</span>
+      <span><b>大小</b>1.34 MB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 案例编程-07 设计美学榜单站（编程网页 / CodexAI）</h1>
+<blockquote>依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<blockquote>出处：<code>案例清单.md</code> 编程-07 条目（所属材料 <strong>M7</strong> = <code>design-aesthetic-top-30-skills….rar</code>）</blockquote>
+<blockquote>素材：成品 <code>design-aesthetic-top-30-skills\index.html</code>（65,760 B）+ 数据 <code>data/skills.json</code>（30 条）+ <code>assets/previews/</code>（30 张 PNG，7.37 MB）</blockquote>
+<hr>
+<h2>一、痛点原句（引用材料原文）</h2>
+<p><strong>位置1 · 成品页面的自述（<code>index.html</code> 首屏 lead 段，逐字）：</strong></p>
+<blockquote>「这份榜单按设计用途重新整理：你可以快速看出它是用来做网页 UI、生图海报、HTML PPT、品牌设计系统，还是简历作品集。」</blockquote>
+<p><strong>位置2 · 案例清单给出的痛点定位（编程-07 条目）：</strong></p>
+<blockquote><code>原文</code>（其页面自述）「这份榜单按设计用途重新整理：你可以快速看出它是用来做网页 UI、生图海报、HTML PPT、品牌设计系统，还是简历作品集。」</blockquote>
+<blockquote><strong>补全</strong>：手上有 30 条素材要做成<strong>可浏览、可筛选、可复制的展示站</strong>，<strong>不会写前端，用建站工具又绑死平台</strong>。真正想要的是&quot;<strong>一个单文件、能发出去的目录站</strong>&quot;。</blockquote>
+<p><strong>位置3 · 领域总纲（案例清单·领域三 开篇，M5 结束语）：</strong></p>
+<blockquote>「不要在旧赛道卷速度…把&quot;效率&quot;误当成&quot;机会&quot;」</blockquote>
+<blockquote>「先看市场，再练能力」「作品比简历更快说话。<strong>先做出一个能被别人打开的东西。</strong>」</blockquote>
+<h2>二、痛点主体</h2>
+<ul>
+<li><strong>谁</strong>：手里攒了一批 AI skill / 工具 / 素材，想整理成&quot;能发出去的一份东西&quot;的人——本案例具体化为<strong>帮白无常整理这份设计美学榜单的人</strong>（做内容、做社群、做课程资料的人，不写前端）。</li>
+<li><strong>场景</strong>：手上已经有 <strong>30 条结构化数据</strong>（<code>skills.json</code>，每条含名次、名称、分类、仓库、星标、适合做什么、审美要点、本地路径）+ <strong>30 张预览图</strong>。要把它们变成&quot;别人能打开、能翻、能筛、能复制走&quot;的一页。</li>
+<li><strong>交付对象</strong>：发到群里 / 发给同事 / 当课程配套资料的人。<strong>&quot;能发出去&quot;是硬指标</strong>。</li>
+</ul>
+<h2>三、旧做法的代价（绑定时长 / 动作量）</h2>
+<p>对着成品实测出来的三条代价：</p>
+<table><thead><tr><th>旧做法</th><th>具体代价（可核算）</th></tr></thead><tbody><tr><td>手工写 HTML 卡片</td><td>原成品 <code>index.html</code> 里 <strong>30 张卡片是逐字手写死的</strong>（脚本实测：<code>&lt;article class=&quot;skill-card&quot;&gt;</code> 出现 <strong>30</strong> 次，无数据渲染）。<strong>改一条要动 HTML，改 30 条要动 30 处。</strong></td></tr><tr><td>图片靠外部文件</td><td>30 张预览图是 <strong>30 个独立 PNG</strong>（<code>assets/previews/*.png</code>，合计 <strong>7.37 MB</strong>），HTML 里 30 个 <code>&lt;img src&gt;</code> <strong>全是外链，0 个内联</strong>。发出去必须连 <code>assets/</code> 一起打包——<strong>少一个目录，整页图全空</strong>。</td></tr><tr><td>用建站工具</td><td>拖拽式建站能出筛选和卡片，但<strong>绑死平台</strong>：导出受限、域名绑死、样式改不动，且&quot;发出去&quot;变成&quot;发一个平台链接&quot;，<strong>不是一份可以随手转发的文件</strong>。</td></tr></tbody></table>
+<p><strong>真正想要的结果</strong>：一个 <code>.html</code> 文件，双击能开、发出去就能用——<strong>不用配环境、不用带目录、不用登录平台</strong>。</p>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<ol>
+<li><strong>单文件</strong>：拷走<strong>这一个</strong> HTML 就能发给别人，不依赖 <code>assets/</code>、不依赖网络、不依赖平台。</li>
+<li><strong>可浏览</strong>：30 条一眼看得清&quot;哪条是干什么用的&quot;，卡片网格 + 预览图 + 名次。</li>
+<li><strong>可筛选</strong>：6 个分类能一键收敛（网页 UI / PPT / 生图 / 品牌 / 简历 / 人像）。</li>
+<li><strong>可复制</strong>：每条能一键把来源链接带走，不用手动选中长 URL。</li>
+<li><strong>移动端可用</strong>：手机上（390px）能读、不横向滚动、按钮点得到——因为&quot;发出去&quot;的主要场景就是<strong>别人用手机点开看</strong>。</li>
+</ol>
+<h2>五、【补全】</h2>
+<p>【补全】案例清单已经点出&quot;要单文件、能发出去&quot;，但<strong>没讲透&quot;为什么值得解决&quot;</strong>，这里补三句：</p>
+<ul>
+<li><strong>这类&quot;目录站&quot;的价值不在页面本身，在于它能不能被传下去。</strong> 30 条素材如果只能在自己电脑上打开，它就只是一份私人笔记；一旦变成一个能随手转发的单文件，别人才可能真的用它——这正好落回 M5 那句「先做出一个能被别人打开的东西」。</li>
+<li><strong>痛点不是&quot;不会写前端&quot;，而是&quot;不敢改&quot;。</strong> 手写死的 30 张卡片有个隐蔽代价：<strong>你不敢动它</strong>。名次变了、图换了、分类要调一个，成本是重新做一遍。所以复刻的真正目标不是&quot;再做一个好看的页面&quot;，而是<strong>把结构从&quot;手写内容&quot;变成&quot;数据驱动&quot;</strong>——数据改一行，页面跟着变。</li>
+<li><strong>&quot;内联&quot;不是炫技，是分发的必要条件。</strong> 7.37 MB 的图压到 0.95 MB 再内联，换来的是一句&quot;发这一个文件就行&quot;。这一步是痛点能不能被真正解决的<strong>分水岭</strong>：不做内联，&quot;发出去&quot;就永远要附带一句&quot;记得把 assets 文件夹也发上&quot;。</li>
+</ul>
+<p>—— 这一点也解释了为什么验收点里&quot;图片加载&quot;要和&quot;单文件&quot;绑在一起看：<strong>图在单文件里能加载出来，才算真的解决。</strong></p>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>：用户要的是&quot;<strong>一份能发出去、随手能用的目录站</strong>&quot;（结果：别人打开就能用）→ 所以把数据、图、交互全部收进一个文件。 ❌ 非&quot;工具理性&quot;：不是&quot;我有个 index.html 所以找个办法优化它&quot;。工具理性的陷阱在这类任务里非常具体——<strong>去研究前端框架、纠结用 Grid 还是 Masonry、比较哪个建站平台的模板好看</strong>，而真正该先回答的是&quot;发给谁、他打开后要能干什么&quot;。</p>
+<h2>七、跨章线索</h2>
+<ul>
+<li>回扣第01章总纲（问答式 AI vs 能执行干活的 AI）：本案例里 AI 不是陪你讨论&quot;用什么配色好看&quot;，而是<strong>直接把那个能打开的文件做出来</strong>。</li>
+<li>呼应 M4 P15 六条交付自检（内容真实 / 手机可读 / 交互完整 / 风格统一 / 授权清楚 / 能打开）——本案例的验收点逐条对上了这六条（见 <code>任务卡.md</code>）。</li>
+<li>呼应 M5「作品比简历更快说话」：单文件、能发出去，就是&quot;能说话&quot;的最低门槛。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 一档：iframe 内嵌单文件 HTML（可交互） -->
+    <section class="stage tier-a">
+      <header class="stage-head">
+        <h2 class="k">产物 · 可直接交互</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases/bian-cheng-07/artifact/白无常设计美学30skill榜单站.html" target="_blank" rel="noopener">新窗口打开 ↗</a>
+          <a class="btn-ghost" href="../assets/cases/bian-cheng-07/artifact/白无常设计美学30skill榜单站.html" download>下载 HTML</a>
+        </div>
+      </header>
+      <div class="stage-frame">
+        <iframe src="../assets/cases/bian-cheng-07/artifact/白无常设计美学30skill榜单站.html" title="设计美学 30 skill 榜单站 在线预览" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      <p class="stage-note">在框内直接交互，或点"新窗口打开"占满浏览器体验完整版。</p>
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">质检图</h2><span class="stage-note" style="border:0;padding:0">构建自核验截图，点击查看原图</span></header>
+      <div class="qc-grid">
+        <figure><a href="../assets/cases/bian-cheng-07/qc/desktop-1440-cardbody.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/desktop-1440-cardbody.png" alt="desktop 1440 cardbody" loading="lazy" decoding="async"></a><figcaption>desktop 1440 cardbody</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/desktop-1440-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/desktop-1440-firstscreen.png" alt="desktop 1440 firstscreen" loading="lazy" decoding="async"></a><figcaption>desktop 1440 firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/desktop-1440-footer.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/desktop-1440-footer.png" alt="desktop 1440 footer" loading="lazy" decoding="async"></a><figcaption>desktop 1440 footer</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/desktop-1440-fullpage.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/desktop-1440-fullpage.png" alt="desktop 1440 fullpage" loading="lazy" decoding="async"></a><figcaption>desktop 1440 fullpage</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/filter-PPT-HTML Slides.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/filter-PPT-HTML Slides.png" alt="filter PPT HTML Slides" loading="lazy" decoding="async"></a><figcaption>filter PPT HTML Slides</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/filter-海报-图片生成.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/filter-海报-图片生成.png" alt="filter 海报 图片生成" loading="lazy" decoding="async"></a><figcaption>filter 海报 图片生成</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/filter-网页-UI 设计.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/filter-网页-UI 设计.png" alt="filter 网页 UI 设计" loading="lazy" decoding="async"></a><figcaption>filter 网页 UI 设计</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/mobile-390-cardbody.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/mobile-390-cardbody.png" alt="mobile 390 cardbody" loading="lazy" decoding="async"></a><figcaption>mobile 390 cardbody</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/mobile-390-filtered.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/mobile-390-filtered.png" alt="mobile 390 filtered" loading="lazy" decoding="async"></a><figcaption>mobile 390 filtered</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/mobile-390-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/mobile-390-firstscreen.png" alt="mobile 390 firstscreen" loading="lazy" decoding="async"></a><figcaption>mobile 390 firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-07/qc/mobile-390-fullpage.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-07/qc/mobile-390-fullpage.png" alt="mobile 390 fullpage" loading="lazy" decoding="async"></a><figcaption>mobile 390 fullpage</figcaption></figure>
+      </div>
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/verify_site_log.txt" download><span>verify_site_log.txt</span><span class="sz">3 KB</span></a></li><li><a href="../assets/cases//artifact/产物说明.md" download><span>产物说明.md</span><span class="sz">6 KB</span></a></li><li><a href="../assets/cases//artifact/白无常设计美学30skill榜单站.html" download><span>白无常设计美学30skill榜单站.html</span><span class="sz">1.34 MB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>素材与数据核对<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>单文件实现<span class="stage-state">✓</span></li><li><span class="stage-no">3</span>功能与视觉核验<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/bian-cheng-07/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-07/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-07/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-07/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-07/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

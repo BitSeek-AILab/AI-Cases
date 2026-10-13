@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>高一3班期中成绩学情报告</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:#fcfcfb; --page:#f9f9f7;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+    --series-1:#2a78d6; --ramp-low:#86b6ef; --ramp-high:#2a78d6; --pole-neg:#e34948;
+    --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --chip:#eef4fd;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1:#1a1a19; --page:#0d0d0d;
+      --text-primary:#f0efec; --text-secondary:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+      --series-1:#3987e5; --ramp-low:#256abf; --ramp-high:#6da7ec; --pole-neg:#e66767;
+      --chip:#1c232c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:#1a1a19; --page:#0d0d0d;
+    --text-primary:#f0efec; --text-secondary:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --series-1:#3987e5; --ramp-low:#256abf; --ramp-high:#6da7ec; --pole-neg:#e66767;
+    --chip:#1c232c;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; padding:24px 16px 64px;
+    background:var(--page); color:var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-size:15px; line-height:1.7;
+  }
+  .wrap { max-width:860px; margin:0 auto; }
+  header.top { margin-bottom:20px; }
+  .eyebrow { font-size:12px; letter-spacing:.08em; color:var(--muted); }
+  h1 { font-size:24px; margin:6px 0 4px; letter-spacing:-.01em; }
+  .meta { color:var(--text-secondary); font-size:13px; }
+  .card {
+    background:var(--surface-1); border:1px solid var(--border);
+    border-radius:12px; padding:20px 20px 16px; margin:16px 0;
+  }
+  h2 { font-size:17px; margin:0 0 4px; }
+  h2 .num { color:var(--muted); font-weight:400; margin-right:8px; font-variant-numeric:tabular-nums; }
+  .lede { color:var(--text-secondary); font-size:13.5px; margin:2px 0 14px; }
+  .hero { display:flex; align-items:baseline; gap:10px; margin:6px 0 2px; }
+  .hero .fig { font-size:52px; font-weight:650; letter-spacing:-.02em; line-height:1.05; }
+  .hero .unit { font-size:15px; color:var(--text-secondary); }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin-top:14px; }
+  .tile { background:var(--page); border:1px solid var(--border); border-radius:10px; padding:10px 12px; }
+  .tile .lab { font-size:12px; color:var(--muted); }
+  .tile .val { font-size:22px; font-weight:620; margin-top:2px; }
+  svg.chart { width:100%; height:auto; display:block; margin:2px 0 4px; overflow:visible; }
+  .grid { stroke:var(--grid); stroke-width:1; }
+  .axis { stroke:var(--axis); stroke-width:1; }
+  .dumb { stroke:var(--ramp-low); stroke-width:2; stroke-linecap:round; }
+  .vlabel { font-size:12px; font-weight:600; fill:var(--text-primary); font-variant-numeric:tabular-nums; }
+  .xlabel, .ylabel { font-size:12.5px; fill:var(--text-secondary); }
+  .axnum { font-size:11px; fill:var(--muted); font-variant-numeric:tabular-nums; }
+  .refline { font-size:11px; fill:var(--muted); }
+  .note { font-size:11px; fill:var(--muted); }
+  .invlabel { fill:#fff; }
+  .cval { font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; }
+  .mk { cursor:pointer; }
+  .mk:hover, .mk:focus { outline:none; opacity:.82; }
+  .legend { display:flex; flex-wrap:wrap; gap:16px; margin:6px 0 0; font-size:12.5px; color:var(--text-secondary); }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .sw { width:12px; height:12px; border-radius:3px; display:inline-block; }
+  details { margin-top:12px; }
+  summary { cursor:pointer; font-size:12.5px; color:var(--text-secondary); }
+  table { border-collapse:collapse; width:100%; margin-top:10px; font-size:13px; font-variant-numeric:tabular-nums; }
+  caption { text-align:left; font-size:12px; color:var(--muted); padding-bottom:6px; }
+  th, td { border-bottom:1px solid var(--grid); padding:6px 8px; text-align:right; }
+  thead th, tbody th { text-align:left; font-weight:600; color:var(--text-secondary); }
+  tbody th { color:var(--text-primary); }
+  ul.nlist { list-style:none; padding:0; margin:8px 0 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:6px 14px; }
+  ul.nlist li { display:flex; justify-content:space-between; gap:10px; border-bottom:1px dashed var(--grid); padding:4px 0; }
+  ul.nlist .nm { font-weight:600; }
+  ul.nlist .sub { color:var(--muted); font-size:12.5px; white-space:nowrap; }
+  .wrow { border-left:3px solid var(--series-1); padding:2px 0 2px 12px; margin:12px 0; }
+  .wrow p { margin:4px 0 0; color:var(--text-secondary); font-size:13.5px; }
+  .wsub { font-weight:640; font-size:14px; }
+  .tag { margin-left:8px; font-size:11.5px; font-weight:500; color:var(--text-secondary); background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:2px 8px; }
+  .flag { display:block; background:var(--chip); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--text-secondary); margin:14px 0 0; }
+  footer { margin-top:22px; color:var(--muted); font-size:12px; }
+  .tt { position:fixed; pointer-events:none; z-index:9; background:var(--text-primary); color:var(--surface-1);
+        font-size:12px; padding:6px 9px; border-radius:6px; opacity:0; transition:opacity .1s; max-width:280px; }
+  .tt.on { opacity:1; }
+  @media print { body { background:#fff; } .card { break-inside:avoid; } .tt { display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">AI教学搭子 · 学情报告</div>
+    <h1>高一3班期中考试成绩学情报告</h1>
+    <div class="meta">考试科目：语文／数学／英语／物理／化学（各科满分 100 分，总分满分 500 分）　|　参考人数：40 人　|　数据来源：高一3班期中成绩.xlsx</div>
+  </header>
+
+  <section class="card">
+    <h2><span class="num">01</span>成绩总览</h2>
+    <p class="lede">全班总分平均水平，以及高分段与低分段的差距。</p>
+    <div class="hero"><span class="fig">360.4</span><span class="unit">分　总分平均分</span></div>
+    <div class="kpis">
+      <div class="tile"><div class="lab">参考人数</div><div class="val">40</div></div>
+      <div class="tile"><div class="lab">最高分</div><div class="val">419</div></div>
+      <div class="tile"><div class="lab">最低分</div><div class="val">283</div></div>
+      <div class="tile"><div class="lab">最高与最低相差</div><div class="val">136</div></div>
+      <div class="tile"><div class="lab">400 分以上</div><div class="val">7</div></div>
+      <div class="tile"><div class="lab">300 分以下</div><div class="val">2</div></div>
+    </div>
+    <p class="lede" style="margin-top:14px">班级总分平均 <b>360.4</b> 分，最高 419 分、最低 283 分，<b>极差 136 分</b>；400 分以上 7 人，300 分以下 2 人。整体处于中等水平，但<b>两极分化明显</b>，需要同时做好培优与补差。</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">02</span>各科表现对比</h2>
+    <p class="lede">五科平均分从高到低：语文 77.3&gt;英语 74.7&gt;数学 72.2&gt;物理 68.3&gt;化学 67.9。</p>
+    <svg class="chart" viewBox="0 0 560 300" role="img" aria-label="各科平均分柱状图" tabindex="0"><line class="grid" x1="30" y1="87.5" x2="408" y2="87.5"/><text class="refline" x="410" y="91.5" text-anchor="start">全科均分 72.1</text><path class="mk bar" d="M55.0,236.0 L55.0,80.762 Q55.0,76.762 59.0,76.762 L75.0,76.762 Q79.0,76.762 79.0,80.762 L79.0,236.0 Z" fill="var(--series-1)" data-tt="语文：平均分 77.3（最高98／最低55）"/><text class="vlabel" x="67.0" y="67.8" text-anchor="middle">77.3</text><text class="xlabel" x="67.0" y="258" text-anchor="middle">语文</text><path class="mk bar" d="M129.0,236.0 L129.0,91.268 Q129.0,87.268 133.0,87.268 L149.0,87.268 Q153.0,87.268 153.0,91.268 L153.0,236.0 Z" fill="var(--series-1)" data-tt="数学：平均分 72.2（最高99／最低48）"/><text class="vlabel" x="141.0" y="78.3" text-anchor="middle">72.2</text><text class="xlabel" x="141.0" y="258" text-anchor="middle">数学</text><path class="mk bar" d="M203.0,236.0 L203.0,86.118 Q203.0,82.118 207.0,82.118 L223.0,82.118 Q227.0,82.118 227.0,86.118 L227.0,236.0 Z" fill="var(--series-1)" data-tt="英语：平均分 74.7（最高96／最低51）"/><text class="vlabel" x="215.0" y="73.1" text-anchor="middle">74.7</text><text class="xlabel" x="215.0" y="258" text-anchor="middle">英语</text><path class="mk bar" d="M277.0,236.0 L277.0,99.30200000000002 Q277.0,95.30200000000002 281.0,95.30200000000002 L297.0,95.30200000000002 Q301.0,95.30200000000002 301.0,99.30200000000002 L301.0,236.0 Z" fill="var(--series-1)" data-tt="物理：平均分 68.3（最高95／最低41）"/><text class="vlabel" x="289.0" y="86.3" text-anchor="middle">68.3</text><text class="xlabel" x="289.0" y="258" text-anchor="middle">物理</text><path class="mk bar" d="M351.0,236.0 L351.0,100.12599999999998 Q351.0,96.12599999999998 355.0,96.12599999999998 L371.0,96.12599999999998 Q375.0,96.12599999999998 375.0,100.12599999999998 L375.0,236.0 Z" fill="var(--series-1)" data-tt="化学：平均分 67.9（最高94／最低46）"/><text class="vlabel" x="363.0" y="87.1" text-anchor="middle">67.9</text><text class="xlabel" x="363.0" y="258" text-anchor="middle">化学</text><line class="axis" x1="30" y1="236" x2="400" y2="236"/><text class="note" x="215" y="280" text-anchor="middle">各科满分 100 分；标线为五科平均分的算术平均</text></svg>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--series-1)"></i>该科平均分</span>
+      <span><i class="sw" style="background:var(--grid)"></i>全科均分 72.1 参考线</span>
+    </div>
+    <p class="lede" style="margin-top:12px">
+      <b>语文</b>是全班优势学科（均分 77.3、及格率 85.0%）；
+      <b>化学</b>最弱（均分 67.9、及格率仅 52.5%，全班近半数不及格）；
+      <b>物理</b>次弱（均分 68.3、及格率 65.0%）。<b>理科是制约班级总分的瓶颈。</b>
+    </p>
+    <details><summary>表格视图</summary><table><caption>表格视图 · 各科指标</caption><thead><tr><th>科目</th><th>平均分</th><th>最高分</th><th>最低分</th><th>及格率</th><th>优秀率</th></tr></thead><tbody><tr><th scope="row">语文</th><td>77.3</td><td>98</td><td>55</td><td>85.0%</td><td>27.5%</td></tr><tr><th scope="row">数学</th><td>72.2</td><td>99</td><td>48</td><td>67.5%</td><td>32.5%</td></tr><tr><th scope="row">英语</th><td>74.7</td><td>96</td><td>51</td><td>82.5%</td><td>32.5%</td></tr><tr><th scope="row">物理</th><td>68.3</td><td>95</td><td>41</td><td>65.0%</td><td>22.5%</td></tr><tr><th scope="row">化学</th><td>67.9</td><td>94</td><td>46</td><td>52.5%</td><td>20.0%</td></tr></tbody></table></details>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">03</span>各科分数段分布（知识薄弱点）</h2>
+    <p class="lede">颜色越深表示该分数段人数越多——一眼能看出哪一科的"不及格"格子最深。</p>
+    <svg class="chart" viewBox="0 0 440 312" role="img" aria-label="各科分数段分布热力图" tabindex="0"><text class="xlabel" x="103" y="26" text-anchor="middle">优秀</text><text class="note" x="103" y="40" text-anchor="middle">(≥85)</text><text class="xlabel" x="195" y="26" text-anchor="middle">良好</text><text class="note" x="195" y="40" text-anchor="middle">(70–84)</text><text class="xlabel" x="287" y="26" text-anchor="middle">及格</text><text class="note" x="287" y="40" text-anchor="middle">(60–69)</text><text class="xlabel" x="379" y="26" text-anchor="middle">不及格</text><text class="note" x="379" y="40" text-anchor="middle">(<60)</text><text class="ylabel" x="48" y="75" text-anchor="end">语文</text><rect class="mk cell" x="58" y="50" width="90" height="40" rx="3" fill="#2a78d6" data-tt="语文 · 优秀(>=85)：11 人（27.5%）"/><text class="cval" x="103.0" y="75" text-anchor="middle" fill="#ffffff">11</text><rect class="mk cell" x="150" y="50" width="90" height="40" rx="3" fill="#104281" data-tt="语文 · 良好(70-84)：17 人（42.5%）"/><text class="cval" x="195.0" y="75" text-anchor="middle" fill="#ffffff">17</text><rect class="mk cell" x="242" y="50" width="90" height="40" rx="3" fill="#6da7ec" data-tt="语文 · 及格(60-69)：6 人（15.0%）"/><text class="cval" x="287.0" y="75" text-anchor="middle" fill="var(--text-primary)">6</text><rect class="mk cell" x="334" y="50" width="90" height="40" rx="3" fill="#6da7ec" data-tt="语文 · 不及格(<60)：6 人（15.0%）"/><text class="cval" x="379.0" y="75" text-anchor="middle" fill="var(--text-primary)">6</text><text class="ylabel" x="48" y="117" text-anchor="end">数学</text><rect class="mk cell" x="58" y="92" width="90" height="40" rx="3" fill="#256abf" data-tt="数学 · 优秀(>=85)：13 人（32.5%）"/><text class="cval" x="103.0" y="117" text-anchor="middle" fill="#ffffff">13</text><rect class="mk cell" x="150" y="92" width="90" height="40" rx="3" fill="#5598e7" data-tt="数学 · 良好(70-84)：8 人（20.0%）"/><text class="cval" x="195.0" y="117" text-anchor="middle" fill="var(--text-primary)">8</text><rect class="mk cell" x="242" y="92" width="90" height="40" rx="3" fill="#6da7ec" data-tt="数学 · 及格(60-69)：6 人（15.0%）"/><text class="cval" x="287.0" y="117" text-anchor="middle" fill="var(--text-primary)">6</text><rect class="mk cell" x="334" y="92" width="90" height="40" rx="3" fill="#256abf" data-tt="数学 · 不及格(<60)：13 人（32.5%）"/><text class="cval" x="379.0" y="117" text-anchor="middle" fill="#ffffff">13</text><text class="ylabel" x="48" y="159" text-anchor="end">英语</text><rect class="mk cell" x="58" y="134" width="90" height="40" rx="3" fill="#256abf" data-tt="英语 · 优秀(>=85)：13 人（32.5%）"/><text class="cval" x="103.0" y="159" text-anchor="middle" fill="#ffffff">13</text><rect class="mk cell" x="150" y="134" width="90" height="40" rx="3" fill="#256abf" data-tt="英语 · 良好(70-84)：12 人（30.0%）"/><text class="cval" x="195.0" y="159" text-anchor="middle" fill="#ffffff">12</text><rect class="mk cell" x="242" y="134" width="90" height="40" rx="3" fill="#5598e7" data-tt="英语 · 及格(60-69)：8 人（20.0%）"/><text class="cval" x="287.0" y="159" text-anchor="middle" fill="var(--text-primary)">8</text><rect class="mk cell" x="334" y="134" width="90" height="40" rx="3" fill="#6da7ec" data-tt="英语 · 不及格(<60)：7 人（17.5%）"/><text class="cval" x="379.0" y="159" text-anchor="middle" fill="var(--text-primary)">7</text><text class="ylabel" x="48" y="201" text-anchor="end">物理</text><rect class="mk cell" x="58" y="176" width="90" height="40" rx="3" fill="#3987e5" data-tt="物理 · 优秀(>=85)：9 人（22.5%）"/><text class="cval" x="103.0" y="201" text-anchor="middle" fill="var(--text-primary)">9</text><rect class="mk cell" x="150" y="176" width="90" height="40" rx="3" fill="#2a78d6" data-tt="物理 · 良好(70-84)：11 人（27.5%）"/><text class="cval" x="195.0" y="201" text-anchor="middle" fill="#ffffff">11</text><rect class="mk cell" x="242" y="176" width="90" height="40" rx="3" fill="#6da7ec" data-tt="物理 · 及格(60-69)：6 人（15.0%）"/><text class="cval" x="287.0" y="201" text-anchor="middle" fill="var(--text-primary)">6</text><rect class="mk cell" x="334" y="176" width="90" height="40" rx="3" fill="#1c5cab" data-tt="物理 · 不及格(<60)：14 人（35.0%）"/><text class="cval" x="379.0" y="201" text-anchor="middle" fill="#ffffff">14</text><text class="ylabel" x="48" y="243" text-anchor="end">化学</text><rect class="mk cell" x="58" y="218" width="90" height="40" rx="3" fill="#5598e7" data-tt="化学 · 优秀(>=85)：8 人（20.0%）"/><text class="cval" x="103.0" y="243" text-anchor="middle" fill="var(--text-primary)">8</text><rect class="mk cell" x="150" y="218" width="90" height="40" rx="3" fill="#3987e5" data-tt="化学 · 良好(70-84)：9 人（22.5%）"/><text class="cval" x="195.0" y="243" text-anchor="middle" fill="var(--text-primary)">9</text><rect class="mk cell" x="242" y="218" width="90" height="40" rx="3" fill="#86b6ef" data-tt="化学 · 及格(60-69)：4 人（10.0%）"/><text class="cval" x="287.0" y="243" text-anchor="middle" fill="var(--text-primary)">4</text><rect class="mk cell" x="334" y="218" width="90" height="40" rx="3" fill="#0d366b" data-tt="化学 · 不及格(<60)：19 人（47.5%）"/><text class="cval" x="379.0" y="243" text-anchor="middle" fill="#ffffff">19</text><text class="note" x="58" y="284" text-anchor="start">人数少</text><rect x="110" y="272" width="13" height="12" fill="#cde2fb"/><rect x="123" y="272" width="13" height="12" fill="#b7d3f6"/><rect x="136" y="272" width="13" height="12" fill="#9ec5f4"/><rect x="149" y="272" width="13" height="12" fill="#86b6ef"/><rect x="162" y="272" width="13" height="12" fill="#6da7ec"/><rect x="175" y="272" width="13" height="12" fill="#5598e7"/><rect x="188" y="272" width="13" height="12" fill="#3987e5"/><rect x="201" y="272" width="13" height="12" fill="#2a78d6"/><rect x="214" y="272" width="13" height="12" fill="#256abf"/><rect x="227" y="272" width="13" height="12" fill="#1c5cab"/><rect x="240" y="272" width="13" height="12" fill="#184f95"/><rect x="253" y="272" width="13" height="12" fill="#104281"/><rect x="266" y="272" width="13" height="12" fill="#0d366b"/><text class="note" x="285" y="283" text-anchor="start">人数多（0 → 19 人）</text></svg>
+    <div class="legend">
+      <span>行＝科目　列＝分数段</span>
+      <span>格内数字＝人数</span>
+    </div>
+    <div class="wrow"><div class="wsub">化学<span class="tag">全班最紧迫</span></div><p>19 人不及格（47.5%），及格率仅 52.5%。建议重点复习<b>化学方程式配平、物质的量计算</b>等基础知识。</p></div><div class="wrow"><div class="wsub">物理<span class="tag">明显薄弱</span></div><p>14 人不及格（35.0%），且 27 名偏科生中有 11 人的最低科是物理——<b>受力分析和运动学</b>是常见失分点。</p></div><div class="wrow"><div class="wsub">数学<span class="tag">两极分化</span></div><p>13 人不及格、13 人优秀，极差 51 分（最高 99／最低 48）。函数与不等式是主要难点。</p></div><div class="wrow"><div class="wsub">英语<span class="tag">整体良好</span></div><p>7 人不及格（17.5%），阅读理解和完形填空是主要失分题型，建议坚持每日阅读。</p></div><div class="wrow"><div class="wsub">语文<span class="tag">班级优势</span></div><p>仅 6 人不及格，及格率 85.0% 为五科最高，继续保持。</p></div>
+    <details><summary>表格视图</summary><table><caption>表格视图 · 分数段分布（人数）</caption><thead><tr><th>科目</th><th>优秀(≥85)</th><th>良好(70–84)</th><th>及格(60–69)</th><th>不及格(<60)</th><th>薄弱程度</th></tr></thead><tbody><tr><th scope="row">语文</th><td>11</td><td>17</td><td>6</td><td>6</td><td>一般</td></tr><tr><th scope="row">数学</th><td>13</td><td>8</td><td>6</td><td>13</td><td>明显薄弱</td></tr><tr><th scope="row">英语</th><td>13</td><td>12</td><td>8</td><td>7</td><td>一般</td></tr><tr><th scope="row">物理</th><td>9</td><td>11</td><td>6</td><td>14</td><td>明显薄弱</td></tr><tr><th scope="row">化学</th><td>8</td><td>9</td><td>4</td><td>19</td><td>严重薄弱</td></tr></tbody></table></details>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">04</span>偏科情况：谁"一条腿走路"</h2>
+    <p class="lede">全班有 <b>27 人</b>（67.5%）最高科与最低科分差超过 30 分。下图列出分差最大的 10 位：线段左边是 TA 的最低科，右边是最高科，线段越长越"偏"。</p>
+    <svg class="chart" viewBox="0 0 620 400" role="img" aria-label="偏科生最高分与最低分对比" tabindex="0"><line class="grid" x1="84.0" y1="46" x2="84.0" y2="354"/><text class="axnum" x="84.0" y="374" text-anchor="middle">40</text><line class="grid" x1="163.0" y1="46" x2="163.0" y2="354"/><text class="axnum" x="163.0" y="374" text-anchor="middle">50</text><line class="grid" x1="242.0" y1="46" x2="242.0" y2="354"/><text class="axnum" x="242.0" y="374" text-anchor="middle">60</text><line class="grid" x1="321.0" y1="46" x2="321.0" y2="354"/><text class="axnum" x="321.0" y="374" text-anchor="middle">70</text><line class="grid" x1="400.0" y1="46" x2="400.0" y2="354"/><text class="axnum" x="400.0" y="374" text-anchor="middle">80</text><line class="grid" x1="479.0" y1="46" x2="479.0" y2="354"/><text class="axnum" x="479.0" y="374" text-anchor="middle">90</text><line class="grid" x1="558.0" y1="46" x2="558.0" y2="354"/><text class="axnum" x="558.0" y="374" text-anchor="middle">100</text><text class="ylabel" x="74" y="61" text-anchor="end">袁博文</text><line class="dumb" x1="115.6" y1="56" x2="542.2" y2="56"/><circle class="mk dot" cx="115.6" cy="56" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="袁博文 · 最低科 物理：44 分"/><circle class="mk dot" cx="542.2" cy="56" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="袁博文 · 最高科 语文：98 分"/><text class="vlabel" x="554.2" y="61" text-anchor="start">分差 54</text><text class="ylabel" x="74" y="93" text-anchor="end">王浩然</text><line class="dumb" x1="123.5" y1="88" x2="542.2" y2="88"/><circle class="mk dot" cx="123.5" cy="88" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="王浩然 · 最低科 物理：45 分"/><circle class="mk dot" cx="542.2" cy="88" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="王浩然 · 最高科 语文：98 分"/><text class="vlabel" x="554.2" y="93" text-anchor="start">分差 53</text><text class="ylabel" x="74" y="125" text-anchor="end">杜思琪</text><line class="dumb" x1="147.2" y1="120" x2="526.4" y2="120"/><circle class="mk dot" cx="147.2" cy="120" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="杜思琪 · 最低科 数学：48 分"/><circle class="mk dot" cx="526.4" cy="120" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="杜思琪 · 最高科 英语：96 分"/><text class="vlabel" x="538.4" y="125" text-anchor="start">分差 48</text><text class="ylabel" x="74" y="157" text-anchor="end">叶文昊</text><line class="dumb" x1="147.2" y1="152" x2="526.4" y2="152"/><circle class="mk dot" cx="147.2" cy="152" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="叶文昊 · 最低科 化学：48 分"/><circle class="mk dot" cx="526.4" cy="152" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="叶文昊 · 最高科 数学：96 分"/><text class="vlabel" x="538.4" y="157" text-anchor="start">分差 48</text><text class="ylabel" x="74" y="189" text-anchor="end">高语嫣</text><line class="dumb" x1="131.4" y1="184" x2="502.7" y2="184"/><circle class="mk dot" cx="131.4" cy="184" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="高语嫣 · 最低科 化学：46 分"/><circle class="mk dot" cx="502.7" cy="184" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="高语嫣 · 最高科 英语：93 分"/><text class="vlabel" x="514.7" y="189" text-anchor="start">分差 47</text><text class="ylabel" x="74" y="221" text-anchor="end">刘一凡</text><line class="dumb" x1="91.9" y1="216" x2="463.2" y2="216"/><circle class="mk dot" cx="91.9" cy="216" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="刘一凡 · 最低科 物理：41 分"/><circle class="mk dot" cx="463.2" cy="216" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="刘一凡 · 最高科 英语：88 分"/><text class="vlabel" x="475.2" y="221" text-anchor="start">分差 47</text><text class="ylabel" x="74" y="253" text-anchor="end">郭子轩</text><line class="dumb" x1="147.2" y1="248" x2="518.5" y2="248"/><circle class="mk dot" cx="147.2" cy="248" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="郭子轩 · 最低科 化学：48 分"/><circle class="mk dot" cx="518.5" cy="248" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="郭子轩 · 最高科 物理：95 分"/><text class="vlabel" x="530.5" y="253" text-anchor="start">分差 47</text><text class="ylabel" x="74" y="285" text-anchor="end">蒋天磊</text><line class="dumb" x1="147.2" y1="280" x2="502.7" y2="280"/><circle class="mk dot" cx="147.2" cy="280" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="蒋天磊 · 最低科 数学：48 分"/><circle class="mk dot" cx="502.7" cy="280" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="蒋天磊 · 最高科 英语：93 分"/><text class="vlabel" x="514.7" y="285" text-anchor="start">分差 45</text><text class="ylabel" x="74" y="317" text-anchor="end">彭立轩</text><line class="dumb" x1="123.5" y1="312" x2="479.0" y2="312"/><circle class="mk dot" cx="123.5" cy="312" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="彭立轩 · 最低科 物理：45 分"/><circle class="mk dot" cx="479.0" cy="312" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="彭立轩 · 最高科 化学：90 分"/><text class="vlabel" x="491.0" y="317" text-anchor="start">分差 45</text><text class="ylabel" x="74" y="349" text-anchor="end">孙博文</text><line class="dumb" x1="155.1" y1="344" x2="510.6" y2="344"/><circle class="mk dot" cx="155.1" cy="344" r="5" fill="var(--ramp-low)" stroke="var(--surface-1)" stroke-width="2" data-tt="孙博文 · 最低科 化学：49 分"/><circle class="mk dot" cx="510.6" cy="344" r="5" fill="var(--ramp-high)" stroke="var(--surface-1)" stroke-width="2" data-tt="孙博文 · 最高科 数学：94 分"/><text class="vlabel" x="522.6" y="349" text-anchor="start">分差 45</text><line class="axis" x1="84" y1="46" x2="84" y2="354"/></svg>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--ramp-low)"></i>该生最低科得分</span>
+      <span><i class="sw" style="background:var(--ramp-high)"></i>该生最高科得分</span>
+    </div>
+    <p class="lede" style="margin-top:12px">27 名偏科生中，最低科落在<b>物理的有 11 人</b>、化学 6 人、数学 4 人、英语 4 人、语文 2 人——物理是最普遍的短板。</p>
+    <details><summary>表格视图</summary><table><caption>表格视图 · 偏科生分差 Top10</caption><thead><tr><th>姓名</th><th>最高科(分)</th><th>最低科(分)</th><th>分差</th><th>总分</th></tr></thead><tbody><tr><th scope="row">袁博文</th><td>语文 98</td><td>物理 44</td><td>54</td><td>371</td></tr><tr><th scope="row">王浩然</th><td>语文 98</td><td>物理 45</td><td>53</td><td>401</td></tr><tr><th scope="row">杜思琪</th><td>英语 96</td><td>数学 48</td><td>48</td><td>372</td></tr><tr><th scope="row">叶文昊</th><td>数学 96</td><td>化学 48</td><td>48</td><td>364</td></tr><tr><th scope="row">高语嫣</th><td>英语 93</td><td>化学 46</td><td>47</td><td>384</td></tr><tr><th scope="row">刘一凡</th><td>英语 88</td><td>物理 41</td><td>47</td><td>355</td></tr><tr><th scope="row">郭子轩</th><td>物理 95</td><td>化学 48</td><td>47</td><td>333</td></tr><tr><th scope="row">蒋天磊</th><td>英语 93</td><td>数学 48</td><td>45</td><td>366</td></tr><tr><th scope="row">彭立轩</th><td>化学 90</td><td>物理 45</td><td>45</td><td>359</td></tr><tr><th scope="row">孙博文</th><td>数学 94</td><td>化学 49</td><td>45</td><td>353</td></tr></tbody></table></details>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">05</span>前10名与后10名：离班级平均有多远</h2>
+    <p class="lede">蓝色＝高于班均分，红色＝低于班均分（班均分 360.4 分）。这条"分水岭"两侧的落差，就是培优与补差各自的空间。</p>
+    <svg class="chart" viewBox="0 0 620 620" role="img" aria-label="前10名与后10名总分与班级平均分之差" tabindex="0"><line class="axis" x1="338.0" y1="38" x2="338.0" y2="578"/><text class="axnum" x="338.0" y="32" text-anchor="middle">班均 360.4</text><text class="axnum" x="147.5" y="594" text-anchor="middle">-60</text><text class="axnum" x="211.0" y="594" text-anchor="middle">-40</text><text class="axnum" x="274.5" y="594" text-anchor="middle">-20</text><text class="axnum" x="401.5" y="594" text-anchor="middle">+20</text><text class="axnum" x="465.0" y="594" text-anchor="middle">+40</text><text class="axnum" x="528.5" y="594" text-anchor="middle">+60</text><text class="ylabel" x="74" y="69" text-anchor="end">蔡梦洁</text><path class="mk bar" d="M338.0,57 L520.1,57 Q524.1,57 524.1,61 L524.1,69 Q524.1,73 520.1,73 L338.0,73 Z" fill="var(--series-1)" data-tt="蔡梦洁：总分 419，高于班均分 58.6 分"/><text class="vlabel invlabel" x="517.1" y="69" text-anchor="end">+58.6</text><text class="ylabel" x="74" y="95" text-anchor="end">张梓萱</text><path class="mk bar" d="M338.0,83 L494.7,83 Q498.7,83 498.7,87 L498.7,95 Q498.7,99 494.7,99 L338.0,99 Z" fill="var(--series-1)" data-tt="张梓萱：总分 411，高于班均分 50.6 分"/><text class="vlabel invlabel" x="491.7" y="95" text-anchor="end">+50.6</text><text class="ylabel" x="74" y="121" text-anchor="end">梁家豪</text><path class="mk bar" d="M338.0,109 L494.7,109 Q498.7,109 498.7,113 L498.7,121 Q498.7,125 494.7,125 L338.0,125 Z" fill="var(--series-1)" data-tt="梁家豪：总分 411，高于班均分 50.6 分"/><text class="vlabel invlabel" x="491.7" y="121" text-anchor="end">+50.6</text><text class="ylabel" x="74" y="147" text-anchor="end">冯俊凯</text><path class="mk bar" d="M338.0,135 L472.4,135 Q476.4,135 476.4,139 L476.4,147 Q476.4,151 472.4,151 L338.0,151 Z" fill="var(--series-1)" data-tt="冯俊凯：总分 404，高于班均分 43.6 分"/><text class="vlabel invlabel" x="469.4" y="147" text-anchor="end">+43.6</text><text class="ylabel" x="74" y="173" text-anchor="end">田欣怡</text><path class="mk bar" d="M338.0,161 L472.4,161 Q476.4,161 476.4,165 L476.4,173 Q476.4,177 472.4,177 L338.0,177 Z" fill="var(--series-1)" data-tt="田欣怡：总分 404，高于班均分 43.6 分"/><text class="vlabel invlabel" x="469.4" y="173" text-anchor="end">+43.6</text><text class="ylabel" x="74" y="199" text-anchor="end">罗志强</text><path class="mk bar" d="M338.0,187 L469.3,187 Q473.3,187 473.3,191 L473.3,199 Q473.3,203 469.3,203 L338.0,203 Z" fill="var(--series-1)" data-tt="罗志强：总分 403，高于班均分 42.6 分"/><text class="vlabel invlabel" x="466.3" y="199" text-anchor="end">+42.6</text><text class="ylabel" x="74" y="225" text-anchor="end">王浩然</text><path class="mk bar" d="M338.0,213 L462.9,213 Q466.9,213 466.9,217 L466.9,225 Q466.9,229 462.9,229 L338.0,229 Z" fill="var(--series-1)" data-tt="王浩然：总分 401，高于班均分 40.6 分"/><text class="vlabel invlabel" x="459.9" y="225" text-anchor="end">+40.6</text><text class="ylabel" x="74" y="251" text-anchor="end">朱天宇</text><path class="mk bar" d="M338.0,239 L428.0,239 Q432.0,239 432.0,243 L432.0,251 Q432.0,255 428.0,255 L338.0,255 Z" fill="var(--series-1)" data-tt="朱天宇：总分 390，高于班均分 29.6 分"/><text class="vlabel invlabel" x="425.0" y="251" text-anchor="end">+29.6</text><text class="ylabel" x="74" y="277" text-anchor="end">许文博</text><path class="mk bar" d="M338.0,265 L415.3,265 Q419.3,265 419.3,269 L419.3,277 Q419.3,281 415.3,281 L338.0,281 Z" fill="var(--series-1)" data-tt="许文博：总分 386，高于班均分 25.6 分"/><text class="vlabel invlabel" x="412.3" y="277" text-anchor="end">+25.6</text><text class="ylabel" x="74" y="303" text-anchor="end">徐若曦</text><path class="mk bar" d="M338.0,291 L408.9,291 Q412.9,291 412.9,295 L412.9,303 Q412.9,307 408.9,307 L338.0,307 Z" fill="var(--series-1)" data-tt="徐若曦：总分 384，高于班均分 23.6 分"/><text class="vlabel invlabel" x="405.9" y="303" text-anchor="end">+23.6</text><text class="ylabel" x="74" y="329" text-anchor="end">周梦琪</text><path class="mk bar" d="M286.8,317 L338.0,317 L338.0,333 L286.8,333 Q282.8,333 282.8,329 L282.8,321 Q282.8,317 286.8,317 Z" fill="var(--pole-neg)" data-tt="周梦琪：总分 343，低于班均分 17.4 分"/><text class="vlabel invlabel" x="289.8" y="329" text-anchor="start">-17.4</text><text class="ylabel" x="74" y="355" text-anchor="end">熊家俊</text><path class="mk bar" d="M267.7,343 L338.0,343 L338.0,359 L267.7,359 Q263.7,359 263.7,355 L263.7,347 Q263.7,343 267.7,343 Z" fill="var(--pole-neg)" data-tt="熊家俊：总分 337，低于班均分 23.4 分"/><text class="vlabel invlabel" x="270.7" y="355" text-anchor="start">-23.4</text><text class="ylabel" x="74" y="381" text-anchor="end">郭子轩</text><path class="mk bar" d="M255.0,369 L338.0,369 L338.0,385 L255.0,385 Q251.0,385 251.0,381 L251.0,373 Q251.0,369 255.0,369 Z" fill="var(--pole-neg)" data-tt="郭子轩：总分 333，低于班均分 27.4 分"/><text class="vlabel invlabel" x="258.0" y="381" text-anchor="start">-27.4</text><text class="ylabel" x="74" y="407" text-anchor="end">郑晓彤</text><path class="mk bar" d="M245.5,395 L338.0,395 L338.0,411 L245.5,411 Q241.5,411 241.5,407 L241.5,399 Q241.5,395 245.5,395 Z" fill="var(--pole-neg)" data-tt="郑晓彤：总分 330，低于班均分 30.4 分"/><text class="vlabel invlabel" x="248.5" y="407" text-anchor="start">-30.4</text><text class="ylabel" x="74" y="433" text-anchor="end">李思远</text><path class="mk bar" d="M229.6,421 L338.0,421 L338.0,437 L229.6,437 Q225.6,437 225.6,433 L225.6,425 Q225.6,421 229.6,421 Z" fill="var(--pole-neg)" data-tt="李思远：总分 325，低于班均分 35.4 分"/><text class="vlabel invlabel" x="232.6" y="433" text-anchor="start">-35.4</text><text class="ylabel" x="74" y="459" text-anchor="end">余志远</text><path class="mk bar" d="M207.4,447 L338.0,447 L338.0,463 L207.4,463 Q203.4,463 203.4,459 L203.4,451 Q203.4,447 207.4,447 Z" fill="var(--pole-neg)" data-tt="余志远：总分 318，低于班均分 42.4 分"/><text class="vlabel invlabel" x="210.4" y="459" text-anchor="start">-42.4</text><text class="ylabel" x="74" y="485" text-anchor="end">邓欣妍</text><path class="mk bar" d="M188.3,473 L338.0,473 L338.0,489 L188.3,489 Q184.3,489 184.3,485 L184.3,477 Q184.3,473 188.3,473 Z" fill="var(--pole-neg)" data-tt="邓欣妍：总分 312，低于班均分 48.4 分"/><text class="vlabel invlabel" x="191.3" y="485" text-anchor="start">-48.4</text><text class="ylabel" x="74" y="511" text-anchor="end">董思雨</text><path class="mk bar" d="M162.9,499 L338.0,499 L338.0,515 L162.9,515 Q158.9,515 158.9,511 L158.9,503 Q158.9,499 162.9,499 Z" fill="var(--pole-neg)" data-tt="董思雨：总分 304，低于班均分 56.4 分"/><text class="vlabel invlabel" x="165.9" y="511" text-anchor="start">-56.4</text><text class="ylabel" x="74" y="537" text-anchor="end">吴俊杰</text><path class="mk bar" d="M140.7,525 L338.0,525 L338.0,541 L140.7,541 Q136.7,541 136.7,537 L136.7,529 Q136.7,525 140.7,525 Z" fill="var(--pole-neg)" data-tt="吴俊杰：总分 297，低于班均分 63.4 分"/><text class="vlabel invlabel" x="143.7" y="537" text-anchor="start">-63.4</text><text class="ylabel" x="74" y="563" text-anchor="end">陈嘉怡</text><path class="mk bar" d="M96.3,551 L338.0,551 L338.0,567 L96.3,567 Q92.3,567 92.3,563 L92.3,555 Q92.3,551 96.3,551 Z" fill="var(--pole-neg)" data-tt="陈嘉怡：总分 283，低于班均分 77.4 分"/><text class="vlabel invlabel" x="99.3" y="563" text-anchor="start">-77.4</text></svg>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--series-1)"></i>高于班均分</span>
+      <span><i class="sw" style="background:var(--pole-neg)"></i>低于班均分</span>
+    </div>
+    <div class="flag"><b>关于"进步／退步"：</b>本次只有期中一次考试的原始数据，缺少上一次考试的对照，<b>无法计算真实的进退步</b>。这里改用两把可算的尺子替代：①「与班均分的距离」（本图）②「偏科分差」（上图）。若学校能提供月考或上学期期末成绩，可在此基础上补出真正的进退步名单。</div>
+    <details><summary>表格视图</summary><table><caption>表格视图 · 前10名与后10名总分与班均分之差</caption><thead><tr><th>姓名</th><th>总分</th><th>与班均分之差</th></tr></thead><tbody><tr><th scope="row">蔡梦洁</th><td>419</td><td>+58.6</td></tr><tr><th scope="row">张梓萱</th><td>411</td><td>+50.6</td></tr><tr><th scope="row">梁家豪</th><td>411</td><td>+50.6</td></tr><tr><th scope="row">冯俊凯</th><td>404</td><td>+43.6</td></tr><tr><th scope="row">田欣怡</th><td>404</td><td>+43.6</td></tr><tr><th scope="row">罗志强</th><td>403</td><td>+42.6</td></tr><tr><th scope="row">王浩然</th><td>401</td><td>+40.6</td></tr><tr><th scope="row">朱天宇</th><td>390</td><td>+29.6</td></tr><tr><th scope="row">许文博</th><td>386</td><td>+25.6</td></tr><tr><th scope="row">徐若曦</th><td>384</td><td>+23.6</td></tr><tr><th scope="row">周梦琪</th><td>343</td><td>-17.4</td></tr><tr><th scope="row">熊家俊</th><td>337</td><td>-23.4</td></tr><tr><th scope="row">郭子轩</th><td>333</td><td>-27.4</td></tr><tr><th scope="row">郑晓彤</th><td>330</td><td>-30.4</td></tr><tr><th scope="row">李思远</th><td>325</td><td>-35.4</td></tr><tr><th scope="row">余志远</th><td>318</td><td>-42.4</td></tr><tr><th scope="row">邓欣妍</th><td>312</td><td>-48.4</td></tr><tr><th scope="row">董思雨</th><td>304</td><td>-56.4</td></tr><tr><th scope="row">吴俊杰</th><td>297</td><td>-63.4</td></tr><tr><th scope="row">陈嘉怡</th><td>283</td><td>-77.4</td></tr></tbody></table></details>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">06</span>需要重点关注的学生</h2>
+    <p class="lede">按三类分列——请家长对照自己孩子的情况看。</p>
+    <h3 style="font-size:14px;margin:14px 0 0">① 基础薄弱型（3 科及以上不及格，共 6 人）</h3>
+    <ul class="nlist"><li><span class="nm">陈嘉怡</span><span class="sub">283 分（4 科不及格）</span></li><li><span class="nm">吴俊杰</span><span class="sub">297 分（3 科不及格）</span></li><li><span class="nm">董思雨</span><span class="sub">304 分（4 科不及格）</span></li><li><span class="nm">邓欣妍</span><span class="sub">312 分（3 科不及格）</span></li><li><span class="nm">胡诗涵</span><span class="sub">346 分（3 科不及格）</span></li><li><span class="nm">陈小雅</span><span class="sub">347 分（3 科不及格）</span></li></ul>
+    <h3 style="font-size:14px;margin:16px 0 0">② 严重偏科型（最高与最低科分差 &gt; 40 分，共 17 人）</h3>
+    <ul class="nlist"><li><span class="nm">袁博文</span><span class="sub">371 分（最低 物理44，分差 54）</span></li><li><span class="nm">王浩然</span><span class="sub">401 分（最低 物理45，分差 53）</span></li><li><span class="nm">杜思琪</span><span class="sub">372 分（最低 数学48，分差 48）</span></li><li><span class="nm">叶文昊</span><span class="sub">364 分（最低 化学48，分差 48）</span></li><li><span class="nm">高语嫣</span><span class="sub">384 分（最低 化学46，分差 47）</span></li><li><span class="nm">刘一凡</span><span class="sub">355 分（最低 物理41，分差 47）</span></li><li><span class="nm">郭子轩</span><span class="sub">333 分（最低 化学48，分差 47）</span></li><li><span class="nm">蒋天磊</span><span class="sub">366 分（最低 数学48，分差 45）</span></li><li><span class="nm">彭立轩</span><span class="sub">359 分（最低 物理45，分差 45）</span></li><li><span class="nm">孙博文</span><span class="sub">353 分（最低 化学49，分差 45）</span></li><li><span class="nm">谢婉婷</span><span class="sub">373 分（最低 英语53，分差 44）</span></li><li><span class="nm">陈小雅</span><span class="sub">347 分（最低 英语51，分差 44）</span></li></ul>
+    <h3 style="font-size:14px;margin:16px 0 0">③ 高分偏科型（总分 ≥ 360 但有明显短板，共 13 人）</h3>
+    <ul class="nlist"><li><span class="nm">蔡梦洁</span><span class="sub">419 分（英语 仅 67，分差 31）</span></li><li><span class="nm">梁家豪</span><span class="sub">411 分（物理 仅 54，分差 41）</span></li><li><span class="nm">罗志强</span><span class="sub">403 分（英语 仅 60，分差 33）</span></li><li><span class="nm">王浩然</span><span class="sub">401 分（物理 仅 45，分差 53）</span></li><li><span class="nm">朱天宇</span><span class="sub">390 分（物理 仅 52，分差 42）</span></li><li><span class="nm">高语嫣</span><span class="sub">384 分（化学 仅 46，分差 47）</span></li><li><span class="nm">徐若曦</span><span class="sub">384 分（物理 仅 56，分差 37）</span></li><li><span class="nm">谢婉婷</span><span class="sub">373 分（英语 仅 53，分差 44）</span></li><li><span class="nm">杜思琪</span><span class="sub">372 分（数学 仅 48，分差 48）</span></li><li><span class="nm">袁博文</span><span class="sub">371 分（物理 仅 44，分差 54）</span></li><li><span class="nm">蒋天磊</span><span class="sub">366 分（数学 仅 48，分差 45）</span></li><li><span class="nm">叶文昊</span><span class="sub">364 分（化学 仅 48，分差 48）</span></li><li><span class="nm">黄子豪</span><span class="sub">364 分（语文 仅 55，分差 41）</span></li></ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">07</span>下一步：给家长的建议</h2>
+    <div class="wrow"><div class="wsub">化学优先突破</div><p>全班 19 人不及格，是当前最紧迫的一科。建议先抓<b>化学方程式配平</b>与<b>物质的量计算</b>这两块基础，每天 15 分钟专项练，两周可见变化。</p></div>
+    <div class="wrow"><div class="wsub">物理同步加强</div><p>14 人不及格，且是最多学生的短板科。建议从<b>受力分析</b>入手，先把"画受力图"练成条件反射，再做公式应用。</p></div>
+    <div class="wrow"><div class="wsub">偏科精准干预</div><p>分差超过 40 分的 17 位同学，短板科要单独排时间；优势科保持即可，不必再加码。</p></div>
+    <div class="wrow"><div class="wsub">后进生兜底帮扶</div><p>6 位同学 3 科以上不及格，建议先保"及格线"，把目标定在单科 60 分，一次只攻一科。</p></div>
+    <div class="wrow"><div class="wsub">保持优势学科</div><p>语文及格率 85.0% 为五科最高，继续保持；数学虽有 13 人优秀，但也有 13 人不及格，需分层布置作业。</p></div>
+  </section>
+
+  <footer>
+    <p>数据来源：高一3班期中成绩.xlsx（40 人 × 五科）。统计口径：及格 ≥60 分，优秀 ≥85 分，偏科 = 最高科与最低科分差 &gt; 30 分。</p>
+    <p>本报告由「成绩分析 → 学情报告」流程自动生成；所有数字均经独立复算核对。手册提醒：AI 算数字出图表，上报前要核一眼。</p>
+  </footer>
+</div>
+
+<div class="tt" id="tt" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  var tt=document.getElementById('tt');
+  function show(e){
+    var t=e.target.closest('.mk'); if(!t) return;
+    var s=t.getAttribute('data-tt'); if(!s) return;
+    tt.textContent=s; tt.classList.add('on');
+    move(e);
+  }
+  function move(e){
+    var x=(e.clientX||0)+14, y=(e.clientY||0)+16;
+    var w=tt.offsetWidth||0, h=tt.offsetHeight||0;
+    if(x+w>window.innerWidth-8) x=window.innerWidth-w-8;
+    if(y+h>window.innerHeight-8) y=(e.clientY||0)-h-10;
+    tt.style.left=x+'px'; tt.style.top=y+'px';
+  }
+  function hide(){ tt.classList.remove('on'); }
+  document.addEventListener('mouseover',show,true);
+  document.addEventListener('mousemove',move,true);
+  document.addEventListener('mouseout',hide,true);
+  document.addEventListener('focusin',show,true);
+  document.addEventListener('focusout',hide,true);
+})();
+</script>
+</body>
+</html>

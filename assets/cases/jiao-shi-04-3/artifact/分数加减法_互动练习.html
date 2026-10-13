@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>分数加减法 · 互动练习 · 异分母</title>
+<style>
+  :root{
+    --ink:#12224a;
+    --ink-soft:#3c5079;
+    --primary:#1d4ed8;
+    --primary-deep:#16337a;
+    --line:#cbd5e1;
+    --line-soft:#e2e8f4;
+    --bg:#eef3fb;
+    --card:#ffffff;
+    --barA:#2563eb;
+    --barB:#f59e0b;
+    --ok:#15803d;
+    --ok-bg:#e8f8ee;
+    --bad:#c81e1e;
+    --bad-bg:#fdecec;
+    --accent:#ea7317;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC","Noto Sans CJK SC",sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    font-size:20px;
+    line-height:1.5;
+    padding:0 0 48px;
+  }
+
+  /* ---------- 分数排版 ---------- */
+  .frac{
+    display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+    vertical-align:middle;line-height:1.05;margin:0 .14em;font-weight:800;
+  }
+  .frac .num{padding:0 .22em}
+  .frac .den{padding:0 .22em;border-top:.1em solid currentColor}
+
+  /* ---------- 页头 ---------- */
+  header{
+    background:linear-gradient(135deg,#16337a 0%,#1d4ed8 60%,#2563eb 100%);
+    color:#fff;padding:22px 32px 26px;
+    box-shadow:0 6px 22px rgba(22,51,122,.28);
+  }
+  .h-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:16px}
+  h1{font-size:clamp(28px,3.1vw,46px);margin:0;letter-spacing:.5px}
+  .h-sub{font-size:clamp(15px,1.25vw,21px);opacity:.9}
+  .koujue{
+    margin-top:16px;display:inline-flex;flex-wrap:wrap;gap:10px;align-items:center;
+    background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.45);
+    border-radius:999px;padding:10px 22px;font-size:clamp(17px,1.5vw,26px);font-weight:700;
+  }
+  .koujue b{color:#ffd479}
+  .h-bar{display:flex;flex-wrap:wrap;gap:14px;margin-top:18px;align-items:center}
+  .pill{
+    background:rgba(255,255,255,.94);color:var(--primary-deep);
+    border-radius:999px;padding:9px 20px;font-weight:800;font-size:clamp(16px,1.3vw,22px);
+  }
+  .pill em{font-style:normal;color:var(--accent)}
+
+  /* ---------- 板块切换 ---------- */
+  .tabs{display:flex;gap:16px;padding:24px 32px 0;flex-wrap:wrap}
+  .tab{
+    flex:1 1 260px;min-height:74px;cursor:pointer;border:none;border-radius:var(--radius);
+    background:#fff;color:var(--ink-soft);font-family:inherit;font-weight:800;
+    font-size:clamp(20px,1.7vw,28px);box-shadow:0 3px 0 #cdd9ef;border:3px solid transparent;
+    transition:transform .08s,background .15s;
+    display:flex;align-items:center;justify-content:center;gap:12px;
+  }
+  .tab:hover{transform:translateY(-2px)}
+  .tab.on{background:var(--primary);color:#fff;box-shadow:0 4px 0 var(--primary-deep)}
+  main{padding:22px 32px 0;max-width:1640px;margin:0 auto}
+  section{display:none}
+  section.on{display:block}
+
+  .card{
+    background:var(--card);border-radius:var(--radius);
+    box-shadow:0 4px 18px rgba(22,51,122,.10);padding:26px 28px;
+  }
+  .card + .card{margin-top:22px}
+  .card-title{font-size:clamp(21px,1.7vw,29px);font-weight:800;margin:0 0 6px;display:flex;align-items:center;gap:12px}
+  .card-title .dot{width:14px;height:14px;border-radius:50%;background:var(--accent);flex:none}
+  .hint{color:var(--ink-soft);font-size:clamp(16px,1.2vw,21px);margin:0 0 18px}
+
+  /* ---------- 通分实验室 ---------- */
+  .lab-tabs{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+  .lab-tab{
+    font-family:inherit;cursor:pointer;border:3px solid var(--line);
+    background:#f8fafd;border-radius:12px;padding:10px 22px;min-height:60px;
+    font-size:clamp(18px,1.4vw,25px);font-weight:800;color:var(--ink-soft);
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .lab-tab.on{border-color:var(--primary);background:#e8f0ff;color:var(--primary-deep)}
+
+  .row-lay{display:grid;grid-template-columns:78px 1fr;align-items:center}
+  .tag-cell{
+    font-weight:800;color:var(--ink-soft);font-size:clamp(16px,1.2vw,21px);
+    text-align:center;
+  }
+  .tray{border:3px dashed var(--line);border-radius:14px;padding:14px 0;background:#fbfcff}
+  .tray-empty{color:#8b9ab7;font-size:18px;padding:6px 10px}
+  .chip{
+    cursor:grab;touch-action:none;user-select:none;
+    padding:6px 10px;border-radius:12px;background:#fff;border:3px solid #dbe4f5;
+    display:block;margin:8px 0;
+  }
+  .chip:active{cursor:grabbing}
+  .chip.dragging{opacity:.3}
+  .chip-label{font-weight:800;font-size:clamp(17px,1.3vw,23px);color:var(--primary-deep);margin-bottom:6px;display:block}
+  .chip-hint{font-size:15px;color:#8595b4;font-weight:600}
+  .mini-bar{
+    height:46px;border-radius:8px;background:var(--barA);position:relative;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;
+  }
+  .mini-bar.b2{background:var(--barB)}
+  .mini-bar::after{
+    content:"";position:absolute;inset:0;border-radius:8px;
+    background-image:linear-gradient(to right,rgba(255,255,255,.85) 2px,transparent 2px);
+    background-size:calc(100% / var(--n)) 100%;
+  }
+
+  .board-wrap{margin-top:20px}
+  .board{
+    position:relative;border:4px solid var(--primary-deep);border-radius:14px;
+    background:#fff;overflow:hidden;
+  }
+  .board-grid{
+    position:absolute;top:0;bottom:0;left:0;right:0;z-index:1;
+    background-image:linear-gradient(to right,var(--line) 2px,transparent 2px);
+    background-size:calc(100% / var(--n)) 100%;
+    background-color:#fbfcff;
+  }
+  .rows{position:relative;z-index:2}
+  .lane{
+    height:84px;position:relative;border-bottom:2px dashed #cfd9ee;
+  }
+  .lane:last-child{border-bottom:none}
+  .lane.res{display:flex;background:#f7faff}
+  .bar{
+    position:absolute;top:9px;bottom:9px;left:0;border-radius:9px;
+    background:var(--barA);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(16px,1.3vw,23px);
+    box-shadow:0 2px 8px rgba(37,99,235,.35);
+    overflow:hidden;
+  }
+  .bar.b2{background:var(--barB);box-shadow:0 2px 8px rgba(245,158,11,.4)}
+  .bar::after{
+    content:"";position:absolute;inset:0;
+    background-image:linear-gradient(to right,rgba(255,255,255,.55) 2px,transparent 2px);
+    background-size:calc(100% / var(--n)) 100%;
+  }
+  .bar span{position:relative;z-index:2;text-shadow:0 1px 2px rgba(0,0,0,.28)}
+  .seg{position:relative;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;
+       font-size:clamp(15px,1.2vw,22px);overflow:hidden}
+  .seg.a{background:var(--barA)}
+  .seg.b{background:var(--barB)}
+  .seg.cut{
+    background:repeating-linear-gradient(45deg,#f59e0b 0 10px,#fbbf24 10px 20px);
+    color:#5b3a00;
+  }
+  .seg span{position:relative;z-index:2;text-shadow:0 1px 2px rgba(0,0,0,.22)}
+  .seg.cut span{text-shadow:none}
+
+  .ruler{display:grid;margin-top:6px}
+  .ruler .tick{
+    text-align:center;font-size:clamp(12px,.95vw,16px);color:#7c8bab;font-weight:700;
+    border-left:1px solid var(--line-soft);padding:4px 0;
+  }
+  .ruler .tick:last-child{border-right:1px solid var(--line-soft)}
+  .xlabel{font-size:clamp(15px,1.15vw,20px);color:var(--ink-soft);margin:10px 0 0}
+  .xlabel b{color:var(--accent)}
+
+  .lab-eq{
+    margin-top:18px;min-height:76px;border-radius:12px;background:#eef4ff;border:3px solid #d3e0fb;
+    padding:14px 20px;font-size:clamp(19px,1.55vw,27px);font-weight:800;color:var(--primary-deep);
+    display:flex;align-items:center;flex-wrap:wrap;gap:6px;
+  }
+  .lab-eq.done{background:var(--ok-bg);border-color:#b6e3c6;color:var(--ok)}
+  .lab-actions{margin-top:16px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    font-family:inherit;cursor:pointer;border:none;border-radius:12px;
+    min-height:64px;padding:0 30px;font-size:clamp(18px,1.4vw,24px);font-weight:800;
+    background:var(--primary);color:#fff;box-shadow:0 4px 0 var(--primary-deep);
+  }
+  .btn.ghost{background:#fff;color:var(--primary-deep);box-shadow:0 4px 0 #cdd9ef;border:3px solid var(--line)}
+  .btn:active{transform:translateY(2px);box-shadow:none}
+
+  /* ---------- 闯关练习 ---------- */
+  .q-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+  .q-no{font-size:clamp(20px,1.6vw,27px);font-weight:800;color:var(--primary-deep)}
+  .q-tag{background:#fdecd8;color:#a1530a;border-radius:999px;padding:5px 16px;font-size:clamp(15px,1.1vw,20px);font-weight:800}
+  .dots{display:flex;gap:10px;flex-wrap:wrap}
+  .dot-i{
+    width:40px;height:40px;border-radius:50%;background:#dfe7f5;color:#5b6b8c;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;
+    border:3px solid transparent;
+  }
+  .dot-i.cur{border-color:var(--primary);background:#fff;color:var(--primary)}
+  .dot-i.done{background:var(--ok);color:#fff}
+  .dot-i.wrong{background:#f6c6c6;color:#8f1414}
+
+  .stem{
+    display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+    font-size:clamp(34px,3.5vw,58px);font-weight:800;margin:18px 0 8px;color:var(--ink);
+  }
+  .stem .qmark{color:var(--accent)}
+  .app-text{font-size:clamp(24px,2.1vw,36px);font-weight:700;line-height:1.45;margin:16px 0 6px}
+  .app-text .hl{color:var(--primary);font-weight:800}
+
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+  @media (max-width:820px){.opts{grid-template-columns:1fr}}
+  .opt{
+    font-family:inherit;cursor:pointer;text-align:center;border-radius:14px;
+    min-height:104px;padding:12px 18px;background:#f8fafd;border:4px solid #dbe4f5;
+    color:var(--ink);font-size:clamp(30px,2.7vw,46px);font-weight:800;
+    display:flex;align-items:center;justify-content:center;gap:14px;
+    transition:background .12s,border-color .12s,transform .08s;
+  }
+  .opt .key{
+    width:52px;height:52px;border-radius:12px;background:#e4ebf8;color:var(--primary-deep);
+    display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;flex:none;
+  }
+  .opt:hover{background:#eef4ff;border-color:#b9cdf3;transform:translateY(-2px)}
+  .opt.correct{background:var(--ok-bg);border-color:#4caf6d;color:var(--ok)}
+  .opt.correct .key{background:#bfe6cc;color:#0f5c2c}
+  .opt.wrong{background:var(--bad-bg);border-color:#e78a8a;color:var(--bad);animation:shake .32s}
+  .opt.wrong .key{background:#f6c9c9;color:#8f1414}
+  .opt[disabled]{cursor:default;transform:none}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-9px)}40%{transform:translateX(9px)}
+    60%{transform:translateX(-6px)}80%{transform:translateX(6px)}
+  }
+
+  .fb{
+    margin-top:20px;border-radius:14px;padding:18px 22px;font-size:clamp(19px,1.55vw,27px);
+    font-weight:700;line-height:1.5;display:none;border:3px solid transparent;
+  }
+  .fb.show{display:block}
+  .fb.ok{background:var(--ok-bg);border-color:#a9dcbb;color:#0f5c2c}
+  .fb.bad{background:var(--bad-bg);border-color:#f0b4b4;color:#8f1414}
+  .fb .big{font-size:1.15em}
+  .fb .kou{display:block;margin-top:8px;font-size:.92em;opacity:.95}
+
+  .nav{margin-top:22px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .nav .spacer{flex:1}
+  .btn.navi:disabled{opacity:.4;cursor:default}
+
+  .final{display:none;text-align:center;padding:36px 20px}
+  .final.show{display:block}
+  .final .score{font-size:clamp(46px,5vw,86px);font-weight:900;color:var(--primary)}
+  .final .msg{font-size:clamp(22px,1.9vw,32px);font-weight:800;margin-top:8px}
+  .final .sub{color:var(--ink-soft);margin-top:10px;font-size:clamp(17px,1.3vw,23px)}
+
+  footer{max-width:1640px;margin:34px auto 0;padding:0 32px;color:#7c8bab;font-size:16px}
+  #selftest{
+    white-space:pre-wrap;background:#101a30;color:#9ff0b5;padding:16px;
+    font-family:ui-monospace,Consolas,monospace;font-size:14px;margin:20px 32px;border-radius:10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-top">
+    <h1>分数加减法 · 互动练习</h1>
+    <span class="h-sub">五年级 · 异分母分数加减法 ｜ 形态三：学生上手</span>
+  </div>
+  <div class="koujue">口诀：<b>先通分 · 再计算 · 能约分的要约分</b></div>
+  <div class="h-bar">
+    <span class="pill">得分 <em id="score">0</em> / <em id="total">7</em></span>
+    <span class="pill">进度 <em id="prog">第 1 题</em></span>
+    <span class="pill" id="pillLab">通分实验室：拖动分数条看看为什么要通分</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab on" id="tabLab" type="button">🧪 通分实验室 · 拖分数条</button>
+  <button class="tab" id="tabQuiz" type="button">🎯 闯关练习 · 点选答案</button>
+</div>
+
+<main>
+  <!-- ============ 板块一：通分实验室 ============ -->
+  <section id="secLab" class="on">
+    <div class="card">
+      <h2 class="card-title"><span class="dot"></span>拖一拖：为什么异分母要先通分？</h2>
+      <p class="hint">分数条的<b>长度就是这个分数的大小</b>。把它拖到下面的等分格子上（格子数 = 两个分母的最小公倍数），看看它正好盖住几格 —— 那一刻你就看见了通分。</p>
+
+      <div class="lab-tabs" id="labTabs"></div>
+
+      <div class="row-lay">
+        <div class="tag-cell">分数条<br>托盘</div>
+        <div class="tray" id="tray"></div>
+      </div>
+
+      <div class="board-wrap">
+        <div class="row-lay" style="align-items:stretch">
+          <div class="tag-cell" style="padding-top:30px">公分母<br>格子</div>
+          <div>
+            <div class="board" id="board">
+              <div class="board-grid" id="boardGrid"></div>
+              <div class="rows">
+                <div class="lane" data-lane="0"></div>
+                <div class="lane" data-lane="1"></div>
+                <div class="lane res" data-lane="2"></div>
+              </div>
+            </div>
+            <div class="row-lay" style="grid-template-columns:0 1fr">
+              <div></div>
+              <div class="ruler" id="ruler"></div>
+            </div>
+            <p class="xlabel" id="xlabel"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lab-eq" id="labEq"></div>
+      <div class="lab-actions">
+        <button class="btn ghost" id="btnReset" type="button">↺ 重置分数条</button>
+        <button class="btn" id="btnToQuiz" type="button">去闯关 →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 板块二：闯关练习 ============ -->
+  <section id="secQuiz">
+    <div class="card" id="quizCard">
+      <div class="q-head">
+        <div class="q-no" id="qNo">第 1 题</div>
+        <span class="q-tag" id="qTag">加法</span>
+        <div class="dots" id="dots"></div>
+      </div>
+
+      <div id="stemWrap"></div>
+
+      <div class="opts" id="opts"></div>
+      <div class="fb" id="fb"></div>
+
+      <div class="nav">
+        <button class="btn ghost navi" id="btnPrev" type="button">← 上一题</button>
+        <div class="spacer"></div>
+        <button class="btn ghost" id="btnRetry" type="button">↺ 重做本题</button>
+        <button class="btn navi" id="btnNext" type="button">下一题 →</button>
+      </div>
+    </div>
+
+    <div class="card final" id="final"></div>
+  </section>
+</main>
+
+<footer>
+  形态三 · 互动课件 ｜ 学生能拖、能点、能答，一体机上可以上来玩 ｜ 单文件离线可用，双击即开，零依赖。
+</footer>
+
+<script>
+/*__LOGIC_START__*/
+/* ===================== 题库（答案与每个错选项的错因） ===================== */
+const QUESTIONS = [
+  {
+    tag:"加法",
+    a:[1,3], op:"+", b:[1,6],
+    options:[
+      {f:[2,9], ok:false, why:"× 错在没通分。你把分子加分子、分母加分母：(1+1)÷(3+6)=2/9。分母不同的分数，不能把分子分母分别相加，要先通分。"},
+      {f:[1,2], ok:true,  why:"√ 通分到位！1/3 = 2/6，2/6 + 1/6 = 3/6，约成最简就是 1/2。"},
+      {f:[3,6], ok:false, why:"× 通分算对了，但忘了约分。3/6 不是最简分数，要约成 1/2。口诀最后一句：能约分的要约分。"},
+      {f:[2,6], ok:false, why:"× 只通了分母，忘了分子也要跟着变。1/3 的分子分母同时乘 2 才是 2/6，你把它当成了 1/6，才算成 (1+1)/6=2/6。"}
+    ]
+  },
+  {
+    tag:"加法",
+    a:[2,5], op:"+", b:[3,10],
+    options:[
+      {f:[7,10], ok:true, why:"√ 通分到位！2/5 = 4/10，4/10 + 3/10 = 7/10，已经是最简分数。"},
+      {f:[5,15], ok:false, why:"× 错在没通分。分母加分母、分子加分子：(2+3)÷(5+10)=5/15。分母不同，必须先找出最小公倍数通分。"},
+      {f:[5,10], ok:false, why:"× 只通了分母，忘了通分子。2/5 要变成 4/10（分子分母同时乘 2），不是 2/10；应该是 4+3=7，不是 2+3=5。"},
+      {f:[1,2], ok:false, why:"× 约分约错了。1/2 是从错误过程 5/10 约出来的；正确答案 7/10 分子分母没有公因数，不能再约。"}
+    ]
+  },
+  {
+    tag:"减法",
+    a:[7,8], op:"−", b:[1,4],
+    options:[
+      {f:[6,4], ok:false, why:"× 错在没通分。分母相减、分子相减：(7−1)÷(8−4)=6/4。异分母相减也要先通分。"},
+      {f:[5,8], ok:true,  why:"√ 通分到位！1/4 = 2/8，7/8 − 2/8 = 5/8。"},
+      {f:[6,8], ok:false, why:"× 只通了分母，忘了通分子。1/4 要变成 2/8，才是 7−2=5；你直接用 7−1=6，忘记了分子也要跟着变。"},
+      {f:[3,4], ok:false, why:"× 约分救不回错的通分。3/4 是把错误过程的 6/8 约出来的——前面通分就错了（该是 5/8），后面再约分还是错的。"}
+    ]
+  },
+  {
+    tag:"减法",
+    a:[5,6], op:"−", b:[2,3],
+    options:[
+      {f:[3,3], ok:false, why:"× 错在没通分。分母相减、分子相减：(5−2)÷(6−3)=3/3=1。异分母相减要先通分。"},
+      {f:[3,6], ok:false, why:"× 只通了分母忘了通分子，而且还忘了约分。2/3 要变成 4/6，应是 5−4=1；你算成 5−2=3 得 3/6，3/6 还得约成 1/2。"},
+      {f:[1,6], ok:true,  why:"√ 通分到位！2/3 = 4/6，5/6 − 4/6 = 1/6，已经是最简分数。"},
+      {f:[1,3], ok:false, why:"× 约分约错了。3/6 的分子分母要同时除以 3，应约成 1/2，不是 1/3；而且这个 3/6 本身就是“只通分母忘通分子”的错结果（应是 5−4=1）。"}
+    ]
+  },
+  {
+    tag:"加法",
+    a:[1,2], op:"+", b:[1,4],
+    options:[
+      {f:[2,6], ok:false, why:"× 错在没通分。分子分母分别相加 (1+1)÷(2+4)=2/6 —— 它约分后正好是 1/3。记住：1/2 + 1/4 不是 1/3！"},
+      {f:[2,4], ok:false, why:"× 只通了分母，忘了通分子。1/2 要变成 2/4（分子分母同时乘 2）；你把它当成 1/4，才算成 (1+1)/4=2/4。"},
+      {f:[3,4], ok:true,  why:"√ 通分到位！1/2 = 2/4，2/4 + 1/4 = 3/4，这就是最简结果。"},
+      {f:[3,6], ok:false, why:"× 不能约分的硬约。3/4 的分子分母没有公因数，不能约；写成 3/6 是把“约分”当成了“随便改分母”。"}
+    ]
+  },
+  {
+    tag:"应用题",
+    app:"小明吃了蛋糕的 1/4，小红吃了蛋糕的 1/3，两人一共吃了蛋糕的几分之几？",
+    a:[1,4], op:"+", b:[1,3],
+    options:[
+      {f:[2,7], ok:false, why:"× 错在没通分。把两个分数的分子分母分别相加 (1+1)÷(4+3)=2/7。分母不同要先通分，不能分别相加。"},
+      {f:[5,12], ok:false, why:"× 只通了分母，忘了通分子（1+4=5）。其实 1/4 = 3/12、1/3 = 4/12，应该是 3+4=7。"},
+      {f:[1,2], ok:false, why:"× 不能约分的硬约。7/12 的分子分母没有公因数，不能约成 1/2。"},
+      {f:[7,12], ok:true, why:"√ 通分到位！1/4 = 3/12，1/3 = 4/12，3/12 + 4/12 = 7/12。两人一共吃了 7/12 个蛋糕。"}
+    ]
+  },
+  {
+    tag:"加法",
+    a:[1,4], op:"+", b:[5,12],
+    options:[
+      {f:[8,12], ok:false, why:"× 算对了，但忘了约分。8/12 不是最简分数——分子分母同时除以 4，要约成 2/3。"},
+      {f:[2,3], ok:true,  why:"√ 通分到位又约分到位！1/4 = 3/12，3/12 + 5/12 = 8/12，约成最简就是 2/3。"},
+      {f:[6,16], ok:false, why:"× 错在没通分。分子分母分别相加 (1+5)÷(4+12)=6/16，必须先通分。"},
+      {f:[6,12], ok:false, why:"× 只通了分母，忘了通分子。1/4 要变成 3/12（分子分母同时乘 3），才是 3+5=8；你算成 1+5=6。"}
+    ]
+  }
+];
+
+/* ===================== 实验室预设 ===================== */
+const LABS = [
+  {a:[1,3], op:"+", b:[1,4],  lcm:12},
+  {a:[2,5], op:"+", b:[3,10], lcm:10},
+  {a:[7,8], op:"−", b:[1,4],  lcm:8}
+];
+
+function gcd(a,b){ return b ? gcd(b, a%b) : a; }
+function lcmOf(a,b){ return a / gcd(a,b) * b; }
+/** 分数 f 在 n 等分格子上盖住几格 */
+function coverCells(f, n){ return f[0] * n / f[1]; }
+/** 判定：第 qi 题的第 oi 个选项 */
+function judge(qi, oi){
+  const q = QUESTIONS[qi];
+  if(!q || !q.options[oi]) return {correct:false, why:"题目或选项不存在"};
+  const o = q.options[oi];
+  return {correct: !!o.ok, why: o.why};
+}
+/*__LOGIC_END__*/
+
+/* ===================== 渲染工具 ===================== */
+function fracHTML(f){
+  return '<span class="frac"><span class="num">'+f[0]+'</span><span class="den">'+f[1]+'</span></span>';
+}
+function exprHTML(a, op, b, tail){
+  return fracHTML(a) + '<span class="op">' + op + '</span>' + fracHTML(b) +
+         (tail ? '<span class="op">' + tail + '</span>' : '');
+}
+
+/* ===================== 板块切换 ===================== */
+const tabLab = document.getElementById('tabLab');
+const tabQuiz = document.getElementById('tabQuiz');
+const secLab = document.getElementById('secLab');
+const secQuiz = document.getElementById('secQuiz');
+const pillLab = document.getElementById('pillLab');
+function showLab(){
+  tabLab.classList.add('on'); tabQuiz.classList.remove('on');
+  secLab.classList.add('on'); secQuiz.classList.remove('on');
+  pillLab.textContent = '通分实验室：拖动分数条看看为什么要通分';
+  requestAnimationFrame(layoutLab);
+}
+function showQuiz(){
+  tabQuiz.classList.add('on'); tabLab.classList.remove('on');
+  secQuiz.classList.add('on'); secLab.classList.remove('on');
+  pillLab.textContent = '闯关练习：点选答案，错了会告诉你错在哪';
+}
+tabLab.addEventListener('click', showLab);
+tabQuiz.addEventListener('click', showQuiz);
+document.getElementById('btnToQuiz').addEventListener('click', showQuiz);
+
+/* ===================== 板块一：通分实验室 ===================== */
+const labTabsEl = document.getElementById('labTabs');
+const trayEl = document.getElementById('tray');
+const boardEl = document.getElementById('board');
+const boardGridEl = document.getElementById('boardGrid');
+const rulerEl = document.getElementById('ruler');
+const xlabelEl = document.getElementById('xlabel');
+const labEqEl = document.getElementById('labEq');
+const laneEls = [
+  document.querySelector('.lane[data-lane="0"]'),
+  document.querySelector('.lane[data-lane="1"]'),
+  document.querySelector('.lane[data-lane="2"]')
+];
+
+let labIdx = 0;
+let placed = [null, null];   // placed[lane] = 0|1|null
+let drag = null;
+
+function lab(){ return LABS[labIdx]; }
+function barName(i){ return i === 0 ? lab().a : lab().b; }
+
+function renderLabTabs(){
+  labTabsEl.innerHTML = '';
+  LABS.forEach(function(L, i){
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'lab-tab' + (i === labIdx ? ' on' : '');
+    b.innerHTML = exprHTML(L.a, L.op, L.b);
+    b.addEventListener('click', function(){
+      labIdx = i; placed = [null, null]; renderLab(); layoutLab();
+    });
+    labTabsEl.appendChild(b);
+  });
+}
+
+function renderLab(){
+  const L = lab();
+  const n = L.lcm;
+  boardEl.style.setProperty('--n', n);
+  boardGridEl.style.setProperty('--n', n);
+
+  /* 托盘 */
+  trayEl.innerHTML = '';
+  const free = [0,1].filter(function(i){ return placed.indexOf(i) === -1; });
+  if(free.length === 0){
+    trayEl.innerHTML = '<div class="tray-empty">两条分数条都放上格子了 —— 看下面“合起来”那一行 👇</div>';
+  }else{
+    free.forEach(function(i){
+      const f = barName(i);
+      const cells = coverCells(f, n);
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.dataset.bar = i;
+      chip.innerHTML =
+        '<span class="chip-label">' + fracHTML(f) + ' 的分条 <span class="chip-hint">（拖我 / 点我也行）</span></span>' +
+        '<div class="mini-bar' + (i === 1 ? ' b2' : '') + '" style="--n:' + f[1] + '"></div>';
+      chip.addEventListener('pointerdown', onChipDown);
+      trayEl.appendChild(chip);
+    });
+  }
+
+  /* 三条泳道 */
+  [0,1].forEach(function(lane){
+    const el = laneEls[lane];
+    el.innerHTML = '';
+    const bi = placed[lane];
+    if(bi !== null && bi !== undefined){
+      const f = barName(bi);
+      const cells = coverCells(f, n);
+      const bar = document.createElement('div');
+      bar.className = 'bar' + (bi === 1 ? ' b2' : '');
+      bar.style.width = (cells / n * 100) + '%';
+      bar.style.setProperty('--n', f[1]);
+      bar.innerHTML = '<span>' + fracHTML(f) + ' = ' + cells + '/' + n + '</span>';
+      bar.title = '点一下可以放回托盘';
+      bar.addEventListener('click', function(){
+        placed[lane] = null; renderLab();
+      });
+      el.appendChild(bar);
+    }
+  });
+
+  /* 结果泳道 */
+  const resEl = laneEls[2];
+  resEl.innerHTML = '';
+  const both = placed[0] !== null && placed[0] !== undefined &&
+               placed[1] !== null && placed[1] !== undefined;
+  if(both){
+    const cA = coverCells(L.a, n), cB = coverCells(L.b, n);
+    if(L.op === '+'){
+      const s1 = document.createElement('div');
+      s1.className = 'seg a'; s1.style.width = (cA/n*100) + '%';
+      s1.innerHTML = '<span>' + cA + '/' + n + '</span>';
+      const s2 = document.createElement('div');
+      s2.className = 'seg b'; s2.style.width = (cB/n*100) + '%';
+      s2.innerHTML = '<span>' + cB + '/' + n + '</span>';
+      resEl.appendChild(s1); resEl.appendChild(s2);
+    }else{
+      const s1 = document.createElement('div');
+      s1.className = 'seg a'; s1.style.width = ((cA-cB)/n*100) + '%';
+      s1.innerHTML = '<span>剩 ' + (cA-cB) + '/' + n + '</span>';
+      const s2 = document.createElement('div');
+      s2.className = 'seg cut'; s2.style.width = (cB/n*100) + '%';
+      s2.innerHTML = '<span>划掉 ' + cB + '/' + n + '</span>';
+      resEl.appendChild(s1); resEl.appendChild(s2);
+    }
+  }
+
+  /* 刻度尺 */
+  rulerEl.style.gridTemplateColumns = 'repeat(' + n + ', 1fr)';
+  rulerEl.innerHTML = '';
+  for(let k = 1; k <= n; k++){
+    const t = document.createElement('div');
+    t.className = 'tick'; t.textContent = '1/' + n;
+    rulerEl.appendChild(t);
+  }
+  xlabelEl.innerHTML = '这一条大尺子被平均分成了 <b>' + n + '</b> 份（' + L.a[1] + ' 和 ' + L.b[1] +
+                       ' 的最小公倍数 = ' + n + '），每一份就是 ' + fracHTML([1,n]) + '。';
+
+  /* 算式 */
+  updateEq();
+  requestAnimationFrame(layoutLab);
+}
+
+function updateEq(){
+  const L = lab(), n = L.lcm;
+  const cA = coverCells(L.a, n), cB = coverCells(L.b, n);
+  const p0 = placed[0] !== null && placed[0] !== undefined;
+  const p1 = placed[1] !== null && placed[1] !== undefined;
+  labEqEl.classList.remove('done');
+  if(!p0 && !p1){
+    labEqEl.innerHTML = '① 把上面的分数条拖到下面的格子里 → 看看它盖住几格。';
+  }else if(!(p0 && p1)){
+    const bi = p0 ? placed[0] : placed[1];
+    const f = barName(bi);
+    const c = coverCells(f, n);
+    labEqEl.innerHTML = '你放下了 ' + fracHTML(f) + ' 的条 —— 它正好盖住 <b style="color:#ea7317">' + c +
+                        '</b> 格，所以 ' + fracHTML(f) + ' = ' + fracHTML([c,n]) +
+                        '。<br>再把另一条也拖上去 👇';
+  }else{
+    const sum = L.op === '+' ? (cA + cB) : (cA - cB);
+    labEqEl.classList.add('done');
+    labEqEl.innerHTML = '两条都放好了 —— ' +
+      fracHTML(L.a) + ' = ' + fracHTML([cA,n]) + '，' +
+      fracHTML(L.b) + ' = ' + fracHTML([cB,n]) + '；<br>' +
+      '所以 ' + exprHTML(L.a, L.op, L.b, '=') + fracHTML([cA,n]) + '<span class="op">' + L.op + '</span>' +
+      fracHTML([cB,n]) + '<span class="op">=</span>' + fracHTML([sum,n]) +
+      '。<b style="color:#ea7317;margin-left:10px">' +
+      (L.op === '+' ? '看，通分就是把两条条放到同一把尺子上量！' : '看，通分后相减，就是数格子！') + '</b>';
+  }
+}
+
+/* 布局：让托盘里分数条的物理长度 = 它在格子上盖住的长度 */
+function layoutLab(){
+  const lane = laneEls[0];
+  const W = lane.clientWidth;
+  if(!W) return;
+  const n = lab().lcm;
+  trayEl.querySelectorAll('.chip').forEach(function(chip){
+    const i = parseInt(chip.dataset.bar, 10);
+    const cells = coverCells(barName(i), n);
+    const bar = chip.querySelector('.mini-bar');
+    if(bar) bar.style.width = Math.max(28, cells / n * W) + 'px';
+  });
+}
+
+/* ---------- 拖拽（Pointer Events：鼠标 / 触摸通吃） ---------- */
+function onChipDown(e){
+  if(e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+  const chip = e.currentTarget;
+  const bi = parseInt(chip.dataset.bar, 10);
+  const r = chip.getBoundingClientRect();
+  const ghost = chip.cloneNode(true);
+  ghost.style.position = 'fixed';
+  ghost.style.left = r.left + 'px';
+  ghost.style.top = r.top + 'px';
+  ghost.style.width = r.width + 'px';
+  ghost.style.zIndex = '9999';
+  ghost.style.pointerEvents = 'none';
+  ghost.style.opacity = '.92';
+  ghost.style.background = '#fff';
+  ghost.style.boxShadow = '0 10px 26px rgba(22,51,122,.3)';
+  document.body.appendChild(ghost);
+  chip.classList.add('dragging');
+
+  drag = {bi:bi, ghost:ghost, chip:chip, ox:e.clientX - r.left, oy:e.clientY - r.top,
+          sx:e.clientX, sy:e.clientY, moved:false};
+  try{ chip.setPointerCapture(e.pointerId); }catch(err){}
+  chip.addEventListener('pointermove', onChipMove);
+  chip.addEventListener('pointerup', onChipUp);
+  chip.addEventListener('pointercancel', onChipUp);
+  e.preventDefault();
+}
+
+function onChipMove(e){
+  if(!drag) return;
+  if(Math.abs(e.clientX - drag.sx) > 6 || Math.abs(e.clientY - drag.sy) > 6) drag.moved = true;
+  drag.ghost.style.left = (e.clientX - drag.ox) + 'px';
+  drag.ghost.style.top  = (e.clientY - drag.oy) + 'px';
+}
+
+function onChipUp(e){
+  if(!drag) return;
+  const d = drag; drag = null;
+  d.chip.removeEventListener('pointermove', onChipMove);
+  d.chip.removeEventListener('pointerup', onChipUp);
+  d.chip.removeEventListener('pointercancel', onChipUp);
+  if(d.ghost && d.ghost.parentNode) d.ghost.parentNode.removeChild(d.ghost);
+  d.chip.classList.remove('dragging');
+
+  const b = boardEl.getBoundingClientRect();
+  const inside = e.clientX >= b.left - 40 && e.clientX <= b.right + 40 &&
+                 e.clientY >= b.top - 40  && e.clientY <= b.bottom + 40;
+  /* 拖到格子上 → 落位；只是点一下（没拖动）→ 也自动落位（一体机兜底） */
+  if(inside || !d.moved) autoPlace(d.bi);
+  else renderLab();
+}
+
+function autoPlace(bi){
+  if(placed.indexOf(bi) !== -1) return;
+  const lane = (placed[0] === null || placed[0] === undefined) ? 0 : 1;
+  placed[lane] = bi;
+  renderLab();
+}
+
+document.getElementById('btnReset').addEventListener('click', function(){
+  placed = [null, null]; renderLab();
+});
+window.addEventListener('resize', layoutLab);
+
+/* ===================== 板块二：闯关练习 ===================== */
+const optsEl = document.getElementById('opts');
+const fbEl = document.getElementById('fb');
+const stemWrap = document.getElementById('stemWrap');
+const dotsEl = document.getElementById('dots');
+const qNoEl = document.getElementById('qNo');
+const qTagEl = document.getElementById('qTag');
+const scoreEl = document.getElementById('score');
+const progEl = document.getElementById('prog');
+const finalEl = document.getElementById('final');
+const quizCard = document.getElementById('quizCard');
+document.getElementById('total').textContent = QUESTIONS.length;
+
+let cur = 0;
+const state = QUESTIONS.map(function(){ return {answered:false, wrongPicks:0, correct:false}; });
+let score = 0;
+
+function renderDots(){
+  dotsEl.innerHTML = '';
+  QUESTIONS.forEach(function(q, i){
+    const d = document.createElement('div');
+    d.className = 'dot-i' + (i === cur ? ' cur' : '') +
+                  (state[i].correct ? ' done' : (state[i].wrongPicks > 0 ? ' wrong' : ''));
+    d.textContent = (i + 1);
+    dotsEl.appendChild(d);
+  });
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[cur];
+  const st = state[cur];
+  qNoEl.textContent = '第 ' + (cur + 1) + ' 题';
+  qTagEl.textContent = q.tag;
+
+  /* 题干 */
+  if(q.app){
+    stemWrap.innerHTML = '<p class="app-text">' + q.app +
+      '</p><div class="stem">' + fracHTML(q.a) + '<span class="op">' + q.op + '</span>' +
+      fracHTML(q.b) + '<span class="op">=</span><span class="qmark">?</span></div>';
+  }else{
+    stemWrap.innerHTML = '<div class="stem">' + fracHTML(q.a) + '<span class="op">' + q.op +
+      '</span>' + fracHTML(q.b) + '<span class="op">=</span><span class="qmark">?</span></div>';
+  }
+
+  /* 选项 */
+  optsEl.innerHTML = '';
+  const keys = ['A','B','C','D'];
+  q.options.forEach(function(o, i){
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'opt';
+    b.dataset.opt = i;
+    b.innerHTML = '<span class="key">' + keys[i] + '</span>' + fracHTML(o.f);
+    b.addEventListener('click', function(){ pick(i); });
+    optsEl.appendChild(b);
+  });
+
+  fbEl.className = 'fb';
+  fbEl.innerHTML = '';
+  if(st.correct) revealAnswer();
+  renderDots();
+  progEl.textContent = '第 ' + (cur + 1) + ' 题';
+  document.getElementById('btnPrev').disabled = (cur === 0);
+  document.getElementById('btnNext').disabled = (cur === QUESTIONS.length - 1);
+  updateScore();
+}
+
+function pick(oi){
+  const q = QUESTIONS[cur];
+  const st = state[cur];
+  if(st.correct) return;                  /* 已答对，锁定 */
+  const r = judge(cur, oi);
+  const btn = optsEl.querySelector('.opt[data-opt="' + oi + '"]');
+
+  if(r.correct){
+    st.correct = true;
+    st.answered = true;
+    score += (st.wrongPicks > 0 ? 1 : 1);   /* 订正成功同样计分 */
+    if(btn) btn.classList.add('correct');
+    optsEl.querySelectorAll('.opt').forEach(function(b){
+      b.disabled = true;
+      if(b.dataset.opt !== String(oi)) b.style.opacity = '.55';
+    });
+    fbEl.className = 'fb show ok';
+    fbEl.innerHTML = '<span class="big">' + r.why + '</span>' +
+      (st.wrongPicks > 0 ? '<span class="kou">👏 订正成功！错一次不要紧，弄懂“错在哪”才是本事。</span>' : '') +
+      '<span class="kou">口诀：先通分，再计算，能约分的要约分。</span>';
+    renderDots();
+    updateScore();
+    if(cur === QUESTIONS.length - 1) setTimeout(showFinal, 900);
+  }else{
+    st.wrongPicks++;
+    /* 选错的那一项一直标红，让学生看清"我点的是哪个" */
+    if(btn) btn.classList.add('wrong');
+    fbEl.className = 'fb show bad';
+    fbEl.innerHTML = '<span class="big">' + r.why + '</span>' +
+      '<span class="kou">再想想 —— 换一个答案试试。</span>';
+    renderDots();
+  }
+}
+
+function revealAnswer(){
+  const q = QUESTIONS[cur];
+  q.options.forEach(function(o, i){
+    const b = optsEl.querySelector('.opt[data-opt="' + i + '"]');
+    if(!b) return;
+    b.disabled = true;
+    if(o.ok) b.classList.add('correct'); else b.style.opacity = '.55';
+  });
+  fbEl.className = 'fb show ok';
+  fbEl.innerHTML = '<span class="big">√ 本题已答对，正确结果是 ' + fracHTML(q.options.filter(function(o){return o.ok;})[0].f) +
+                   '。</span><span class="kou">口诀：先通分，再计算，能约分的要约分。</span>';
+}
+
+function updateScore(){
+  scoreEl.textContent = score;
+  progEl.textContent = '第 ' + (cur + 1) + ' 题';
+}
+
+function showFinal(){
+  const done = state.filter(function(s){ return s.correct; }).length;
+  quizCard.style.display = 'none';
+  finalEl.classList.add('show');
+  let msg = '继续加油！把“为什么错”弄明白，比答对更重要。';
+  if(score === QUESTIONS.length) msg = '全部正确，太棒了！异分母加减你已经拿下。';
+  else if(score >= QUESTIONS.length - 2) msg = '很不错！再把错的题看一遍就完美了。';
+  finalEl.innerHTML =
+    '<div class="score">' + score + ' <span style="font-size:.45em;color:#3c5079">/ ' + QUESTIONS.length + '</span></div>' +
+    '<div class="msg">' + msg + '</div>' +
+    '<div class="sub">答对 ' + done + ' 题 ｜ 口诀：先通分，再计算，能约分的要约分</div>' +
+    '<div class="nav" style="justify-content:center;margin-top:26px">' +
+      '<button class="btn ghost" type="button" id="btnAgain">↺ 再来一遍</button>' +
+      '<button class="btn" type="button" id="btnBackLab">🧪 回到通分实验室</button>' +
+    '</div>';
+  document.getElementById('btnAgain').addEventListener('click', function(){
+    state.forEach(function(s){ s.answered=false; s.wrongPicks=0; s.correct=false; });
+    score = 0; cur = 0; finalEl.classList.remove('show'); quizCard.style.display = ''; renderQuestion();
+  });
+  document.getElementById('btnBackLab').addEventListener('click', showLab);
+}
+
+document.getElementById('btnPrev').addEventListener('click', function(){
+  if(cur > 0){ cur--; renderQuestion(); }
+});
+document.getElementById('btnNext').addEventListener('click', function(){
+  if(cur < QUESTIONS.length - 1){ cur++; renderQuestion(); }
+});
+document.getElementById('btnRetry').addEventListener('click', function(){
+  state[cur].correct = false; state[cur].wrongPicks = 0;
+  if(score > 0) score = Math.max(0, score - 0);
+  renderQuestion();
+});
+
+/* ===================== 自检（?selftest=1 时运行，供无头浏览器核对逻辑） ===================== */
+function runSelfTest(){
+  let pass = 0, fail = 0;
+  const lines = [];
+
+  /* 1. 每题必须只有一个正确选项，且判定函数与数据一致 */
+  QUESTIONS.forEach(function(q, qi){
+    const okCount = q.options.filter(function(o){ return o.ok; }).length;
+    if(okCount === 1){ pass++; } else { fail++; lines.push('FAIL Q' + (qi+1) + ' 正确选项数=' + okCount + '（应为 1）'); }
+    q.options.forEach(function(o, oi){
+      const r = judge(qi, oi);
+      const good = (r.correct === !!o.ok) && typeof r.why === 'string' && r.why.length > 6;
+      if(good){ pass++; } else { fail++; lines.push('FAIL Q' + (qi+1) + '-选项' + oi + ' 判定不符'); }
+    });
+  });
+
+  /* 2. 覆盖度：必须同时有加法题、减法题、应用题 */
+  const hasAdd = QUESTIONS.some(function(q){ return q.op === '+'; });
+  const hasSub = QUESTIONS.some(function(q){ return q.op === '−'; });
+  const hasApp = QUESTIONS.some(function(q){ return !!q.app; });
+  [[hasAdd,'有加法题'],[hasSub,'有减法题'],[hasApp,'有应用题']].forEach(function(t){
+    if(t[0]){ pass++; } else { fail++; lines.push('FAIL 缺少：' + t[1]); }
+  });
+
+  /* 3. 实验室：格子数必须是两个分母的最小公倍数，且盖住的格数必须是整数 */
+  LABS.forEach(function(L, i){
+    const real = lcmOf(L.a[1], L.b[1]);
+    const cA = coverCells(L.a, L.lcm), cB = coverCells(L.b, L.lcm);
+    const good = (L.lcm === real) && Number.isInteger(cA) && Number.isInteger(cB) && cA > 0 && cB > 0;
+    if(good){ pass++; } else { fail++; lines.push('FAIL 实验室' + (i+1) + ' 公分母/格数有误'); }
+    lines.push('实验室' + (i+1) + '：' + L.a.join('/') + ' ' + L.op + ' ' + L.b.join('/') +
+               ' → 公分母 ' + L.lcm + '；条1盖 ' + cA + ' 格，条2盖 ' + cB + ' 格');
+  });
+
+  /* 4. 逐题打印正确答案，人工可复核 */
+  QUESTIONS.forEach(function(q, i){
+    const right = q.options.filter(function(o){ return o.ok; })[0].f.join('/');
+    lines.push('Q' + (i+1) + ' [' + q.tag + '] ' + q.a.join('/') + ' ' + q.op + ' ' + q.b.join('/') +
+               ' = ' + right + '（选项 ' + q.options.length + ' 个，错因已绑定）');
+  });
+
+  const el = document.createElement('pre');
+  el.id = 'selftest';
+  el.textContent = 'SELFTEST_RESULT pass=' + pass + ' fail=' + fail + '\n' + lines.join('\n');
+  document.body.appendChild(el);
+}
+
+/* ===================== 启动 ===================== */
+renderLabTabs();
+renderLab();
+renderQuestion();
+if(location.search.indexOf('selftest') !== -1) runSelfTest();
+
+/* 测试钩子（审查 Agent 可注入调用） */
+window.__APP__ = {
+  QUESTIONS: QUESTIONS, LABS: LABS,
+  judge: judge, coverCells: coverCells, lcmOf: lcmOf, gcd: gcd,
+  labState: function(){ return {labIdx: labIdx, placed: placed.slice()}; },
+  place: function(bi){ autoPlace(bi); },
+  state: state, score: function(){ return score; }
+};
+</script>
+</body>
+</html>

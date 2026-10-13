@@ -1,0 +1,58 @@
+Chrome 已起，调试端口 5438
+打开 file:///D:/CAREER/AI%E7%AC%AC%E4%BA%8C%E6%9C%9F/%E8%AF%BE%E7%A8%8B%E4%BA%A7%E5%93%81%E7%9F%A9%E9%98%B5/AI%E6%B2%99%E9%BE%99-10%E6%9C%88/%E6%A8%AA%E5%88%80%E5%AE%9E%E6%88%98/%E8%BF%9B%E4%B8%80%E6%AD%A5%E5%A4%8D%E5%88%BB_%E5%B7%A5%E7%A8%8B/%E5%A4%8D%E5%88%BB%E4%BA%A7%E5%87%BA/%E7%BC%96%E7%A8%8B/%E6%A1%88%E4%BE%8B%E7%BC%96%E7%A8%8B-07_%E6%A6%9C%E5%8D%95%E7%AB%99/%E6%9C%80%E7%BB%88%E4%BA%A7%E7%89%A9/%E7%99%BD%E6%97%A0%E5%B8%B8%E8%AE%BE%E8%AE%A1%E7%BE%8E%E5%AD%A630skill%E6%A6%9C%E5%8D%95%E7%AB%99.html
+
+=== 0. 产物规模 ===
+  文件大小 1.34 MB
+  卡片 30 / 筛选按钮 7 / 预览图 30 / 复制按钮 30
+  外部资源引用（应为 0）：[]
+
+=== 1. 分类筛选核验 ===
+  all                显示 30 条 | 按钮标注 30 | 计数行 30 | 仅一类=true | OK
+  网页/UI 设计           显示 10 条 | 按钮标注 10 | 计数行 10 | 仅一类=true | OK
+  PPT/HTML Slides    显示  5 条 | 按钮标注 5 | 计数行 5 | 仅一类=true | OK
+  海报/图片生成            显示  5 条 | 按钮标注 5 | 计数行 5 | 仅一类=true | OK
+  品牌/设计系统            显示  4 条 | 按钮标注 4 | 计数行 4 | 仅一类=true | OK
+  简历/作品集             显示  5 条 | 按钮标注 5 | 计数行 5 | 仅一类=true | OK
+  真实人像/模特            显示  1 条 | 按钮标注 1 | 计数行 1 | 仅一类=true | OK
+  数据源分类合计：{"简历/作品集":5,"真实人像/模特":1,"海报/图片生成":5,"品牌/设计系统":4,"网页/UI 设计":10,"PPT/HTML Slides":5}（合计 30）
+  出图 filter-网页-UI 设计.png
+  出图 filter-PPT-HTML Slides.png
+  出图 filter-海报-图片生成.png
+
+=== 2. 复制按钮核验 ===
+  isSecureContext(file://) = true ；共点 30 个复制按钮
+  复制内容 === 卡片链接 === data-copy 且按钮变"已复制"：全部 30/30 通过
+  原生通道点击一例：{"label0":"复制链接","labelAfter":"复制链接","toastShown":true,"toastText":"链接已复制到剪贴板"}
+
+=== 3. 预览图加载核验 ===
+  30/30 张已解码（naturalWidth>0）；坏图：无
+  30 张全部是 data:image/ 内联：true
+  抽样：[{"alt":"Designer Portfolio Design Review 的预览图","w":760,"h":428},{"alt":"AI Image Generator for Real Portraits 的预览图","w":760,"h":428},{"alt":"Beautiful Designer Resume PDF 的预览图","w":760,"h":428}]
+  出图 desktop-1440-firstscreen.png
+  出图 desktop-1440-fullpage.png
+  出图 desktop-1440-cardbody.png
+  出图 desktop-1440-footer.png
+
+=== 4. 手机端 390×844 核验 ===
+  innerWidth 390 / scrollWidth 390 → 横向滚动：无
+  网格列：366px
+  正文 13.5px / 卡片标题 19px
+  复制按钮宽 302px，右边界 363（视口内=true）
+  筛选条可横滑：false（scrollWidth 366 vs clientWidth 366）
+  出图 mobile-390-firstscreen.png
+  出图 mobile-390-fullpage.png
+  出图 mobile-390-filtered.png
+  兜底 320px：scrollWidth 320 / innerWidth 320 → 无横滚
+
+=== 4b. 严格溢出判据（mobile:false + 摘掉 overflow-x:hidden）===
+  innerWidth 390 / doc.scrollWidth 390 → 390 下内容真装得下
+
+=== 汇总 ===
+  PASS  筛选生效（7 个按钮 × 可见条数 × 计数行）
+  PASS  复制可用（30/30 内容与链接一致 + 按钮反馈）
+  PASS  图片加载（30/30 解码成功且均为内联 data URI）
+  PASS  单文件无外链（0 个外部引用）
+  PASS  手机 390 不横滚（真机判据）
+  PASS  手机 390 不横滚（摘掉 overflow 后的严格判据）
+  PASS  手机 320 不横滚
+  总结论：全部通过

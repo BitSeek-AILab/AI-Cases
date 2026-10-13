@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>互动网站提示词库 76 条 · 案例库</title>
+<meta name="description" content="76 条提示词散在文档里搜不动，做成单文件工具页：边打字边搜、分类×标签叠筛、中英分别复制。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>编程场景</span><span class="sep">/</span><span>09</span>
+    </nav>
+    <h1>互动网站提示词库 76 条</h1>
+    <div class="readout">
+      <span><b>场景</b>编程</span>
+      <span><b>编号</b>09</span>
+      <span><b>形态</b>单文件 HTML</span>
+      <span><b>大小</b>248 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 案例编程-09 交互提示词库（编程网页 / CodexAI）</h1>
+<blockquote>依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<blockquote>出处：<code>案例清单.md</code> 编程-09 条目（所属材料 <strong>M6</strong> = <code>网站提示词【…】\interactive-website-prompts.html</code>）</blockquote>
+<blockquote>素材：成品 <code>interactive-website-prompts.html</code>（170,277 B）+ 已提取数据 <code>tmp_conv\prompts_extracted.json</code>（76 条）</blockquote>
+<hr>
+<h2>一、痛点原句（引用材料原文）</h2>
+<p><strong>位置1 · 成品页面的自述（原 <code>&lt;p class=&quot;subtitle&quot;&gt;</code>，逐字）：</strong></p>
+<blockquote>「面向 Codex、Gemini、v0、Claude Code、Cursor 等代码生成工具的中英双语 prompt。内容不是逐条搬运推特原文，而是根据 X、Codrops、Awwwards、Three.js、Globe.GL 等近一年热门交互形式做原创改写。」</blockquote>
+<p><strong>位置2 · 成品页面统计行的自述（逐字）：</strong></p>
+<blockquote>「提示：每条都可分别复制中文提示词或英文 prompt。」</blockquote>
+<p><strong>位置3 · 案例清单给出的痛点定位（编程-09 条目）：</strong></p>
+<blockquote><code>原文</code>（页面自述）「面向 Codex、Gemini、v0、Claude Code、Cursor 等代码生成工具的中英双语 prompt」「每条都可分别复制中文提示词或英文 prompt」</blockquote>
+<blockquote><strong>补全</strong>：收了 76 条提示词，<strong>散在文档里不好用</strong>——要搜、要按类筛、要一键复制中/英，用 Markdown 文档做不到。真正想要的是&quot;<strong>一个能搜能复制的小工具页</strong>&quot;。</blockquote>
+<p><strong>位置4 · 领域总纲（M5 结束语）：</strong></p>
+<blockquote>「作品比简历更快说话。先做出一个能被别人打开的东西。」</blockquote>
+<blockquote>「不要在旧赛道卷速度…把&quot;效率&quot;误当成&quot;机会&quot;」</blockquote>
+<h2>二、痛点主体</h2>
+<ul>
+<li><strong>谁</strong>：攒了一批提示词、想拿它们当&quot;工具箱&quot;用的人——本案例具体化为<strong>把这 76 条交互网站提示词整理成库的人</strong>（做内容/做课/做社群资料，写文档可以，但不会做小工具）。</li>
+<li><strong>场景</strong>：76 条中英双语提示词，每条带分类、适配模型、标签、来源说明。要<strong>在真写代码的时候边写边查</strong>——不是&quot;读一遍收藏起来&quot;，是&quot;现在要做一个滚动叙事页，把那一条捞出来粘进去&quot;。</li>
+<li><strong>交付对象</strong>：自己高频用 + 发给同组的人一起用。</li>
+</ul>
+<h2>三、旧做法的代价（绑定时长 / 动作量）</h2>
+<table><thead><tr><th>旧做法</th><th>具体代价（可核算）</th></tr></thead><tbody><tr><td>放在 Markdown / 文档里</td><td><strong>76 条 × 中英两份 = 152 段长文本</strong>。找&quot;哪条是滚动叙事的&quot;只能 <code>Ctrl+F</code> 一个个试词；文档里没法&quot;只看这一类&quot;，也<strong>没有&quot;复制这一段&quot;的按钮</strong>——只能拖鼠标从标题拖到段尾，76 条里挑错一次就白选。</td></tr><tr><td>复制中/英要来回切</td><td>中文那份是给&quot;我想说人话&quot;的时候用，英文那份是给&quot;我要喂给 Codex&quot;的时候用。<strong>散在文档里就是上下两段，很容易复制错一份</strong>。</td></tr><tr><td>原成品自身的缺陷（实测）</td><td>原页面虽然已经是个工具页，但它<strong>只渲染 55 / 76 条</strong>（脚本实测：<code>hiddenReferenceTitles</code> 里有 21 个标题命中数据源）——<strong>收藏进来的 21 条「参考复刻」被隐式藏掉了，搜不到、复制不到</strong>。&quot;收了却用不上&quot;是这个案例最具体的一层痛点。</td></tr><tr><td>原成品的另一处缺陷（实测）</td><td>分类与标签<strong>混在同一条 tab 里</strong>（判定条件 `item.category === activeTab \</td><td>\</td><td>item.tags.includes(activeTab)`）。点&quot;重 WebGL&quot;和点&quot;参考复刻&quot;看起来是同一个动作，语义不清；也无法&quot;在某一类里再按标签收窄&quot;。</td></tr></tbody></table>
+<p><strong>真正想要的结果</strong>：一个 HTML 文件，打开就能<strong>边打字边收敛</strong>、<strong>分类和标签能叠着筛</strong>、<strong>每条能分别复制中文或英文</strong>——不用配环境、不用联网、不用登录。</p>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<ol>
+<li><strong>能搜</strong>：输一个词（<code>Three.js</code> / <code>shader</code> / 看板 / 验收标准）立刻收敛，命中数实时显示。</li>
+<li><strong>能按类筛</strong>：3 个分类（纯交互动态 / 参考复刻 / Skill 模板）单选收敛。</li>
+<li><strong>能叠加筛</strong>：4 个高频标签（Codex/Gemini 通用、单 HTML 优先、重 WebGL、高风险/重性能）<strong>多选取交集</strong>，能和分类叠着用。</li>
+<li><strong>中英分别可复制</strong>：每条两个按钮，复制中文给一份<strong>完整可交付的指令</strong>（不只是那段摘要），复制英文给英文原文 + 标题。</li>
+<li><strong>76 条齐全</strong>：<strong>不做隐式过滤</strong>——收了就都要能搜到、能复制到。</li>
+<li><strong>移动端可用</strong>：390px 能读、不横向滚动。</li>
+</ol>
+<h2>五、【补全】</h2>
+<p>【补全】案例清单点出了&quot;要搜、要筛、要一键复制&quot;，但<strong>没讲透&quot;为什么值得解决&quot;</strong>，这里补三句：</p>
+<ul>
+<li><strong>提示词库的价值不在&quot;存了多少条&quot;，在&quot;要用的时候捞得出来&quot;。</strong> 152 段长文本躺在文档里，它是一份&quot;资料&quot;；能搜、能叠筛、能一键复制，它才是一个&quot;工具&quot;。<strong>这一步之差，决定了你写代码时会不会真的去用它</strong>——不会去用，收 76 条和收 7 条没区别。</li>
+<li><strong>&quot;复制中文&quot;必须是合成出来的，不能是&quot;顺手搬一段摘要&quot;。</strong> 实测发现两件事：① <code>promptZh</code>（用途摘要）长度 <strong>min 50 / 中位 84 / max 154 字符</strong>，而 <code>promptEn</code>（英文原文）是 <strong>min 63 / 中位 826 / max 2051 字符</strong>——<strong>中文那份只有英文的十分之一长</strong>，它只是&quot;用途摘要&quot;，不是&quot;能交出去的指令&quot;；② 英文原文里 <strong>29 条含 <code>Acceptance</code>/验收段落</strong>、<strong>74 条含 <code>[PLACEHOLDER]</code> 占位符</strong>。如果&quot;复制中文&quot;只给那 84 字符，用户拿到手还得自己补&quot;要做到什么程度&quot;&quot;哪里要替换&quot;——<strong>复制这件事就只完成了一半</strong>。所以本案例的中文那份是<strong>把结构化字段合成成一份五段式完整指令</strong>（用途 / 交互要做到 / 实现要求与降级 / 需替换的占位符 / 验收标准），这五段正好对上原成品页面自己列的那 6 条&quot;格式要求&quot;。</li>
+<li><strong>&quot;藏掉一批&quot;是最隐蔽的一种失效。</strong> 原成品藏 21 条大概是有理由的（&quot;参考复刻&quot;类可能被认为不够原创），但它藏的方式是<strong>静默的</strong>：用户不知道有 21 条不存在。<strong>一个库最不该做的事，就是让用户以为自己看到了全部。</strong> 所以复刻把&quot;76 条全渲染&quot;列成第一条要修的东西。</li>
+</ul>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>：用户要的是&quot;<strong>写代码的时候能立刻捞出对的那一条，并且粘得进对话框</strong>&quot;（结果导向）→ 所以做的是搜索 + 叠筛 + 精确复制，而不是&quot;整理得更整齐的文档&quot;。 ❌ 非&quot;工具理性&quot;：不是&quot;我有一份 76 条的文档所以找个网站把它贴上去&quot;。工具理性的陷阱在这里非常具体——<strong>去纠结&quot;要不要做个后端&quot;&quot;要不要上数据库&quot;&quot;用什么框架&quot;</strong>，而真正该先回答的是&quot;我要捞得多快、捞出来能不能直接用&quot;。</p>
+<h2>七、跨章线索</h2>
+<ul>
+<li>回扣第01章总纲（问答式 AI vs 能执行干活的 AI）：这里 AI 不是陪你讨论&quot;这个库该怎么分类&quot;，而是把 76 条灌进去、把搜索和复制真的做出来。</li>
+<li>呼应 M5「作品比简历更快说话」+「选一个发布——把输出放到真实环境里，反馈才会出现」：一个单文件工具页，比一份 Markdown 更容易被发出去、被真的用起来。</li>
+<li>呼应编程-12 交付自检（M4 P15 六条）：本案例验收点里的&quot;手机可读 / 交互完整 / 内容真实 / 能打开&quot;就是那六条的落地。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 一档：iframe 内嵌单文件 HTML（可交互） -->
+    <section class="stage tier-a">
+      <header class="stage-head">
+        <h2 class="k">产物 · 可直接交互</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases/bian-cheng-09/artifact/交互网站提示词库_76条.html" target="_blank" rel="noopener">新窗口打开 ↗</a>
+          <a class="btn-ghost" href="../assets/cases/bian-cheng-09/artifact/交互网站提示词库_76条.html" download>下载 HTML</a>
+        </div>
+      </header>
+      <div class="stage-frame">
+        <iframe src="../assets/cases/bian-cheng-09/artifact/交互网站提示词库_76条.html" title="互动网站提示词库 76 条 在线预览" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      <p class="stage-note">在框内直接交互，或点"新窗口打开"占满浏览器体验完整版。</p>
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">质检图</h2><span class="stage-note" style="border:0;padding:0">构建自核验截图，点击查看原图</span></header>
+      <div class="qc-grid">
+        <figure><a href="../assets/cases/bian-cheng-09/qc/desktop-1440-bottom.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/desktop-1440-bottom.png" alt="desktop 1440 bottom" loading="lazy" decoding="async"></a><figcaption>desktop 1440 bottom</figcaption></figure><figure><a href="../assets/cases/bian-cheng-09/qc/desktop-1440-cat-reference.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/desktop-1440-cat-reference.png" alt="desktop 1440 cat reference" loading="lazy" decoding="async"></a><figcaption>desktop 1440 cat reference</figcaption></figure><figure><a href="../assets/cases/bian-cheng-09/qc/desktop-1440-empty.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/desktop-1440-empty.png" alt="desktop 1440 empty" loading="lazy" decoding="async"></a><figcaption>desktop 1440 empty</figcaption></figure><figure><a href="../assets/cases/bian-cheng-09/qc/desktop-1440-expanded.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/desktop-1440-expanded.png" alt="desktop 1440 expanded" loading="lazy" decoding="async"></a><figcaption>desktop 1440 expanded</figcaption></figure><figure><a href="../assets/cases/bian-cheng-09/qc/desktop-1440-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/desktop-1440-firstscreen.png" alt="desktop 1440 firstscreen" loading="lazy" decoding="async"></a><figcaption>desktop 1440 firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-09/qc/desktop-1440-midpage.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/desktop-1440-midpage.png" alt="desktop 1440 midpage" loading="lazy" decoding="async"></a><figcaption>desktop 1440 midpage</figcaption></figure><figure><a href="../assets/cases/bian-cheng-09/qc/desktop-1440-search-shader.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/desktop-1440-search-shader.png" alt="desktop 1440 search shader" loading="lazy" decoding="async"></a><figcaption>desktop 1440 search shader</figcaption></figure><figure><a href="../assets/cases/bian-cheng-09/qc/desktop-1440-tag-webgl-active.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/desktop-1440-tag-webgl-active.png" alt="desktop 1440 tag webgl active" loading="lazy" decoding="async"></a><figcaption>desktop 1440 tag webgl active</figcaption></figure><figure><a href="../assets/cases/bian-cheng-09/qc/mobile-390-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/mobile-390-firstscreen.png" alt="mobile 390 firstscreen" loading="lazy" decoding="async"></a><figcaption>mobile 390 firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-09/qc/mobile-390-sheet.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-09/qc/mobile-390-sheet.png" alt="mobile 390 sheet" loading="lazy" decoding="async"></a><figcaption>mobile 390 sheet</figcaption></figure>
+      </div>
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/verify_library_log.txt" download><span>verify_library_log.txt</span><span class="sz">7 KB</span></a></li><li><a href="../assets/cases//artifact/交互网站提示词库_76条.html" download><span>交互网站提示词库_76条.html</span><span class="sz">248 KB</span></a></li><li><a href="../assets/cases//artifact/产物说明.md" download><span>产物说明.md</span><span class="sz">4 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>数据核对与结构设计<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>单文件实现<span class="stage-state">✓</span></li><li><span class="stage-no">3</span>功能与视觉核验<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/bian-cheng-09/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-09/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-09/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-09/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-09/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>教案框选即改（《春》导入段） · 案例库</title>
+<meta name="description" content="框住那一段、说一句改成什么样，只那段变、其余一字不动、格式不乱，还告诉你改了哪几处。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>教师场景</span><span class="sep">/</span><span>10-1</span>
+    </nav>
+    <h1>教案框选即改（《春》导入段）</h1>
+    <div class="readout">
+      <span><b>场景</b>教师</span>
+      <span><b>编号</b>10-1</span>
+      <span><b>形态</b>DOCX + 改动说明</span>
+      <span><b>大小</b>19 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 案例10-1 教案框选即改（人机双写·教案）</h1>
+<blockquote>依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<blockquote>出处：<code>手册Markdown/第10章/第10章.md</code>（场景一：人机双写·教案，框一段就改）</blockquote>
+<h2>一、痛点原句（引用手册原文）</h2>
+<p><strong>位置1 · 章首导入（第10章「框选即改，改完能发」开篇）：</strong></p>
+<blockquote>&quot;上一章，两次更新讲清楚了：人机双写管'怎么改'，资料库管'改完怎么存、怎么协作、怎么发'。这一章，把它们放进具体场景，一步一步跟做。你会看到：前面几章学的活，教案、成绩、课件、集体备课，加上这两个新功能之后，能省到什么程度。&quot;</blockquote>
+<p><strong>位置2 · 案例引入（第10章「场景一：人机双写·教案，框一段就改」）：</strong></p>
+<blockquote>&quot;先回到第06章那份《春》的教案。当时我们按'骨架-血肉-打磨'把教案写出来了。但你合上文档之后，下午又觉得'导入'那一段写得不够生动，想让学生一上课就进入状态。</blockquote>
+<blockquote><strong>以前，你得把整份教案贴回聊天框，告诉它改哪段，再复制回来。现在不用了。</strong>&quot;</blockquote>
+<p><strong>位置3 · 章末收束（这一章记住三件事 / 带走一句话）：</strong></p>
+<blockquote>&quot;人机双写=框选即改：先选中，点「AI编辑」，输指令。教案、成绩、课件，框到哪改到哪，改完可核对。&quot;</blockquote>
+<blockquote>&quot;AI 生成只是开始，会改、会存、会发，才是真的把AI 用进了一学期的每一天。&quot;</blockquote>
+<p><strong>位置4 · 章内提醒（场景一的&quot;一个提醒&quot;）：</strong></p>
+<blockquote>&quot;AI改的是表达，改不了事实。教案里的学情、课时、学校要求，框选的时候自己先看清楚，别让它把'40分钟'改成'45分钟'都不知道。&quot;</blockquote>
+<h2>二、痛点主体</h2>
+<ul>
+<li><strong>谁</strong>：七年级语文老师（本次复刻的具体身份；手册第06章原案例就是这位老师写的《春》教案）。</li>
+<li><strong>场景</strong>：第06章已按&quot;骨架—血肉—打磨&quot;产出《春》第一课时教案（Word）。<strong>合上文档之后、下午再看</strong>，觉得&quot;导入&quot;那一段写得不够生动，想让学生一上课就进入&quot;春天&quot;的状态。</li>
+</ul>
+<h2>三、旧做法的代价</h2>
+<ul>
+<li><strong>旧流程三步</strong>（手册原文）：① 把<strong>整份教案贴回聊天框</strong> → ② 告诉它改哪段 → ③ 再<strong>复制回来</strong>。</li>
+<li>代价被手册点名为：<strong>改一个小段落，要搬运整篇文档</strong>。教案不是一页纸（本案例是 4 页 A4、6 张表格），贴进聊天框会丢格式；复制回来又要重新排一遍，<strong>格式全乱</strong>。</li>
+<li>【补全】真正的成本不在&quot;AI 改写得好不好&quot;，而在<strong>往返搬运</strong>：格式会乱、容易粘错位置、改完还得逐段核对&quot;它有没有顺手改了我没让它改的地方&quot;。所以老师宁愿凑合着不改，或者干脆整篇重生成——<strong>&quot;改一小段&quot;这件事被成本挡住了</strong>。</li>
+</ul>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<ul>
+<li><strong>只改&quot;导入&quot;这一段</strong>，教案其他地方<strong>一个字不动</strong>，<strong>格式不乱</strong>。</li>
+<li>改完<strong>告诉老师改了哪几处</strong>（手册原文：&quot;改完还会告诉你改了哪几处&quot;）。</li>
+<li>导入改到什么程度算好（手册给的指令原文即验收口径）：<strong>&quot;改成更适合七年级学生的开场：具体到老师说什么、学生做什么，3分钟内让学生进入'春天'的状态。&quot;</strong></li>
+<li>一条红线（手册提醒）：<strong>AI 改的是表达，改不了事实</strong>——课时、学情、学校要求不许被改动。</li>
+</ul>
+<h2>五、【补全】</h2>
+<p>【补全】手册讲清了&quot;以前要贴回聊天框&quot;的烦，但没讲透&quot;为什么这一小改值得专门做一个功能&quot;：因为<strong>教案是&quot;越改越稳&quot;的东西</strong>——真实备课不是一次成型，而是&quot;出一版初稿 → 扫一遍 → 逐段精调&quot;。手册自己也写了&quot;进阶二：先出初稿，再选区精调……改的是段落，不是整篇重来，越改越稳&quot;。所以痛点不只是&quot;这一次改导入麻烦&quot;，而是<strong>&quot;逐段精调&quot;这个最常用的备课动作，被&quot;整篇搬运&quot;的成本堵死了</strong>。把&quot;选中即改&quot;做出来，等于把备课里最高频的一步从&quot;重来&quot;变成&quot;微调&quot;。</p>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>：老师要的是&quot;让学生一上课就进入春天状态&quot;这个<strong>教学效果</strong> → 所以要改导入段；改得动、改得准、其余不动，才敢在一份已定稿的教案上动手。 ❌ 非&quot;工具理性&quot;（不是为了&quot;我有个 Word 所以找个 AI 优化它&quot;）。</p>
+<h2>七、跨章线索</h2>
+<ul>
+<li>回扣第01章总纲：AI 不是陪你讨论&quot;导入该怎么写&quot;，而是<strong>直接在你打开的这份 docx 里，只把选中那一段改掉</strong>。</li>
+<li>回扣第06章：本案例的输入就是 06 章&quot;骨架→血肉→打磨&quot;的产物——第10章<strong>不推翻</strong>第06章的方法，只是在&quot;改&quot;这一步上提速（手册原文：&quot;新功能不改变前面的方法论&quot;）。</li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 二档：PDF embed + 预览画廊 + 下载（DOCX/XLSX 只给下载） -->
+    <section class="stage tier-b">
+      <header class="stage-head">
+        <h2 class="k">产物 · 在线预览</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases//artifact/《春》第一课时教案_导入已改.docx" download>下载 《春》第一课时教案_导入已改.docx</a><a class="btn-ghost" href="../assets/cases//artifact/改动说明.md" download>下载 改动说明.md</a>
+        </div>
+      </header>
+
+      
+      <div class="stage-pdf">
+        <embed src="../assets/cases/jiao-shi-10-1/artifact/after.pdf" type="application/pdf">
+        <p class="stage-note">浏览器不支持内嵌预览？<a href="../assets/cases/jiao-shi-10-1/artifact/after.pdf" download>点这里下载 PDF</a>。</p>
+      </div>
+      
+
+      
+
+      
+    </section>
+
+
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/《春》第一课时教案_导入已改.docx" download><span>《春》第一课时教案_导入已改.docx</span><span class="sz">19 KB</span></a></li><li><a href="../assets/cases//artifact/改动说明.md" download><span>改动说明.md</span><span class="sz">10 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>选中与改写<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>替换与校验<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/jiao-shi-10-1/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-1/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-1/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-1/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/jiao-shi-10-1/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>

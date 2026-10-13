@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>单文件瀑布流作品集 · 案例库</title>
+<meta name="description" content="长短不一的图片作品，两个单文件瀑布流版本 + 量化代价：图片自然下落、无对齐空洞、手机不横滚。">
+<style>
+:root{
+  --paper:#e8eae6; --paper-2:#f2f3f0; --card:#ffffff;
+  --ink:#1b1f1c; --ink-2:#2c322e; --graphite:#5a625c;
+  --rule:#c3c8c2; --signal:#1f6f4a; --signal-ink:#ffffff; --amber:#a8721a;
+  --shell:1400px;
+  --sans:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--signal);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block;max-width:100%}
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:var(--signal-ink);padding:8px 12px;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{max-width:var(--shell);margin:0 auto;padding:0 24px}
+
+/* ===== 案例页头（借编程-02 的 readout 数据条） ===== */
+.case-head{background:var(--card);border-bottom:1px solid var(--rule)}
+.case-head .shell{padding-top:22px;padding-bottom:24px}
+.crumb{font-family:var(--mono);font-size:.76rem;color:var(--graphite);margin-bottom:14px}
+.crumb a{color:var(--graphite)}
+.crumb a:hover{color:var(--signal)}
+.crumb .sep{margin:0 8px;color:var(--rule)}
+h1{margin:0;font-size:clamp(1.4rem,2.8vw,2rem);line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.readout{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;border:1px solid var(--rule);background:var(--paper-2)}
+.readout span{font-family:var(--mono);font-size:.76rem;color:var(--ink-2);padding:8px 14px;border-right:1px solid var(--rule)}
+.readout span:last-child{border-right:0}
+.readout b{color:var(--signal);font-weight:700;margin-right:5px}
+
+/* ===== 主布局：单栏叙事线（痛点→产物→过程） ===== */
+.case-main{max-width:960px;padding-top:24px;padding-bottom:64px}
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.k{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--graphite);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+
+/* 痛点详情区（放大突出） */
+.painstage{border-color:var(--signal);border-width:1px}
+.pain-head{background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.pain-head .k{color:var(--signal);margin:0;font-size:.8rem}
+.pain-body{padding:8px 22px 22px}
+.pain-brief blockquote{margin:0;padding:0 0 0 14px;border-left:4px solid var(--signal);color:var(--ink);font-size:1.02rem;line-height:1.7}
+.pain-brief .goal{margin:14px 0 0;font-size:.92rem;color:var(--graphite);border-top:1px solid var(--paper-2);padding-top:14px}
+.pain-brief .goal b{color:var(--signal)}
+/* 痛点卡渲染区（完整痛点卡 md） */
+.pain-full{font-size:.95rem;line-height:1.75}
+.pain-full h1{font-size:1.35rem;margin:.4em 0 .6em}
+.pain-full h2{font-size:1.12rem;margin:1.4em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.pain-full h3{font-size:1rem;margin:1.2em 0 .4em}
+.pain-full blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.pain-full table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.pain-full th,.pain-full td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.pain-full th{background:var(--paper-2)}
+
+/* 效果/产物区锚点 */
+.effect-anchor{padding-top:8px}
+.effect-k{font-size:.8rem;color:var(--signal);border-bottom:1px solid var(--rule);padding-bottom:8px}
+
+/* 过程区（收起为紧凑横排） */
+.process-wrap{padding:16px 18px}
+.process-wrap .stages{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:10px 24px}
+.process-wrap .stages li{display:flex;align-items:center;gap:9px;font-size:.86rem}
+.stage-no{font-family:var(--mono);font-weight:700;color:var(--signal);width:20px;height:20px;border:1px solid var(--signal);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;flex:none}
+.stage-state{font-family:var(--mono);font-size:.72rem;color:var(--signal)}
+.files-inline{display:flex;flex-wrap:wrap;gap:9px;align-items:center;border-top:1px solid var(--paper-2);padding-top:14px}
+.files-inline .k{margin:0}
+.doc-chip{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);padding:5px 11px;color:var(--ink-2)}
+.doc-chip:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+
+/* 右主区 */
+.case-body{display:flex;flex-direction:column;gap:24px;min-width:0}
+.stage{background:var(--card);border:1px solid var(--rule)}
+.stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.stage-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn-ghost{font-family:var(--mono);font-size:.74rem;border:1px solid var(--rule);background:var(--card);color:var(--ink-2);padding:6px 12px;cursor:pointer}
+.btn-ghost:hover{border-color:var(--signal);color:var(--signal);text-decoration:none}
+.stage-frame{padding:0;background:var(--paper-2)}
+.stage-frame iframe{display:block;width:100%;height:min(72vh,800px);border:0}
+.stage-pdf{padding:18px}
+.stage-pdf embed{display:block;width:100%;height:720px;border:1px solid var(--rule);background:#fff}
+.stage-note{padding:10px 18px;font-size:.8rem;color:var(--graphite);border-top:1px solid var(--paper-2);font-family:var(--mono)}
+.stage-imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.stage-imgs figure{margin:0;background:var(--card);padding:12px}
+.stage-imgs figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+
+/* 翻页画廊（办公-12 等） */
+.stage-gallery{display:flex;align-items:center;gap:12px;padding:18px}
+.gal-stage{flex:1;margin:0;min-width:0}
+.gal-stage img{width:100%;border:1px solid var(--rule)}
+.gal-stage figcaption{text-align:center;font-family:var(--mono);font-size:.74rem;color:var(--graphite);margin-top:10px}
+.gal-prev,.gal-next{flex:none;width:44px;height:64px;border:1px solid var(--rule);background:var(--card);font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.gal-prev:hover,.gal-next:hover{border-color:var(--signal);color:var(--signal)}
+.gal-thumbs{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 18px}
+.gal-thumbs img{width:96px;height:auto;border:1px solid var(--rule);cursor:pointer;opacity:.6}
+.gal-thumbs img.cur{border-color:var(--signal);opacity:1}
+
+/* MD 渲染区（三档） */
+.md-render{padding:8px 22px 22px;font-size:.95rem;line-height:1.75}
+.md-render h1{font-size:1.6rem;margin:1.2em 0 .5em}
+.md-render h2{font-size:1.25rem;margin:1.5em 0 .5em;padding-left:.6em;border-left:4px solid var(--signal)}
+.md-render h3{font-size:1.08rem;margin:1.3em 0 .4em}
+.md-render p{margin:.75em 0}
+.md-render ul,.md-render ol{padding-left:1.5em;margin:.75em 0}
+.md-render blockquote{margin:1em 0;padding:.1em 1em;border-left:3px solid var(--rule);color:var(--graphite);background:var(--paper-2)}
+.md-render code{font-family:var(--mono);font-size:.86em;background:var(--paper-2);padding:.1em .35em;border:1px solid var(--rule)}
+.md-render pre{background:#1b1f1c;color:#e8eae6;padding:13px 15px;overflow-x:auto}
+.md-render pre code{background:none;border:0;color:inherit;padding:0}
+.md-render table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.9em}
+.md-render th,.md-render td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+.md-render th{background:var(--paper-2)}
+.md-render img{margin:1em auto;border:1px solid var(--rule)}
+
+/* 质检画廊 + 下载 */
+.qc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border-top:1px solid var(--rule)}
+.qc-grid figure{margin:0;background:var(--card);padding:12px}
+.qc-grid img{border:1px solid var(--paper-2);cursor:zoom-in}
+.qc-grid figcaption{font-family:var(--mono);font-size:.7rem;color:var(--graphite);margin-top:8px}
+.dl-list{margin:0;padding:0 18px 18px;list-style:none}
+.dl-list li{border-bottom:1px solid var(--paper-2)}
+.dl-list li:last-child{border-bottom:0}
+.dl-list a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;font-size:.86rem}
+.dl-list .sz{font-family:var(--mono);font-size:.72rem;color:var(--graphite)}
+
+footer{border-top:1px solid var(--rule);background:var(--card)}
+footer .shell{padding-top:20px;padding-bottom:20px;font-family:var(--mono);font-size:.74rem;color:var(--graphite);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+@media (max-width:900px){
+  .case-main{max-width:100%}
+}
+@media (max-width:480px){
+  .shell{padding:0 16px}
+  .readout span{padding:7px 10px}
+  .pain-body{padding:8px 16px 16px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#artifact">跳到产物</a>
+
+<header class="case-head">
+  <div class="shell">
+    <nav class="crumb">
+      <a href="../index.html">案例库</a><span class="sep">/</span><span>编程场景</span><span class="sep">/</span><span>04</span>
+    </nav>
+    <h1>单文件瀑布流作品集</h1>
+    <div class="readout">
+      <span><b>场景</b>编程</span>
+      <span><b>编号</b>04</span>
+      <span><b>形态</b>单文件 HTML ×2</span>
+      <span><b>大小</b>101 KB</span>
+      <span><b>审查</b>独立审查通过</span>
+      <span><b>状态</b>已完成</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell case-main">
+  <article class="case-body" id="artifact">
+
+    <!-- 痛点详情区（V2 核心：先讲痛点，让人感同身受） -->
+    <section class="stage painstage">
+      <header class="stage-head pain-head">
+        <h2 class="k">这个痛点，是不是你</h2>
+      </header>
+      <div class="pain-body">
+        
+        <div class="md-render pain-full">
+<h1>痛点卡 · 案例编程-04 瀑布流作品集页（编程网页 / CodexAI）</h1>
+<blockquote>依据：<code>子Agent执行规范.md</code> 第〇节「痛点先行」+ 〇补「痛点提取细则」</blockquote>
+<blockquote>出处：<code>案例清单.md</code> 编程-04 条目（所属材料 <strong>M4</strong> = <code>CodexAI作品集\课程资料\codex网页制作教程\ppt\index.html</code> 的 <strong>P09 瀑布流专页</strong>）</blockquote>
+<blockquote>手册原文：<code>手册Markdown\CodexAI作品集\codex网页制作教程_网页笔记.md</code> → 第 47–50 行（第 03 段 · 交互与瀑布流）</blockquote>
+<hr>
+<h2>一、痛点原句（引用手册原文）</h2>
+<p><strong>位置1 · P09 瀑布流专页定义句（手册 47–50 行，逐字）：</strong></p>
+<blockquote>「<strong>P09 瀑布流</strong>：定义（卡片像水一样填满<strong>最短的列</strong>，普通网格每行对齐）、适用（图片社区、作品集、商品图集、灵感墙、案例库 —— &quot;图片多、长短不一&quot;）、实现（简单版 CSS <code>columns</code>；精确版用 JS 算每列高度）。」</blockquote>
+<p><strong>位置2 · P09 的三句展开（<code>案例清单.md</code> 编程-04 引用的原文）：</strong></p>
+<blockquote><code>原文</code>「瀑布流：卡片像水一样填满最短的列。普通网格每行对齐；瀑布流每张卡片高度不同，系统总是把新卡片放到当前最短的列里。」</blockquote>
+<blockquote><code>原文</code>「用在哪：图片社区、作品集、商品图集、灵感墙、案例库。内容&quot;图片多、长短不一&quot;时很适合。」</blockquote>
+<blockquote><code>原文</code>「怎么做：简单版可用 CSS columns；更精确的版式通常用 JS 计算每列高度，再决定卡片放哪一列。」</blockquote>
+<p><strong>位置3 · P08 交互的判据句（手册 49 行，本案例的&quot;交互&quot;验收锚点）：</strong></p>
+<blockquote>「<strong>&quot;交互是让用户知道'可以做、做完了、出错了'&quot;</strong>。」</blockquote>
+<blockquote>同页六种常见交互里，本案例直接对应其中三种：<strong>悬停反馈 / 加载状态 / 瀑布流</strong>。</blockquote>
+<p><strong>位置4 · 领域总纲（案例清单·领域三 开篇，M5 结束语）：</strong></p>
+<blockquote>「<strong>作品比简历更快说话。先做出一个能被别人打开的东西。</strong>」</blockquote>
+<h2>二、痛点主体</h2>
+<ul>
+<li><strong>谁</strong>：攒了一批长短不一的图片作品、想给自己做一页作品集的人——本案例具体化为<strong>一个视觉设计师 / 摄影师 / 插画师</strong>（做内容的人，<strong>能挑图、会审美，但不写前端</strong>）。</li>
+<li><strong>场景</strong>：手上有 <strong>20 件作品图（首屏 16 件）</strong>，<strong>长宽比从 0.52:1 到 1.79:1 都有</strong>（横的、竖的、方的混在一起，跨度 3.46 倍）。要把它们摆成一页能发出去的作品集。</li>
+<li><strong>交付对象</strong>：发给客户 / 贴在简历里 / 发到作品社区。<strong>&quot;别人打开就能看到作品&quot;是硬指标。</strong></li>
+</ul>
+<h2>三、旧做法的代价（绑定时长 / 动作量）</h2>
+<p>手册只点出了&quot;普通网格每行对齐、会很难看&quot;，没写具体代价。这里把代价<strong>量化出来</strong>（本案例已用脚本实测，见 <code>阶段1_素材与数据准备/产物/数据核对报告.txt</code>）：</p>
+<table><thead><tr><th>旧做法</th><th>具体代价（可核算）</th></tr></thead><tbody><tr><td><strong>普通网格（Grid / Flex 等宽卡片）</strong></td><td>每行以<strong>最高的那张</strong>为准 → 同一行里矮卡片下方<strong>必然留白</strong>。本案例首屏那 16 张图按 3 列普通网格排，实测<strong>空白合计 2,262px</strong>、<strong>占网格面积 23.3%</strong>（最夸张的一行：行高 788px，其中矮卡下方空 567px）。图越高矮差越大，空白越夸张。</td></tr><tr><td><strong>手工拖位置（设计工具里摆）</strong></td><td>要&quot;自然下落&quot;就得<strong>一张一张手动挪</strong>，挪到最后自己都对不齐；换一张图、加一张图，<strong>整版重排一遍</strong>。</td></tr><tr><td><strong>让它&quot;看着像瀑布流&quot;的假做法</strong></td><td><code>float:left</code> + 固定高度 / 把长图裁成同一高度 → <strong>裁掉作品本身</strong>（对作品集是致命的），或者用 <code>overflow:hidden</code> 把溢出藏起来，<strong>手机上直接崩</strong>（横滚变成缩视口）。</td></tr><tr><td><strong>不知道选哪种实现</strong></td><td>手册给了两条路（CSS <code>columns</code> / JS 算列高），但<strong>没说什么时候用哪条</strong>——于是要么用了 <code>columns</code> 被&quot;加载更多时整版乱跳&quot;坑到，要么为了个 20 件作品的页面去啃一段看不懂的 JS。</td></tr></tbody></table>
+<p><strong>真正想要的结果</strong>：图片<strong>自然下落、填最短的列</strong>，长短不一的图之间<strong>没有一行对齐留下的空洞</strong>；鼠标悬停有反馈、图多的时候有加载状态；手机上能看、不横滚——<strong>而且知道 CSS 版和 JS 版分别在什么时候该用哪一个。</strong></p>
+<h2>四、想要的目标（做到什么程度算&quot;解决好&quot;）</h2>
+<ol>
+<li><strong>真的自然下落</strong>：卡片高度<strong>明显不一</strong>（不是裁成一样高），新卡片<strong>落到当前最短的列</strong>里（可被脚本证明，不是&quot;看着像&quot;）。</li>
+<li><strong>无错位</strong>：卡片之间不重叠、不留&quot;对齐空洞&quot;；列与列的底部高度差在可接受范围内（本案例实测 ≤ 1 张最矮卡片）。</li>
+<li><strong>hover 有反馈</strong>：鼠标移上去看得出&quot;这张可以点&quot;（手册 P08 判据：&quot;让用户知道可以做&quot;）。</li>
+<li><strong>有加载状态</strong>：首屏有骨架/占位、图片逐张淡入、图多时有&quot;加载更多&quot;且<strong>加载中有明确状态</strong>（手册 P08 判据：&quot;让用户知道做完了 / 出错了&quot;）。</li>
+<li><strong>手机可读不横滚</strong>：390px 能读、图不裁、不横向滚动（&quot;发出去&quot;的主要场景就是别人用手机点开）。</li>
+<li><strong>两条实现路线都给出来，且说清边界</strong>：CSS <code>columns</code> 简单版 + JS 算列高精确版<strong>各一版</strong>，并明确&quot;什么时候用哪条&quot;。</li>
+</ol>
+<h2>五、【补全】</h2>
+<p>【补全】手册 P09 讲清了&quot;瀑布流是什么、用在哪、怎么实现&quot;，但<strong>没讲透&quot;为什么值得解决&quot;</strong>，也没讲<strong>两条路的代价差异</strong>。这里补三句：</p>
+<ul>
+<li><strong>痛点的实质不是&quot;不会写瀑布流&quot;，而是&quot;被普通网格的空白出卖了审美&quot;。</strong> 一个设计师挑出来的这 20 件作品，好坏先不说，<strong>排版本身就在扣分</strong>：长短不一的图被强行按行对齐，中间那一块块空白会让人一眼看出&quot;这是套了个模板&quot;。瀑布流的价值不是技术炫技，是<strong>让作品本身成为版面的节奏</strong>——这正是&quot;作品比简历更快说话&quot;能不能成立的前提。</li>
+<li><strong>两条实现路线不是&quot;简单版 / 高级版&quot;，是&quot;两种代价&quot;。</strong> 手册说&quot;简单版 CSS <code>columns</code>、精确版 JS 算列高&quot;，容易被理解成&quot;能上 JS 就上 JS&quot;。实际上：<code>columns</code> 的代价是<strong>内容顺序被拆成&quot;先填满第一列再填第二列&quot;</strong>，而且<strong>追加新内容时整版会重新平衡、卡片会跳</strong>（本案例实测：加 4 张图后 <strong>11/16 张旧卡片移动了位置</strong>）；JS 算列高的代价是<strong>多一段代码 + 要自己处理 resize</strong>，换来的是<strong>追加内容时旧卡片原地不动</strong>（实测：<strong>0/16 张移动</strong>）。所以选哪条，取决于&quot;这个页面会不会往下加东西&quot;。</li>
+<li><strong>&quot;加载状态&quot;在这个页面里不是锦上添花，是必需品。</strong> 瀑布流的卡片高度依赖图片的真实尺寸，图没加载完之前<strong>根本没有正确的高度可算</strong>。所以骨架屏 + 图片解码后淡入，不只是好看——它是在<strong>告诉用户&quot;还没好，别急着判断这版排得乱&quot;</strong>。这正好落回 P08 那句判据。</li>
+</ul>
+<p>—— 这也解释了为什么验收点里&quot;卡片高度不一&quot;要和&quot;填最短列&quot;绑在一起看：<strong>只有高度真的不一，&quot;填最短列&quot;才有意义</strong>；把图裁成一样高，瀑布流就退化成普通网格了。</p>
+<h2>六、价值归类</h2>
+<p>✅ <strong>目标导向</strong>：用户要的是&quot;<strong>一页能发出去、能让作品自己说话的作品集</strong>&quot;（结果：别人打开看到的是一版有节奏的排版，不是一堆对齐留白的格子）→ 所以先解决&quot;长短不一的图怎么自然下落&quot;，再谈 hover 和加载状态。 ❌ 非&quot;工具理性&quot;：不是&quot;我有 20 件作品所以找个组件把它们装进去&quot;。这条任务里最容易掉进去的工具理性陷阱非常具体——<strong>直接去 npm 找一个 masonry 库、或者照着某个现成的瀑布流 demo 抄一段看不懂的代码</strong>，而真正该先回答的是：&quot;这页会不会往下加东西？手机打开时这版还成不成立？&quot;</p>
+<h2>七、跨章线索</h2>
+<ul>
+<li>回扣第01章总纲（问答式 AI vs 能执行干活的 AI）：本案例里 AI 不是陪你讨论&quot;瀑布流用 column-count 还是 flex 好&quot;，而是<strong>把两版都能打开的文件直接做出来，并把两条路的代价量给你看</strong>。</li>
+<li>呼应 P08 六种交互（悬停反馈 / 加载状态 / 瀑布流）与那句判据&quot;交互是让用户知道'可以做、做完了、出错了'&quot;——本案例的验收点逐条对上了这三种交互。</li>
+<li>呼应 M4 <strong>P15 交付前五件事</strong>（内容真实 / 手机可读 / 交互完整 / 风格统一 / 授权清楚 / 能打开）——本案例验收点逐条覆盖（见 <code>任务卡.md</code>）。</li>
+<li>呼应 M5「作品比简历更快说话。先做出一个能被别人打开的东西」：<strong>一页能把 20 件长短不一的图摆好看的作品集，就是那个&quot;能被别人打开的东西&quot;。</strong></li>
+</ul>
+        </div>
+        
+        </div>
+        {{/if}}
+      </div>
+    </section>
+
+    <!-- 效果/产物区（三档壳） -->
+    <div class="effect-anchor">
+      <h2 class="k effect-k">AI 是怎么解决的</h2>
+    </div>
+    <!-- 一档：iframe 内嵌单文件 HTML（可交互） -->
+    <section class="stage tier-a">
+      <header class="stage-head">
+        <h2 class="k">产物 · 可直接交互</h2>
+        <div class="stage-actions">
+          <a class="btn-ghost" href="../assets/cases/bian-cheng-04/artifact/瀑布流作品集_CSScolumns版.html" target="_blank" rel="noopener">新窗口打开 ↗</a>
+          <a class="btn-ghost" href="../assets/cases/bian-cheng-04/artifact/瀑布流作品集_CSScolumns版.html" download>下载 HTML</a>
+        </div>
+      </header>
+      <div class="stage-frame">
+        <iframe src="../assets/cases/bian-cheng-04/artifact/瀑布流作品集_CSScolumns版.html" title="单文件瀑布流作品集 在线预览" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      <p class="stage-note">在框内直接交互，或点"新窗口打开"占满浏览器体验完整版。</p>
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">质检图</h2><span class="stage-note" style="border:0;padding:0">构建自核验截图，点击查看原图</span></header>
+      <div class="qc-grid">
+        <figure><a href="../assets/cases/bian-cheng-04/qc/css-00-skeleton.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/css-00-skeleton.png" alt="css 00 skeleton" loading="lazy" decoding="async"></a><figcaption>css 00 skeleton</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/css-01-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/css-01-firstscreen.png" alt="css 01 firstscreen" loading="lazy" decoding="async"></a><figcaption>css 01 firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/css-02-fullpage.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/css-02-fullpage.png" alt="css 02 fullpage" loading="lazy" decoding="async"></a><figcaption>css 02 fullpage</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/css-04-hover.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/css-04-hover.png" alt="css 04 hover" loading="lazy" decoding="async"></a><figcaption>css 04 hover</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/css-05-load-error.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/css-05-load-error.png" alt="css 05 load error" loading="lazy" decoding="async"></a><figcaption>css 05 load error</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/css-06-after-loadmore.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/css-06-after-loadmore.png" alt="css 06 after loadmore" loading="lazy" decoding="async"></a><figcaption>css 06 after loadmore</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/css-07-mid.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/css-07-mid.png" alt="css 07 mid" loading="lazy" decoding="async"></a><figcaption>css 07 mid</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/css-08-mobile-390-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/css-08-mobile-390-firstscreen.png" alt="css 08 mobile 390 firstscreen" loading="lazy" decoding="async"></a><figcaption>css 08 mobile 390 firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/css-09-mobile-390-fullpage.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/css-09-mobile-390-fullpage.png" alt="css 09 mobile 390 fullpage" loading="lazy" decoding="async"></a><figcaption>css 09 mobile 390 fullpage</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-00-skeleton.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-00-skeleton.png" alt="js 00 skeleton" loading="lazy" decoding="async"></a><figcaption>js 00 skeleton</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-01-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-01-firstscreen.png" alt="js 01 firstscreen" loading="lazy" decoding="async"></a><figcaption>js 01 firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-02-fullpage.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-02-fullpage.png" alt="js 02 fullpage" loading="lazy" decoding="async"></a><figcaption>js 02 fullpage</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-03-ruler.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-03-ruler.png" alt="js 03 ruler" loading="lazy" decoding="async"></a><figcaption>js 03 ruler</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-03b-ruler-fullpage.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-03b-ruler-fullpage.png" alt="js 03b ruler fullpage" loading="lazy" decoding="async"></a><figcaption>js 03b ruler fullpage</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-04-hover.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-04-hover.png" alt="js 04 hover" loading="lazy" decoding="async"></a><figcaption>js 04 hover</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-05-load-error.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-05-load-error.png" alt="js 05 load error" loading="lazy" decoding="async"></a><figcaption>js 05 load error</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-06-after-loadmore.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-06-after-loadmore.png" alt="js 06 after loadmore" loading="lazy" decoding="async"></a><figcaption>js 06 after loadmore</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-07-mid.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-07-mid.png" alt="js 07 mid" loading="lazy" decoding="async"></a><figcaption>js 07 mid</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-08-mobile-390-firstscreen.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-08-mobile-390-firstscreen.png" alt="js 08 mobile 390 firstscreen" loading="lazy" decoding="async"></a><figcaption>js 08 mobile 390 firstscreen</figcaption></figure><figure><a href="../assets/cases/bian-cheng-04/qc/js-09-mobile-390-fullpage.png" target="_blank" rel="noopener"><img src="../assets/cases/bian-cheng-04/qc/js-09-mobile-390-fullpage.png" alt="js 09 mobile 390 fullpage" loading="lazy" decoding="async"></a><figcaption>js 09 mobile 390 fullpage</figcaption></figure>
+      </div>
+    </section>
+
+
+
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">下载产物</h2></header>
+      <ul class="dl-list">
+        <li><a href="../assets/cases//artifact/console_errors_css.json" download><span>console_errors_css.json</span><span class="sz">260 B</span></a></li><li><a href="../assets/cases//artifact/console_errors_js.json" download><span>console_errors_js.json</span><span class="sz">259 B</span></a></li><li><a href="../assets/cases//artifact/verify_css.json" download><span>verify_css.json</span><span class="sz">5 KB</span></a></li><li><a href="../assets/cases//artifact/verify_js.json" download><span>verify_js.json</span><span class="sz">6 KB</span></a></li><li><a href="../assets/cases//artifact/verify_log.txt" download><span>verify_log.txt</span><span class="sz">11 KB</span></a></li><li><a href="../assets/cases//artifact/瀑布流作品集_CSScolumns版.html" download><span>瀑布流作品集_CSScolumns版.html</span><span class="sz">101 KB</span></a></li><li><a href="../assets/cases//artifact/瀑布流作品集_JS算高版.html" download><span>瀑布流作品集_JS算高版.html</span><span class="sz">103 KB</span></a></li>
+      </ul>
+    </section>
+
+
+    <!-- 实战过程 + 过程文档（收起到次要位置） -->
+    <section class="stage">
+      <header class="stage-head"><h2 class="k">实战过程</h2></header>
+      <div class="process-wrap">
+        <ol class="stages">
+          <li><span class="stage-no">1</span>素材与数据准备<span class="stage-state">✓</span></li><li><span class="stage-no">2</span>CSS columns 简单版<span class="stage-state">✓</span></li><li><span class="stage-no">3</span>JS 算高精确版<span class="stage-state">✓</span></li><li><span class="stage-no">4</span>功能与视觉核验<span class="stage-state">✓</span></li>
+        </ol>
+        <div class="files-inline">
+          <span class="k">过程文档</span>
+          <a class="doc-chip" href="../assets/cases/bian-cheng-04/docs/痛点卡.md" download>痛点卡.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-04/docs/任务卡.md" download>任务卡.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-04/docs/过程记录.md" download>过程记录.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-04/docs/自检表.md" download>自检表.md</a><a class="doc-chip" href="../assets/cases/bian-cheng-04/docs/讲课大纲.md" download>讲课大纲.md</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>← <a href="../index.html">返回案例库</a></span>
+    <span>AI 实战案例库 · 构建于 2026-10-12</span>
+  </div>
+</footer>
+
+<script>
+// 翻页画廊（若本页有）
+(function(){
+  var gal = document.querySelector('[data-gallery]');
+  if (!gal) return;
+  var imgs = JSON.parse(gal.getAttribute('data-images') || '[]');
+  if (!imgs.length) return;
+  var cur = 0;
+  var img = gal.querySelector('.gal-stage img');
+  var curEl = gal.querySelector('.gal-cur');
+  var thumbs = Array.prototype.slice.call(document.querySelectorAll('.gal-thumbs img'));
+  function show(i){
+    cur = (i + imgs.length) % imgs.length;
+    img.src = imgs[cur].src; img.alt = imgs[cur].cap;
+    curEl.textContent = (cur + 1);
+    thumbs.forEach(function(t, j){ t.classList.toggle('cur', j === cur); });
+  }
+  gal.querySelector('.gal-prev').addEventListener('click', function(){ show(cur - 1); });
+  gal.querySelector('.gal-next').addEventListener('click', function(){ show(cur + 1); });
+  thumbs.forEach(function(t, j){ t.addEventListener('click', function(){ show(j); }); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>
